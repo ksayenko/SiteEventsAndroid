@@ -1,14 +1,13 @@
 apply plugin: 'com.android.application'
-
 android {
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.honeywell.stdet"
+        applicationId "com.honeywell.stevents"
         minSdk 30
         targetSdk 32
         versionCode 1
-        versionName "1.2"
+        versionName "1.0"
     }
 
     buildTypes {
@@ -22,9 +21,9 @@ android {
             variant ->
                 variant.outputs.each{
                         // on below line we are setting a
-                        // name to our apk as STDET-Android.apk
+                        // name to our apk as SiteEvents-Android.apk
                     output->
-                        def name = "STDET-Android.apk"
+                        def name = "SiteEvents-Android.apk"
                         // on below line we are setting the
                         // outputFile Name to our apk file.
                         output.outputFileName = name

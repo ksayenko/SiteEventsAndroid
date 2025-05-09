@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.honeywell.stdet"
+    package="com.honeywell.stevents"
     android:requestLegacyExternalStorage="true"
     android:usesCleartextTraffic="true"
     android:versionCode="1"
-    android:versionName="1.3" >
+    android:versionName="1.0" >
 
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -28,7 +28,7 @@
 
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.honeywell.stevents.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
@@ -39,7 +39,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AutomaticBarcodeActivity"
+            android:name="com.honeywell.stevents.AutomaticBarcodeActivity"
             android:exported="true"
             android:label="@string/barcode"
             android:screenOrientation="portrait" >
@@ -50,7 +50,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ClientBarcodeActivity"
+            android:name="com.honeywell.stevents.ClientBarcodeActivity"
             android:exported="true"
             android:label="@string/barcode"
             android:screenOrientation="portrait" >
@@ -61,7 +61,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".StDetInputActivity"
+            android:name="com.honeywell.stevents.StDetInputActivity"
             android:exported="true"
             android:label="@string/barcode"
             android:screenOrientation="portrait" >
@@ -72,7 +72,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".StDetEditDataActivity"
+            android:name="com.honeywell.stevents.StDetEditDataActivity"
             android:exported="true"
             android:label="@string/EditData"
             android:screenOrientation="portrait" >
@@ -83,18 +83,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".StDetEditListActivity"
+            android:name="com.honeywell.stevents.StDetEditListActivity"
             android:exported="true"
             android:label="List Recent Readings"
             android:screenOrientation="portrait" >
             <intent-filter>
+                <action android:name="android.intent.action.STDETEDITLISTACTIVITY" />
                 <action android:name="android.intent.action.STDETEDITLISTACTIVITY" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.honeywell.stdet.StDet_LoginInfoActivity"
+            android:name=".StDet_LoginInfoActivity"
             android:label="@string/Login"
             android:screenOrientation="portrait"
             android:exported="true">
@@ -104,41 +105,7 @@
             </intent-filter>
         </activity>
 
-        <!--
-    <activity
-        android:name=".StDetEditListActivity1"
-        android:exported="true"
-        android:label="@string/Login"
-        android:screenOrientation="portrait" >
-        <intent-filter>
-            <action android:name="android.intent.action.STDETEDITLISTACTIVITY1" />
 
-            <category android:name="android.intent.category.DEFAULT" />
-        </intent-filter>
-    </activity>
-
-            <activity
-        android:name="com.honeywell.stdet.ClientBarcodeActivity2"
-        android:label="@string/barcode"
-        android:screenOrientation="portrait"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.CLIENTBARCODEACTIVITY2" />
-            <category android:name="android.intent.category.DEFAULT" />
-        </intent-filter>
-    </activity>
-    <activity
-        android:name="com.honeywell.stdet.ClientBarcodeActivity21"
-        android:label="@string/barcode"
-        android:screenOrientation="portrait"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.CLIENTBARCODEACTIVITY21" />
-
-            <category android:name="android.intent.category.DEFAULT" />
-        </intent-filter>
-    </activity>
-    -->
         <activity
             android:name=".ScannerSelectionBarcodeActivity"
             android:exported="true"
@@ -150,21 +117,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <!--
-        <activity
-            android:name="com.honeywell.stdet.ActivityWithFragment"
-            android:label="@string/title_activity_with_fragment"
-            android:parentActivityName="com.honeywell.stdet.MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.FRAGMENTACTIVITY" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.honeywell.stdet.MainActivity" />
-        </activity>
-        -->
         <activity
             android:name=".DownloadDataActivity"
             android:exported="true"
@@ -178,7 +131,7 @@
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.honeywell.stdet.MainActivity" />
+                android:value="com.honeywell.stevents.MainActivity" />
         </activity>
         <activity
             android:name=".ParseXMLAndUploadToDBActivity"
@@ -193,7 +146,7 @@
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.honeywell.stdet.MainActivity" />
+                android:value="com.honeywell.stevents.MainActivity" />
         </activity>
     </application>
 
