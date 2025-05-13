@@ -2,9 +2,8 @@ package com.honeywell.stevents;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.text.DecimalFormat;
 
-public class StdetDataTable  implements Serializable {
+public class AppDataTable implements Serializable {
 
     public TABLE_TYPE getTableType() {
         return table_type;
@@ -39,15 +38,15 @@ public class StdetDataTable  implements Serializable {
     private ArrayList<ArrayList<String>> dataTable;
 
 
-    public StdetDataTable() {
+    public AppDataTable() {
         this("NA");
     }
 
-    public StdetDataTable(String sname)  {
+    public AppDataTable(String sname)  {
         this(sname, TABLE_TYPE.LOOKUP);
     }
 
-    public StdetDataTable(String sname, TABLE_TYPE t) {
+    public AppDataTable(String sname, TABLE_TYPE t) {
 
         name = sname;
         ColumnNames = new ArrayList<>();

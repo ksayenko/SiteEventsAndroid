@@ -1,13 +1,10 @@
 package com.honeywell.stevents;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import java.io.File;
@@ -48,7 +45,7 @@ public class DownloadDataAsyncTask extends AsyncTask {
                         StdetFiles f = new StdetFiles(directoryApp);
                         //Looper.loop();
 
-                        StdetDataTables tables = cs.WS_GetALLDatasets();
+                        AppDataTables tables = cs.WS_GetALLDatasets();
                         dbHelper = new HandHeld_SQLiteOpenHelper(context, tables);
                         SQLiteDatabase db = dbHelper.getWritableDatabase();
                         dbHelper.getInsertFromTables(db);

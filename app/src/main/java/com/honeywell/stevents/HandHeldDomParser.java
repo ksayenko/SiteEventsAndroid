@@ -7,33 +7,19 @@ import java.util.ArrayList;
 public class HandHeldDomParser {
 
 
-    public static StdetDataTable XMLParse(String fullfilename, String filename) {
-        StdetDataTable data;
+    public static AppDataTable XMLParse(String fullfilename, String filename) {
+        AppDataTable data;
         String sName = "";
         String sValue = "";
         data = null;
-        if (filename.equalsIgnoreCase(CallSoapWS.ELEVATIONS + ".xml")) {
-            data = new Stdet_Elevations();
-        } else if (filename.equalsIgnoreCase(CallSoapWS.FACILITY + ".xml")) {
-            data = new Stdet_Facility();
-        } else if (filename.equalsIgnoreCase(CallSoapWS.DATA_COL_IDENT + ".xml")) {
-            data = new Stdet_Data_Col_Ident();
-        } else if (filename.equalsIgnoreCase(CallSoapWS.DCP_LOC_CHAR + ".xml")) {
-            data = new Stdet_DCP_Loc_Char();
-        } else if (filename.equalsIgnoreCase(CallSoapWS.DCP_LOC_DEF + ".xml")) {
-            data = new Stdet_DCP_Loc_Def();
-        } else if (filename.equalsIgnoreCase(CallSoapWS.ELEVATIONCODES + ".xml")) {
-            data = new Stdet_Elevation_Codes();
-        } else if (filename.equalsIgnoreCase(CallSoapWS.EQUIP_OPER_DEF + ".xml")) {
-            data = new Stdet_Equip_Oper_Def();
-        } else if (filename.equalsIgnoreCase(CallSoapWS.TABLEVERS + ".xml")) {
-            data = new Stdet_TableVers();
-        } else if (filename.equalsIgnoreCase(CallSoapWS.FAC_OPER_DEF + ".xml")) {
-            data = new Stdet_Fac_Oper_Def();
-        } else if (filename.equalsIgnoreCase(CallSoapWS.UNIT_DEF + ".xml")) {
-            data = new Stdet_Unit_Def();
+        if (filename.equalsIgnoreCase(CallSoapWS.USERS + ".xml")) {
+            data = new DataTable_Users();
+        } else if (filename.equalsIgnoreCase(CallSoapWS.EQUIP_IDENT     + ".xml")) {
+            data = new DataTable_Equip_Ident();
+        } else if (filename.equalsIgnoreCase(CallSoapWS.SITE_EVENT_DEF + ".xml")) {
+            data = new DataTable_Site_Event_Def();
         } else
-            data = new StdetDataTable();
+            data = new AppDataTable();
 
         int nRows = 0;
         int nCols = 0;

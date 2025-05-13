@@ -595,7 +595,7 @@ public class AutomaticBarcodeActivity extends Activity implements BarcodeReader.
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // get bar code instance from MainActivity
-        barcodeReader = MainActivity.getBarcodeObject();
+        barcodeReader = Activity_Main.getBarcodeObject();
 
         if (barcodeReader != null) {
 

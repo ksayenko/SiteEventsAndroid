@@ -7,8 +7,6 @@ import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.text.method.HideReturnsTransformationMethod;
-import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -28,7 +26,7 @@ public class StDet_LoginInfoActivity extends Activity {
     Button btnLogout;
     CallSoapWS soap;
 
-    Stdet_LoginInfo loginInfo = new Stdet_LoginInfo();
+    DataTable_LoginInfo loginInfo = new DataTable_LoginInfo();
     public HandHeld_SQLiteOpenHelper dbHelper;
     public SQLiteDatabase db;
     Context ct = this;
@@ -41,7 +39,7 @@ public class StDet_LoginInfoActivity extends Activity {
 
         setContentView(R.layout.activity_login);
         //---------------
-        StdetDataTables tables = new StdetDataTables();
+        AppDataTables tables = new AppDataTables();
         tables.SetStdetTablesStructure();
 
         dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);

@@ -1,6 +1,5 @@
 package com.honeywell.stevents;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -51,7 +50,7 @@ import java.util.concurrent.Executors;
             StdetFiles f = new StdetFiles(directoryApp);
             //Looper.loop();
 
-            StdetDataTables tables = f.ReadXMLToSTDETables();
+            AppDataTables tables = f.ReadXMLToSTDETables();
             dbHelper = new HandHeld_SQLiteOpenHelper(context, tables);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             ExecutorService es
@@ -153,37 +152,21 @@ import java.util.concurrent.Executors;
                 StdetFiles f = new StdetFiles(directoryApp);
                 //Looper.loop();
 
-                StdetDataTables tables = new StdetDataTables();
+                AppDataTables tables = new AppDataTables();
                 try {
 
                     if (!directoryApp.exists())
                         directoryApp.mkdir();
 
 
-                    tables.AddStdetDataTable(new Stdet_Inst_Readings());
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.UNIT_DEF + ".xml"));
-
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.FACILITY + ".xml"));
+                    tables.AddStdetDataTable(new DataTable_SiteEvent());
+                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml"));
+                    publishProgress(new Integer[]{1});
+                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + ".xml"));                    publishProgress(new Integer[]{2});
                     publishProgress(new Integer[]{2});
-
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_COL_IDENT + ".xml"));
+                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml"));
                     publishProgress(new Integer[]{3});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.ELEVATIONS + ".xml"));
-                    publishProgress(new Integer[]{4});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DCP_LOC_CHAR + ".xml"));
-                    publishProgress(new Integer[]{5});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DCP_LOC_DEF + ".xml"));
-                    publishProgress(new Integer[]{6});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_OPER_DEF + ".xml"));
-                    publishProgress(new Integer[]{7});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.FAC_OPER_DEF + ".xml"));
-                    publishProgress(new Integer[]{8});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.TABLEVERS + ".xml"));
-                    publishProgress(new Integer[]{9});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.ELEVATIONCODES + ".xml"));
-                    publishProgress(new Integer[]{10});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_OPER_DEF + ".xml"));
-                    publishProgress(new Integer[]{11});
+
 
                 } catch (Exception exception) {
                     exception.printStackTrace();
@@ -215,7 +198,7 @@ import java.util.concurrent.Executors;
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
+            setContentView(R.layout.activity_se_main);
             directoryApp =getFilesDir();
 
             //Button btnDownloadData=(Button)findViewById(R.id.btnDownloadData);
@@ -234,7 +217,7 @@ import java.util.concurrent.Executors;
             try
             {
                 String resp=cs.WS_GetServerDate(true);
-                StdetDataTables tables= cs.WS_GetALLDatasets();
+                AppDataTables tables= cs.WS_GetALLDatasets();
                 dbHelper =  new HandHeld_SQLiteOpenHelper(context,tables);
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
                 dbHelper.getInsertFromTables(db);

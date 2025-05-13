@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,9 +37,9 @@ public class ParseXMLAndUploadToDBThread{
         directoryApp = context.getFilesDir();
         txtInfo =    (TextView) activity. findViewById(R.id.txtInfo);
         progressBar = (ProgressBar) activity. findViewById(R.id.progressBar);
-        btnInputForms = (Button) activity.findViewById(R.id.btnInputForms);
-        btnUploadDataToServer = (Button) activity.findViewById(R.id.buttonUploadReadings);
-        btnReviewForms = (Button) activity.findViewById(R.id.buttonReviewReadings);
+        btnInputForms = (Button) activity.findViewById(R.id.btnInputSEs);
+        btnUploadDataToServer = (Button) activity.findViewById(R.id.btnUploadSEs);
+        btnReviewForms = (Button) activity.findViewById(R.id.btnEditSEs);
         txtInfo.setText(" Start");
         bDownloadFromWS = _bDownloadFromWS;
 
@@ -169,7 +168,7 @@ public class ParseXMLAndUploadToDBThread{
         System.out.println("Starting doInBackground");
         StdetFiles f = new StdetFiles(directoryApp);
         System.out.println("Starting new StdetFiles(directoryApp);");
-        StdetDataTables tables;// = f.ReadXMLToSTDETables();
+        AppDataTables tables;// = f.ReadXMLToSTDETables();
 
 
         //final AlertDialog ad = new AlertDialog.Builder(context).create();
@@ -211,45 +210,23 @@ public class ParseXMLAndUploadToDBThread{
                     }
                 }
             }
-            dbHelper = new HandHeld_SQLiteOpenHelper(context, new StdetDataTables());
+            dbHelper = new HandHeld_SQLiteOpenHelper(context, new AppDataTables());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            tables = new StdetDataTables();//f.ReadXMLToSTDETables();
+            tables = new AppDataTables();//f.ReadXMLToSTDETables();
 
             try {
 
-                tables.AddStdetDataTable(new Stdet_Inst_Readings());
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.UNIT_DEF + ".xml"));
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.UNIT_DEF + " is reading to memory ");
+                tables.AddStdetDataTable(new DataTable_SiteEvent());
+                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml"));
+                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.USERS + " is reading to memory ");
                 publishProgressBar(1);
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.FACILITY + ".xml"));
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.FACILITY + " is reading to memory ");
+                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml"));
+                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.EQUIP_IDENT + " is reading to memory ");
                 publishProgressBar(2);
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_COL_IDENT + ".xml"));
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.DATA_COL_IDENT + " is reading to memory ");
+                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + ".xml"));
+                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + " is reading to memory ");
                 publishProgressBar(3);
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.ELEVATIONS + ".xml"));
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.ELEVATIONS + " is reading to memory ");
-                publishProgressBar(4);
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DCP_LOC_CHAR + ".xml"));
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.DCP_LOC_CHAR + " is reading to memory");
-                publishProgressBar(5);
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DCP_LOC_DEF + ".xml"));
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.DCP_LOC_DEF + " is reading to memory ");
-                publishProgressBar(6);
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_OPER_DEF + ".xml"));
-                publishProgressBar(7);
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.EQUIP_OPER_DEF + " is reading to memory ");
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.FAC_OPER_DEF + ".xml"));
-                publishProgressBar(8);
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.FAC_OPER_DEF + " is reading to memory ");
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.TABLEVERS + ".xml"));
-                publishProgressBar(9);
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.TABLEVERS + " is reading to memory ");
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.ELEVATIONCODES + ".xml"));
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.ELEVATIONCODES + " is reading to memory ");
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_OPER_DEF + ".xml"));
-                publishProgressBar(10);
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.EQUIP_OPER_DEF + " is reading to memory ");
+
 
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -273,7 +250,7 @@ public class ParseXMLAndUploadToDBThread{
                     publishProgressTextView("Inserting Data for table " + String.valueOf(i + 1) + ": " + tbName);
                     System.out.println("In getInsertFromTables " + String.valueOf(i) + " " + tbName);
                     if (!tbName.equalsIgnoreCase("NA")
-                            && tables.getDataTables().get(i).getTableType() == StdetDataTable.TABLE_TYPE.LOOKUP) {
+                            && tables.getDataTables().get(i).getTableType() == AppDataTable.TABLE_TYPE.LOOKUP) {
                         dbHelper.getInsertFromTable(db, tables.getDataTables().get(i));
 
                     }

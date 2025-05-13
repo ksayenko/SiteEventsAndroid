@@ -5,9 +5,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.app.AlertDialog;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 
 import java.io.File;
 
@@ -23,7 +20,7 @@ Context ct = this;
 @Override
 public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_se_main);
         directoryApp =getFilesDir();
 
         //Button btnDownloadData=(Button)findViewById(R.id.btnDownloadData);
@@ -42,7 +39,7 @@ final  AlertDialog ad=new AlertDialog.Builder(this).create();
         try
         {
                 String resp=cs.WS_GetServerDate(true);
-                StdetDataTables tables= cs.WS_GetALLDatasets();
+                AppDataTables tables= cs.WS_GetALLDatasets();
                 dbHelper =  new HandHeld_SQLiteOpenHelper(ct,tables);
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
                 dbHelper.getInsertFromTables(db);

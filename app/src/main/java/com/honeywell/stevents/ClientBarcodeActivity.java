@@ -39,7 +39,7 @@ public class ClientBarcodeActivity extends Activity implements BarcodeReader.Bar
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // get bar code instance from MainActivity
-        barcodeReader = MainActivity.getBarcodeObject();
+        barcodeReader = Activity_Main.getBarcodeObject();
 
         if (barcodeReader != null) {
 

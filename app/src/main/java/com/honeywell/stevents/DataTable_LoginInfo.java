@@ -2,14 +2,14 @@ package com.honeywell.stevents;
 
 import java.util.ArrayList;
 
-public class Stdet_LoginInfo extends StdetDataTable {
+public class DataTable_LoginInfo extends AppDataTable {
 
     public static final String UserName="UserName";
     public static final String Password="Password";
 
 
 
-    public Stdet_LoginInfo(){
+    public DataTable_LoginInfo(){
         super(HandHeld_SQLiteOpenHelper.LOGININFO);
 
         this.setTableType(TABLE_TYPE.SYSTEM);

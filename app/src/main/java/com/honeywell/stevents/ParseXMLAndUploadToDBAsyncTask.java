@@ -47,7 +47,7 @@
             StdetFiles f = new StdetFiles(directoryApp);
             //Looper.loop();
 
-            StdetDataTables tables = f.ReadXMLToSTDETables();
+            AppDataTables tables = f.ReadXMLToSTDETables();
             dbHelper = new HandHeld_SQLiteOpenHelper(context, tables);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             dbHelper.getInsertFromTables(db);
@@ -64,37 +64,20 @@
                 StdetFiles f = new StdetFiles(directoryApp);
                 //Looper.loop();
 
-                StdetDataTables tables = new StdetDataTables();
+                AppDataTables tables = new AppDataTables();
                 try {
 
                     if (!directoryApp.exists())
                         directoryApp.mkdir();
 
 
-                    tables.AddStdetDataTable(new Stdet_Inst_Readings());
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.UNIT_DEF + ".xml"));
+                    tables.AddStdetDataTable(new DataTable_SiteEvent());
+                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml"));
 
                     publishProgress(1);
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.FACILITY + ".xml"));
+                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml"));
                     publishProgress(2);
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_COL_IDENT + ".xml"));
-                    publishProgress(3);
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.ELEVATIONS + ".xml"));
-                    publishProgress(4);
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DCP_LOC_CHAR + ".xml"));
-                    publishProgress(5);
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DCP_LOC_DEF + ".xml"));
-                    publishProgress(6);
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_OPER_DEF + ".xml"));
-                    publishProgress(7);
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.FAC_OPER_DEF + ".xml"));
-                    publishProgress(8);
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.TABLEVERS + ".xml"));
-                    publishProgress(9);
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.ELEVATIONCODES + ".xml"));
-                    publishProgress(10);
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_OPER_DEF + ".xml"));
-                    publishProgress(11);
+                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + ".xml"));
 
                 } catch (Exception exception) {
                     exception.printStackTrace();

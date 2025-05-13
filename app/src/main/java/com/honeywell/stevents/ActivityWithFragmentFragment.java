@@ -42,7 +42,7 @@ public class ActivityWithFragmentFragment extends Fragment implements BarcodeRea
                              Bundle savedInstanceState) {
 
         // get bar code instance from MainActivity
-        barcodeReader = MainActivity.getBarcodeObject();
+        barcodeReader = Activity_Main.getBarcodeObject();
 
         if (barcodeReader != null) {
 

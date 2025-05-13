@@ -1,8 +1,6 @@
 package com.honeywell.stevents;
 
 
-import android.app.Activity;
-
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.File;
@@ -12,7 +10,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import android.util.Xml;
-import android.view.View;
 
 public class StdetFiles  {
 
@@ -67,9 +64,9 @@ public class StdetFiles  {
         return true;
     }
 
-    public StdetDataTable WriteXMLDataAndCreateSTDETable(String data, String filename) {
+    public AppDataTable WriteXMLDataAndCreateSTDETable(String data, String filename) {
         File newXml = null;
-        StdetDataTable table = null;
+        AppDataTable table = null;
 
         try {
 
@@ -127,7 +124,7 @@ public class StdetFiles  {
 
     public void WriteXMLData(String data, String filename) {
         File newXml = null;
-        StdetDataTable table = null;
+        AppDataTable table = null;
 
         try {
 
@@ -182,9 +179,9 @@ public class StdetFiles  {
 
     }
 
-    public StdetDataTable ReadXMLToSTDETable(String filename) {
+    public AppDataTable ReadXMLToSTDETable(String filename) {
         File newXml = null;
-        StdetDataTable table = null;
+        AppDataTable table = null;
 
         try {
 
@@ -214,9 +211,9 @@ public class StdetFiles  {
         return table;
     }
 
-    public StdetDataTables ReadXMLToSTDETables() {
+    public AppDataTables ReadXMLToSTDETables() {
         File newXml = null;
-        StdetDataTables tables = new StdetDataTables();
+        AppDataTables tables = new AppDataTables();
 
         try {
 
@@ -224,18 +221,12 @@ public class StdetFiles  {
                 directoryApp.mkdir();
 
 
-            tables.AddStdetDataTable(new Stdet_Inst_Readings());
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.UNIT_DEF + ".xml"));
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.FACILITY + ".xml"));
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_COL_IDENT + ".xml"));
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.ELEVATIONS + ".xml"));
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DCP_LOC_CHAR + ".xml"));
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DCP_LOC_DEF + ".xml"));
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_OPER_DEF + ".xml"));
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.FAC_OPER_DEF + ".xml"));
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.TABLEVERS + ".xml"));
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.ELEVATIONCODES + ".xml"));
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_OPER_DEF + ".xml"));
+            tables.AddStdetDataTable(new DataTable_SiteEvent());
+            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml"));
+            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml"));
+            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml"));
+            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + ".xml"));
+
         } catch (Exception exception) {
             exception.printStackTrace();
             System.out.println(exception.toString());

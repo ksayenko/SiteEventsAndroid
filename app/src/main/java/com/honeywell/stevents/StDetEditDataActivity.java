@@ -125,7 +125,7 @@ public class StDetEditDataActivity extends Activity {
         setContentView(R.layout.activity_edit_forms);
 
         //((TextView)findViewById(R.id.txtActivityTitle)).setText("Input Form");
-        StdetDataTables tables = new StdetDataTables();
+        AppDataTables tables = new AppDataTables();
         tables.SetStdetTablesStructure();
 
         dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
@@ -136,28 +136,28 @@ public class StDetEditDataActivity extends Activity {
             AlertDialogShow("The Lookup Tables aren't populated, go to Menu | Download and Populate Lookup DB","ERROR!");
         }
 
-        Units = dbHelper.getUnits(db, "");
-        alUnits = transferCursorToArrayList(Units);
-
-        Eq_Oper_Status = dbHelper.getEOS(db);
-        alEq_Oper_Status = transferCursorToArrayList(Eq_Oper_Status);
-        Fac_Oper_Status = dbHelper.getFOS(db);
-        alFac_Oper_Status = transferCursorToArrayList(Fac_Oper_Status);
-        Elev = dbHelper.getElevationCodes(db);
+//        Units = dbHelper.getUnits(db, "");
+//        alUnits = transferCursorToArrayList(Units);
+//
+//        Eq_Oper_Status = dbHelper.getEOS(db);
+//        alEq_Oper_Status = transferCursorToArrayList(Eq_Oper_Status);
+//        Fac_Oper_Status = dbHelper.getFOS(db);
+//        alFac_Oper_Status = transferCursorToArrayList(Fac_Oper_Status);
+//        Elev = dbHelper.getElevationCodes(db);
         alElev = transferCursorToArrayList(Elev);
 
-        txt_COL_ID = (TextView) findViewById(R.id.txt_COL_ID);
-        txt_Loc_id = (TextView) findViewById(R.id.txt_Loc_id);
-        txt_DateTime = (TextView) findViewById(R.id.txt_date);
-        spin_FAC_OP = (Spinner) findViewById(R.id.spin_Fac_oper);
-        spin_UNITS = (Spinner) findViewById(R.id.spin_Unit);
-        spin_EQ_OP = (Spinner) findViewById(R.id.spin_Eq_oper);
-        txt_elev_code2 = (TextView) findViewById(R.id.lbl_elev_code_desc);
-        spin_elev_code = (Spinner) findViewById(R.id.spin_elev_code);
-        edit_depth = (EditText) findViewById(R.id.text_depth);
-        edit_depth.setEnabled(false);
-        txt_Reading = (EditText) findViewById(R.id.txt_Reading);
-        txt_Reading.requestFocus();
+//        txt_COL_ID = (TextView) findViewById(R.id.txt_COL_ID);
+//        txt_Loc_id = (TextView) findViewById(R.id.txt_Loc_id);
+//        txt_DateTime = (TextView) findViewById(R.id.txt_date);
+//        spin_FAC_OP = (Spinner) findViewById(R.id.spin_Fac_oper);
+//        spin_UNITS = (Spinner) findViewById(R.id.spin_Unit);
+//        spin_EQ_OP = (Spinner) findViewById(R.id.spin_Eq_oper);
+//        txt_elev_code2 = (TextView) findViewById(R.id.lbl_elev_code_desc);
+//        spin_elev_code = (Spinner) findViewById(R.id.spin_elev_code);
+//        edit_depth = (EditText) findViewById(R.id.text_depth);
+//        edit_depth.setEnabled(false);
+//        txt_Reading = (EditText) findViewById(R.id.txt_Reading);
+//        txt_Reading.requestFocus();
         txt_Reading.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -183,23 +183,23 @@ public class StDetEditDataActivity extends Activity {
                 System.out.println(" btnUpdate.setOnClickListener " + bAcceptWarning);
                 Validation iChecked = saveForms(bAcceptWarning);
 
-                if (iChecked.isWarning())
-                    bAcceptWarning = true;
-                else if (iChecked.isValid()||
-                        (bAcceptWarning && iChecked.isWarning()) ) {
-                    dbHelper.getUpdateReading(db, input_reading);
+//                if (iChecked.isWarning())
+//                    bAcceptWarning = true;
+//                else if (iChecked.isValid()||
+//                        (bAcceptWarning && iChecked.isWarning()) ) {
+//                    dbHelper.getUpdateReading(db, input_reading);
 
-                    AlertDialog.Builder alert = new AlertDialog.Builder(ct);
-                    alert.setTitle("Success!");
-                    alert.setMessage("The Record got Updated for location " + input_reading.getStrD_Loc_ID());
-                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    });
-                    alert.show();
-                }
+//                    AlertDialog.Builder alert = new AlertDialog.Builder(ct);
+//                    alert.setTitle("Success!");
+//                    alert.setMessage("The Record got Updated for location " + input_reading.getStrD_Loc_ID());
+//                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            finish();
+//                        }
+//                    });
+//                    alert.show();
+//                }
                 System.out.println(bAcceptWarning);
                 System.out.println(iChecked);
             }
@@ -221,9 +221,9 @@ public class StDetEditDataActivity extends Activity {
                 TextView temp = (TextView) spin_elev_code.getSelectedView();
                 curent_elevationcode = temp.getText().toString();
                 //bAcceptWarning = false;
-                String[] elev_code_value = dbHelper.getElevationCodeValue(db, current_loc, curent_elevationcode);
-                if (elev_code_value != null && elev_code_value[1] != null)
-                    edit_depth.setText(elev_code_value[1]);
+//                String[] elev_code_value = dbHelper.getElevationCodeValue(db, current_loc, curent_elevationcode);
+//                if (elev_code_value != null && elev_code_value[1] != null)
+//                    edit_depth.setText(elev_code_value[1]);
             }
 
 
@@ -232,43 +232,43 @@ public class StDetEditDataActivity extends Activity {
         });
 
         int[] toL = new int[]{android.R.id.text1};
-        String[] fromFO = new String[]{Stdet_Fac_Oper_Def.strFO_StatusID};
-        String[] fromEO = new String[]{Stdet_Equip_Oper_Def.strEqO_StatusID};
-        String[] fromU = new String[]{Stdet_Unit_Def.strUnitsID};
-        String[] fromEl = new String[]{Stdet_Elevation_Codes.elev_code};
+//        String[] fromFO = new String[]{DataTable_Fac_Oper_Def.strFO_StatusID};
+//        String[] fromEO = new String[]{DataTable_Equip_Ident.strEqO_StatusID};
+//        String[] fromU = new String[]{App_Unit_Def.strUnitsID};
+//        String[] fromEl = new String[]{DataTable_Elevation_Codes.elev_code};
 
-      txt_Loc_id.setText(current_loc);
-      txt_COL_ID.setText(current_collector);
-      txt_DateTime.setText(input_reading.getDatIR_Date());
-      txt_Reading.setText(input_reading.getDblIR_Value());
-      txt_comment.setText(current_comment);
+//      txt_Loc_id.setText(current_loc);
+//      txt_COL_ID.setText(current_collector);
+//      txt_DateTime.setText(input_reading.getDatIR_Date());
+//      txt_Reading.setText(input_reading.getDblIR_Value());
+//      txt_comment.setText(current_comment);
+//
+//        SimpleCursorAdapter adFO =
+//                new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, Fac_Oper_Status, fromFO, toL, 0);
+//        adFO.setDropDownViewResource(android.R.layout.simple_spinner_item);
+//        spin_FAC_OP.setAdapter(adFO);
+//
+//        SimpleCursorAdapter adEO =
+//                new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, Eq_Oper_Status, fromEO, toL, 0);
+//        adEO.setDropDownViewResource(android.R.layout.simple_spinner_item);
+//        spin_EQ_OP.setAdapter(adEO);
 
-        SimpleCursorAdapter adFO =
-                new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, Fac_Oper_Status, fromFO, toL, 0);
-        adFO.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        spin_FAC_OP.setAdapter(adFO);
+//        SimpleCursorAdapter adU =
+//                new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, Units, fromU, toL, 0);
+//        adU.setDropDownViewResource(android.R.layout.simple_spinner_item);
+//        spin_UNITS.setAdapter(adU);
+//
+//        SimpleCursorAdapter adelev =
+//                new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, Elev, fromEl, toL, 0);
+//        adelev.setDropDownViewResource(android.R.layout.simple_spinner_item);
+//        spin_elev_code.setAdapter(adelev);
 
-        SimpleCursorAdapter adEO =
-                new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, Eq_Oper_Status, fromEO, toL, 0);
-        adEO.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        spin_EQ_OP.setAdapter(adEO);
-
-        SimpleCursorAdapter adU =
-                new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, Units, fromU, toL, 0);
-        adU.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        spin_UNITS.setAdapter(adU);
-
-        SimpleCursorAdapter adelev =
-                new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, Elev, fromEl, toL, 0);
-        adelev.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        spin_elev_code.setAdapter(adelev);
-
-        String[] elev_code_value = dbHelper.getElevationCodeValue(db, current_loc,curent_elevationcode);
-        if (elev_code_value != null && elev_code_value[1] != null) {
-            System.out.println("current_loc  " + current_loc);
-            System.out.println("current_loc  " + elev_code_value[0]);
-            edit_depth.setText(elev_code_value[1]);
-        }
+//        String[] elev_code_value = dbHelper.getElevationCodeValue(db, current_loc,curent_elevationcode);
+//        if (elev_code_value != null && elev_code_value[1] != null) {
+//            System.out.println("current_loc  " + current_loc);
+//            System.out.println("current_loc  " + elev_code_value[0]);
+//            edit_depth.setText(elev_code_value[1]);
+//        }
 
         setSpinnerValue(spin_elev_code,alElev, curent_elevationcode);
         setSpinnerValue(spin_UNITS,alUnits, current_unit);

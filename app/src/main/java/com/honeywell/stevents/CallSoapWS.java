@@ -101,17 +101,11 @@ public class CallSoapWS {
     public final String SOAP_ACTION_UPLOAD2 = "http://api.limstor.com/stdet/wsstdet.asmx/UploadFile2";
     public final String SOAP_ACTION_LOGIN = "http://api.limstor.com/stdet/wsstdet.asmx/Login";
 
-    public final static String INST_READINGS = "tbl_Inst_Readings";
-    public final static String DATA_COL_IDENT = "tbl_Data_Col_Ident";
-    public final static String DCP_LOC_CHAR = "tbl_DCP_Loc_Char";
-    public final static String DCP_LOC_DEF = "tbl_DCP_Loc_Def";
-    public final static String EQUIP_OPER_DEF = "tbl_Equip_Oper_Def";
-    public final static String FAC_OPER_DEF = "tbl_Fac_Oper_Def";
-    public final static String UNIT_DEF = "tbl_Unit_Def";
-    public final static String FACILITY = "dt_facility";
-    public final static String TABLEVERS = "tbl_TableVers";
-    public final static String ELEVATIONS = "ut_elevations";
-    public final static String ELEVATIONCODES = "ut_elevation_codes";
+    public final static String SITE_EVENT = "tbl_Inst_Readings";
+    public final static String EQUIP_IDENT = "tbl_Equip_Ident";
+    public final static String USERS = "tbl_Users";
+    public final static String SITE_EVENT_DEF = "tbl_Site_Event_Def";
+
 
     public final String SOAP_ADDRESS = "http://api.limstor.com/stdet/wsstdet.asmx";
 
@@ -310,46 +304,23 @@ public class CallSoapWS {
             return ServerDate;
     }
 
-    public StdetDataTables WS_GetALLDatasets() throws IOException {
+    public AppDataTables WS_GetALLDatasets() throws IOException {
         String dataset1;
         StdetFiles f = new StdetFiles(directoryApp);
-        StdetDataTables tables = new StdetDataTables();
-        tables.AddStdetDataTable(new Stdet_Inst_Readings());
+        AppDataTables tables = new AppDataTables();
+        tables.AddStdetDataTable(new DataTable_SiteEvent());
         String sResp;
         boolean brv;
 
-        dataset1 = WS_GetDataset(UNIT_DEF);
-        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, UNIT_DEF + ".xml"));
+        dataset1 = WS_GetDataset(USERS);
+        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, USERS + ".xml"));
 
-        dataset1 = WS_GetDataset(CallSoapWS.FACILITY);
-        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, CallSoapWS.FACILITY + ".xml"));
+        dataset1 = WS_GetDataset(CallSoapWS.SITE_EVENT_DEF);
+        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, CallSoapWS.SITE_EVENT_DEF + ".xml"));
 
-        dataset1 = WS_GetDataset(CallSoapWS.ELEVATIONS);
-        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, CallSoapWS.ELEVATIONS + ".xml"));
+        dataset1 = WS_GetDataset(CallSoapWS.EQUIP_IDENT);
+        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, CallSoapWS.EQUIP_IDENT + ".xml"));
 
-        dataset1 = WS_GetDataset(DATA_COL_IDENT);
-        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, DATA_COL_IDENT + ".xml"));
-
-        dataset1 = WS_GetDataset(DCP_LOC_CHAR);
-        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, DCP_LOC_CHAR + ".xml"));
-
-        dataset1 = WS_GetDataset(DCP_LOC_DEF);
-        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, DCP_LOC_DEF + ".xml"));
-
-        dataset1 = WS_GetDataset(EQUIP_OPER_DEF);
-        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, EQUIP_OPER_DEF + ".xml"));
-
-        dataset1 = WS_GetDataset(FAC_OPER_DEF);
-        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, FAC_OPER_DEF + ".xml"));
-
-        dataset1 = WS_GetDataset(EQUIP_OPER_DEF);
-        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, EQUIP_OPER_DEF + ".xml"));
-
-        dataset1 = WS_GetDataset(TABLEVERS);
-        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, TABLEVERS + ".xml"));
-
-        dataset1 = WS_GetDataset(ELEVATIONCODES);
-        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, ELEVATIONCODES + ".xml"));
 
         // Gets the data repository in write mode
         return tables;
@@ -358,44 +329,19 @@ public class CallSoapWS {
     public void WS_DownloadXMLDatasets() throws IOException {
         String dataset1;
         StdetFiles f = new StdetFiles(directoryApp);
-        StdetDataTables tables = new StdetDataTables();
-        tables.AddStdetDataTable(new Stdet_Inst_Readings());
+        AppDataTables tables = new AppDataTables();
+        tables.AddStdetDataTable(new DataTable_SiteEvent());
         String sResp;
         boolean brv;
 
-        dataset1 = WS_GetDataset(UNIT_DEF);
-        f.WriteXMLData(dataset1, UNIT_DEF + ".xml");
+        dataset1 = WS_GetDataset(USERS);
+        f.WriteXMLData(dataset1, USERS + ".xml");
 
-        dataset1 = WS_GetDataset(CallSoapWS.FACILITY);
-        f.WriteXMLData(dataset1, CallSoapWS.FACILITY + ".xml");
+        dataset1 = WS_GetDataset(CallSoapWS.SITE_EVENT_DEF);
+        f.WriteXMLData(dataset1, CallSoapWS.SITE_EVENT_DEF + ".xml");
 
-        dataset1 = WS_GetDataset(CallSoapWS.ELEVATIONS);
-        f.WriteXMLData(dataset1, CallSoapWS.ELEVATIONS + ".xml");
-
-        dataset1 = WS_GetDataset(DATA_COL_IDENT);
-        f.WriteXMLData(dataset1, DATA_COL_IDENT + ".xml");
-
-        dataset1 = WS_GetDataset(DCP_LOC_CHAR);
-        f.WriteXMLData(dataset1, DCP_LOC_CHAR + ".xml");
-
-        dataset1 = WS_GetDataset(DCP_LOC_DEF);
-        f.WriteXMLData(dataset1, DCP_LOC_DEF + ".xml");
-
-        dataset1 = WS_GetDataset(EQUIP_OPER_DEF);
-        f.WriteXMLData(dataset1, EQUIP_OPER_DEF + ".xml");
-
-        dataset1 = WS_GetDataset(FAC_OPER_DEF);
-        f.WriteXMLData(dataset1, FAC_OPER_DEF + ".xml");
-
-        dataset1 = WS_GetDataset(EQUIP_OPER_DEF);
-        f.WriteXMLData(dataset1, EQUIP_OPER_DEF + ".xml");
-
-        dataset1 = WS_GetDataset(TABLEVERS);
-        f.WriteXMLData(dataset1, TABLEVERS + ".xml");
-
-        dataset1 = WS_GetDataset(ELEVATIONCODES);
-        f.WriteXMLData(dataset1, ELEVATIONCODES + ".xml");
-
+        dataset1 = WS_GetDataset(CallSoapWS.EQUIP_IDENT);
+        f.WriteXMLData(dataset1, CallSoapWS.EQUIP_IDENT + ".xml");
 
     }
 

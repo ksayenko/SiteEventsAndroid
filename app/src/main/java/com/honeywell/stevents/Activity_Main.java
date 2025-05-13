@@ -8,14 +8,11 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Environment;
-import android.os.StrictMode;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,20 +21,15 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.view.MenuItem.OnMenuItemClickListener;
 //import java.util.concurrent;
 
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,15 +38,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.honeywell.aidc.AidcManager;
 import com.honeywell.aidc.AidcManager.CreatedCallback;
 import com.honeywell.aidc.BarcodeReader;
 import com.honeywell.aidc.InvalidScannerNameException;
 
-public class MainActivity extends Activity {
+public class Activity_Main extends Activity {
 
     private static final int WRITE_REQUEST_CODE =1 ;
     private static final int REQUEST_CODE_GETMESSAGE =1014 ;
@@ -65,9 +55,9 @@ public class MainActivity extends Activity {
 
 
     @SuppressLint("StaticFieldLeak")
-    private static MainActivity instance;
+    private static Activity_Main instance;
 
-    public static MainActivity getInstance() {
+    public static Activity_Main getInstance() {
         return instance;
     }
 
@@ -96,12 +86,12 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_se_main);
         directoryApp = getFilesDir();
         context = this;
         default_reading = Reading.GetDefaultReading();
 
-        StdetDataTables tables= new StdetDataTables();
+        AppDataTables tables= new AppDataTables();
         tables.SetStdetTablesStructure();
         HandHeld_SQLiteOpenHelper dbHelper =  new HandHeld_SQLiteOpenHelper(context,tables);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -122,9 +112,9 @@ public class MainActivity extends Activity {
                     barcodeReader = manager.createBarcodeReader();
                 } catch (
                         InvalidScannerNameException e) {
-                    Toast.makeText(MainActivity.this, "Invalid Scanner Name Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Activity_Main.this, "Invalid Scanner Name Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    Toast.makeText(MainActivity.this, "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Activity_Main.this, "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -185,13 +175,13 @@ public class MainActivity extends Activity {
 
                     //adding seconds April 2023. KS
                     //default sqlllite format YYYY-MM-DD HH:MM:SS
-                    String timeStamp = new SimpleDateFormat(Stdet_Inst_Readings.Datetime_pattern_with_sec).format(currentDateTime);
+                    String timeStamp = new SimpleDateFormat(DataTable_SiteEvent.Datetime_pattern_with_sec).format(currentDateTime);
                     timeStamp = timeStamp.replace(" ", "");
                     timeStamp = timeStamp.replace("/", "");
                     timeStamp = timeStamp.replace(":", "");
                     timeStamp = "_" + timeStamp;
                     HandHeld_SQLiteOpenHelper dbHelper =
-                            new HandHeld_SQLiteOpenHelper(context, new StdetDataTables());
+                            new HandHeld_SQLiteOpenHelper(context, new AppDataTables());
                     SQLiteDatabase db = dbHelper.getReadableDatabase();
                     if (bConnection) {
                         try {
@@ -379,7 +369,7 @@ public class MainActivity extends Activity {
                 Date currentDateTime = Calendar.getInstance().getTime();
                 //adding seconds April 2023. KS
                 //default sqlllite format YYYY-MM-DD HH:MM:SS
-                timeStamp = new SimpleDateFormat(Stdet_Inst_Readings.Datetime_pattern_with_sec).format(currentDateTime);
+                timeStamp = new SimpleDateFormat(DataTable_SiteEvent.Datetime_pattern_with_sec).format(currentDateTime);
                 timeStamp = timeStamp.replace(" ","");
                 timeStamp = timeStamp.replace("/","");
                 timeStamp = timeStamp.replace(":","");
@@ -512,15 +502,15 @@ public class MainActivity extends Activity {
     public void ActivitySetting() {
 
         this.txtInfo= findViewById(R.id.txtInfo);
-        txtInfo.setText("Additional options available under the menu (three dots) above");
+        txtInfo.setText("AdditionatDetl options available under the menu (three dots) above");
 
-        this.btnInputForms = findViewById(R.id.btnInputForms);
+        this.btnInputForms = findViewById(R.id.btnInputSEs);
         btnInputForms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("------------onClick StDetInputActivity", "12");
+                Log.i("------------onClick SiteEventActivity", "12");
                 // get the intent action string from AndroidManifest.xml
-                Intent barcodeIntent = new Intent("android.intent.action.STDETINPUTBARCODEACTIVITY");
+                Intent barcodeIntent = new Intent("android.intent.action.SE_INPUT_BARCODEACTIVITY");
                 barcodeIntent.putExtra("IR", default_reading);
                 startActivityForResult(barcodeIntent,REQUEST_CODE_GETMESSAGE);
                 System.out.println("In MAIN btnInputForms.setOnClickListener " + default_reading.getStrD_Loc_ID());
@@ -529,7 +519,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        this.btnReviewForms = findViewById(R.id.buttonReviewReadings);
+        this.btnReviewForms = findViewById(R.id.btnEditSEs);
         btnReviewForms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -543,7 +533,7 @@ public class MainActivity extends Activity {
         });
 
 
-        this.btnUploadDataToServer = findViewById(R.id.buttonUploadReadings);
+        this.btnUploadDataToServer = findViewById(R.id.btnUploadSEs);
         btnUploadDataToServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -551,7 +541,7 @@ public class MainActivity extends Activity {
                 //CHECK CONNECTION
                 Validation isDuplicate = new Validation();
                 HandHeld_SQLiteOpenHelper dbHelper =
-                        new HandHeld_SQLiteOpenHelper(context, new StdetDataTables());
+                        new HandHeld_SQLiteOpenHelper(context, new AppDataTables());
                 SQLiteDatabase db = dbHelper.getReadableDatabase();
 
                 String messageDup = dbHelper.PotentialDuplicatesMesssage(db);
@@ -611,7 +601,7 @@ public class MainActivity extends Activity {
                                 if (bCanUpload) {
                                     bUploaded = ws.WS_UploadFile2(dataUpload, s, name, pwd);
                                     if (bUploaded) {
-                                        db.execSQL(Stdet_Inst_Readings.UpdateUploadedData());
+                                        db.execSQL(DataTable_SiteEvent.UpdateUploadedData());
                                         AlertDialogShow(nrecords[0] + " Records Has Been Uploaded to the Server",
                                                 "Info", "OK", "default");
                                     } else {

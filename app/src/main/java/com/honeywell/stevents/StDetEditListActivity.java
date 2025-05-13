@@ -21,7 +21,6 @@ import android.widget.HorizontalScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.DecimalFormat;
 import java.util.Objects;
@@ -57,7 +56,7 @@ public class StDetEditListActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        StdetDataTables tables = new StdetDataTables();
+        AppDataTables tables = new AppDataTables();
         tables.SetStdetTablesStructure();
 
         dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
@@ -98,7 +97,7 @@ public class StDetEditListActivity extends Activity {
                 Log.i("------------onClick btnEdit", "12");
                 Reading r = null;
                 if (!Objects.equals(selectedLngID, "")) {
-                    r = dbHelper.getReading(db, selectedLngID);
+                    //r = dbHelper.getSiteEvent(db, selectedLngID);
                 }
                 if (r == null) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(ct);

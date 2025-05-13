@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.honeywell.stevents.MainActivity" >
+    tools:context="com.honeywell.stevents.Activity_Main" >
 
     <TextView
         android:id="@+id/btnBarcode"
@@ -19,12 +19,13 @@
 
 
     <LinearLayout
-        android:layout_width="412dp"
+        android:layout_width="450dp"
         android:layout_height="683dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="37dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="40dp"
         android:orientation="vertical">
 
         <TextView
@@ -33,7 +34,7 @@
             android:layout_height="wrap_content"
             android:background="@color/greenblue1"
             android:gravity="left"
-            android:padding="6dp"
+            android:padding="8dp"
             android:text="@string/textInfo"
             android:textColor="#000000"
             android:textSize="13sp">
@@ -41,56 +42,30 @@
         </TextView>
 
         <Button
-            android:id="@+id/btnInputForms"
+            android:id="@+id/btnInputSEs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
-            android:text="@string/btnInputForms" />
+            android:background="@color/greenblue1L"
+            android:text="@string/btnInputSEs" />
 
         <Button
-            android:id="@+id/buttonReviewReadings"
+              android:id="@+id/btnEditSEs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
-            android:text="@string/btnReviewReadings" />
+            android:background="@color/greenblue1L"
+            android:text="@string/btnEditSEs" />
 
         <Button
-            android:id="@+id/buttonUploadReadings"
+            android:id="@+id/btnUploadSEs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
-            android:text="@string/btnUploadReadings" />
+            android:background="@color/greenblue1L"
+            android:text="@string/btnUploadSEs" />
 
 
-        <!--
-          <Button
-              android:id="@+id/buttonClientBarcode"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_marginTop="22dp"
-              android:text="@string/btnClientBarcode" />
-
-          <Button
-              android:id="@+id/buttonScannerSelectBarcode"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_marginTop="22dp"
-              android:text="@string/btnScannerSelectBarcode" />
-
-          <Button
-              android:id="@+id/btnDownloadData"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_marginTop="22dp"
-              android:text="@string/btnDownloadData"/>
-
-          <Button
-              android:id="@+id/btnUploadXMLtoDB"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_marginTop="22dp"
-              android:text="@string/btnUploadXMLtoDB"/>
--->
     </LinearLayout>
 
     <LinearLayout

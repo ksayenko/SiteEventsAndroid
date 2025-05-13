@@ -1,7 +1,5 @@
 package com.honeywell.stevents;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 
 public class Reading implements Serializable {
@@ -327,9 +325,9 @@ public class Reading implements Serializable {
     }
     private void setDatIR_Date_NoSeconds(String datIR_Date) {
 
-        this.datIR_Date_NoSeconds = Stdet_Inst_Readings.RemoveSecondsFromDateTime(datIR_Date);
-        this.datetimedefault = Stdet_Inst_Readings.ConvertDatetimeFormat(datIR_Date, Stdet_Inst_Readings.Datetime_pattern_with_sec
-                ,Stdet_Inst_Readings.Datetime_pattern_with_sec);
+        this.datIR_Date_NoSeconds = DataTable_SiteEvent.RemoveSecondsFromDateTime(datIR_Date);
+        this.datetimedefault = DataTable_SiteEvent.ConvertDatetimeFormat(datIR_Date, DataTable_SiteEvent.Datetime_pattern_with_sec
+                , DataTable_SiteEvent.Datetime_pattern_with_sec);
     }
 
 

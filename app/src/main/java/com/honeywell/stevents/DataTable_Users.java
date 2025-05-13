@@ -1,10 +1,10 @@
 package com.honeywell.stevents;
 
-public class Stdet_Fac_Oper_Def extends StdetDataTable {
+public class DataTable_Users extends AppDataTable {
 
-    public static final String lngID="lngID";
-    public static final String strFO_StatusID="strFO_StatusID";
-    public static final String strFO_StatusDesc="strFO_StatusDesc";
+    public static final String nID="nID";
+    public static final String strUserName="strUserName";
+    public static final String strEmailAddress="strFO_StatusDesc";
 
 
     /*
@@ -17,12 +17,12 @@ public class Stdet_Fac_Oper_Def extends StdetDataTable {
 <xs:element name="dtLastModificationDate" type="xs:dateTime" minOccurs="0"/>
      */
 
-    public Stdet_Fac_Oper_Def(){
-        super(HandHeld_SQLiteOpenHelper.FAC_OPER_DEF);
+    public DataTable_Users(){
+        super(HandHeld_SQLiteOpenHelper.USERS);
 
-        this.AddColumnToStructure(lngID,"Integer",true);
-        this.AddColumnToStructure(strFO_StatusID,"String",false);
-        this.AddColumnToStructure(strFO_StatusDesc,"String",false);
+        this.AddColumnToStructure(nID,"Integer",true);
+        this.AddColumnToStructure(strUserName,"String",false);
+        this.AddColumnToStructure(strEmailAddress,"String",false);
 
     }
 
