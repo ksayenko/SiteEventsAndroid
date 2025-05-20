@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import java.util.Objects;
 
-public class StDet_LoginInfoActivity extends Activity {
+public class Activity_Login extends Activity {
     private EditText txt_UserName;
     private EditText txt_Password;
     String name;
@@ -34,13 +34,13 @@ public class StDet_LoginInfoActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Log.i("------------onCreate StDet_LoginInfoActivity", "");
+        Log.i("------------onCreate Activity_Login", "");
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_login);
         //---------------
         AppDataTables tables = new AppDataTables();
-        tables.SetStdetTablesStructure();
+        tables.SetSiteEventsTablesStructure();
 
         dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
         db = dbHelper.getReadableDatabase();
@@ -58,7 +58,7 @@ public class StDet_LoginInfoActivity extends Activity {
             name = credentials[0];
             encryptedPassword = credentials[1];
             try {
-                pwd = StDEtEncrypt.decrypt(encryptedPassword);
+                pwd = Application_Encrypt.decrypt(encryptedPassword);
                 System.out.println(pwd);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -107,7 +107,7 @@ public class StDet_LoginInfoActivity extends Activity {
     private Boolean updateDBWithNewInformation() {
         boolean rv = false;
         try {
-            encryptedPassword = StDEtEncrypt.encrypt(pwd);
+            encryptedPassword = Application_Encrypt.encrypt(pwd);
             System.out.println("encripted " + encryptedPassword);
         } catch (Exception e) {
             e.printStackTrace();

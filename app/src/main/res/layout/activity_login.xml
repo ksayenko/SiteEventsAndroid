@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:layout_marginTop="30dp"
     android:orientation="vertical"
-    tools:context="com.honeywell.stevents.StDet_LoginInfoActivity">
+    tools:context="com.honeywell.stevents.Activity_Login">
 
 
     <TextView

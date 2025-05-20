@@ -126,7 +126,7 @@ public class StDetEditDataActivity extends Activity {
 
         //((TextView)findViewById(R.id.txtActivityTitle)).setText("Input Form");
         AppDataTables tables = new AppDataTables();
-        tables.SetStdetTablesStructure();
+        tables.SetSiteEventsTablesStructure();
 
         dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
         db = dbHelper.getReadableDatabase();
@@ -136,8 +136,8 @@ public class StDetEditDataActivity extends Activity {
             AlertDialogShow("The Lookup Tables aren't populated, go to Menu | Download and Populate Lookup DB","ERROR!");
         }
 
-//        Units = dbHelper.getUnits(db, "");
-//        alUnits = transferCursorToArrayList(Units);
+//        Equip = dbHelper.getUnits(db, "");
+//        array_Eq = transferCursorToArrayList(Equip);
 //
 //        Eq_Oper_Status = dbHelper.getEOS(db);
 //        alEq_Oper_Status = transferCursorToArrayList(Eq_Oper_Status);
@@ -254,7 +254,7 @@ public class StDetEditDataActivity extends Activity {
 //        spin_EQ_OP.setAdapter(adEO);
 
 //        SimpleCursorAdapter adU =
-//                new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, Units, fromU, toL, 0);
+//                new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, Equip, fromU, toL, 0);
 //        adU.setDropDownViewResource(android.R.layout.simple_spinner_item);
 //        spin_UNITS.setAdapter(adU);
 //

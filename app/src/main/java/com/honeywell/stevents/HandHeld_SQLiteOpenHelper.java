@@ -37,9 +37,8 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 
     public static final String SITE_EVENT = "tbl_Site_Event";
     public static final String DATA_SITE_EVENT_DEF = "tbl_Site_Event_Def";
-        public static final String EQUIP_IDENT = "tbl_Equip_Ident";
+     public static final String EQUIP_IDENT = "tbl_Equip_Ident";
     public static final String USERS = "tbl_Users";
-
 
     public static final String LOGININFO = "LoginInfo";
 
@@ -83,6 +82,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         for (int i = 0; i < n; i++) {
             try {
                 create_table = tables.getDataTables().get(i).createTableSQL();
+                System.out.println("onCreate DB 1" + create_table);
                 String tableName = tables.getDataTables().get(i).getName();
 
                 if (!tableName.equalsIgnoreCase("NA")) {
@@ -97,7 +97,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     public void AlterDB(SQLiteDatabase db) {
-//        try {
+        try {
 //            if (!checkColumnExists(db, HandHeld_SQLiteOpenHelper.s.Site, DataTable_SiteEvent.recordToUpload)) {
 //                DataTable_SiteEvent ir = new DataTable_SiteEvent();
 //                String sql = ir.alterIRTableSQLAddColumn(DataTable_SiteEvent.recordToUpload);
@@ -118,11 +118,11 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 //                String sql = ir.alterIRTableSQLAddColumn(DataTable_SiteEvent.default_datetimeformat);
 //                db.execSQL(sql);
 //            }
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//            System.out.println("AlterDB INST_READINGS " + ex);
-//
-//        }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.out.println("AlterDB SITE_EVENTS " + ex);
+
+        }
     }
 
     @Override
@@ -479,22 +479,22 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
 
-    public String[] getMinMax(SQLiteDatabase db, String loc) {
-        String[] minmax = new String[]{"", ""};
-        String qry = "select  t1.strD_ParValue as loc_min, t2.strD_ParValue as loc_Max from tbl_DCP_Loc_Char t1 " +
-                " join  tbl_DCP_Loc_Char t2 on t1.strD_Loc_ID = t2.strD_Loc_ID " +
-                " where  t1.strD_Loc_ID='" + loc + "' and t1.strD_ParName = 'Loc_Min' and t2.strD_ParName = 'Loc_Max'";
-        Cursor cminmax = db.rawQuery(qry, null);
-        if (cminmax.getCount() > 0) {
-            cminmax.moveToFirst();
-            if (!cminmax.isNull(0))
-                minmax[0] = cminmax.getString(0);
-            if (!cminmax.isNull(1))
-                minmax[1] = cminmax.getString(1);
-        }
-        cminmax.close();
-        return minmax;
-    }
+//    public String[] getMinMax(SQLiteDatabase db, String loc) {
+//        String[] minmax = new String[]{"", ""};
+//        String qry = "select  t1.strD_ParValue as loc_min, t2.strD_ParValue as loc_Max from tbl_DCP_Loc_Char t1 " +
+//                " join  tbl_DCP_Loc_Char t2 on t1.strD_Loc_ID = t2.strD_Loc_ID " +
+//                " where  t1.strD_Loc_ID='" + loc + "' and t1.strD_ParName = 'Loc_Min' and t2.strD_ParName = 'Loc_Max'";
+//        Cursor cminmax = db.rawQuery(qry, null);
+//        if (cminmax.getCount() > 0) {
+//            cminmax.moveToFirst();
+//            if (!cminmax.isNull(0))
+//                minmax[0] = cminmax.getString(0);
+//            if (!cminmax.isNull(1))
+//                minmax[1] = cminmax.getString(1);
+//        }
+//        cminmax.close();
+//        return minmax;
+//    }
 
 //    public Cursor getElevationCodes(SQLiteDatabase db) {
 //        String qry;
@@ -513,7 +513,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 //        } else {
 //            qry = "select  rowid as _id, strD_ParValue from tbl_DCP_Loc_Char where ";
 //            qry += " strD_Loc_ID='" + loc + "'";
-//            qry += " and strD_ParName ='Units' ";
+//            qry += " and strD_ParName ='Equip' ";
 //
 //        }
 //        Cursor c = db.rawQuery(qry, null);
@@ -655,7 +655,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
 
-    public Integer getMaxIRID(SQLiteDatabase db) {
+    public Integer getMaxID_FromSiteEventsTable(SQLiteDatabase db) {
         int rv = 0;
         String qry = "select  max (lngId) from tbl_site_event";
         try {
@@ -671,16 +671,49 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         return rv;
     }
 
-    public ArrayList<String[]> GetLocationCharacteristics(SQLiteDatabase db, String loc) {
 
-        return null;
+
+    public Cursor GetCursorEquipment(SQLiteDatabase db) {
+       
+        //	strEqID
+        //	strEqMfg
+        //	strEqModel
+        //	strEqSerialNum
+        //	strEqDesc
+        //	strEqTypeID
+        //	ynCurrent
+        return db.rawQuery("Select rowid _id, strEqID, strEqTypeID, '1' as ord from tbl_Equip_Ident   " +
+                " UNION ALL SELECT -1,'NA','NA', '0' order by ord, strEqID, strEqTypeID", null);
     }
 
 
-    public Cursor GetColIdentity(SQLiteDatabase db) {
-        //Cursor c1 = db.rawQuery("Select strD_Col_ID from tbl_Data_Col_Ident", null);
-        return db.rawQuery("Select rowid _id, strD_Col_ID, '1' as ord from tbl_Data_Col_Ident  " +
-                " UNION ALL SELECT -1,'NA', '0' order by ord, strD_Col_ID", null);
+    public Cursor GetCursorUsers(SQLiteDatabase db) {
+
+        //	COLUMN_NAME
+//        nID
+//        strUserName
+//        strEmailAddress
+//        strUserModifyName
+//        dtLastModificationDate
+//        IS_SharePoint_SF
+//        IS_SharePoint_WNOU
+//        IS_SqlServer
+//        IS_local_etss704dtsc1
+//        lab_name_code
+        return db.rawQuery("Select rowid _id, strUserName, '1' as ord from tbl_users   " +
+                " UNION ALL SELECT -1,'NA', '0' order by ord, strUserName", null);
+    }
+
+
+    public Cursor GetCursorSECode(SQLiteDatabase db) {
+    //lngID
+    //ynCurrent
+    //strSE_ID
+    //strSE_Desc
+    //strUserModifyName
+    //dtLastModificationDate
+        return db.rawQuery("Select rowid _id, strSE_ID, strSE_Desc, '1' as ord from tbl_Site_Event_Def   " +
+                " UNION ALL SELECT -1,'NA','NA', '0' order by ord, strSE_ID, strSE_Desc", null);
     }
 
     public ArrayList<String[]> CursorToArrayList(Cursor cursor) {

@@ -10,8 +10,6 @@ public class DataTable_SiteEvent extends AppDataTable {
 
      public static final String default_strS_Loc_ID = "99";
     public static final String default_strUnit= "NA";
-
-
     public static final String lngID="lngID";
     public static final String facility_id="facility_id";
     public static final String strD_Loc_ID="strD_Loc_ID";
@@ -41,8 +39,12 @@ public class DataTable_SiteEvent extends AppDataTable {
     public static final String recordToUpload="recordToUpload";
 
     public static final String DateSE_NoSeconds="DateSE_NoSeconds";
-    public static final String DateRes_NoSeconds="DateSE_NoSeconds";
+    public static final String DateRes_NoSeconds="DateRes_NoSeconds";
 
+    //adding
+    public static final String DateMeasurement_NoSeconds="DateMeasurement_NoSeconds";
+    public static final String datMesDate  ="datMesDate";
+    public static final String ynStartup    ="ynStartup";
     public static final String default_datetimeformat="default_datetimeformat";
 
     //datetime formats
@@ -76,7 +78,6 @@ public class DataTable_SiteEvent extends AppDataTable {
         this.AddColumnToStructure(Value,"Double",false);
         this.AddColumnToStructure(Unit,"String",false);
 
-
         this.AddColumnToStructure(uploaded,"Boolean",false);
         this.AddColumnToStructure(uploadedDatetime,"Datetime",false);
         this.AddColumnToStructure(recordToUpload,"Boolean",false);
@@ -85,7 +86,9 @@ public class DataTable_SiteEvent extends AppDataTable {
         this.AddColumnToStructure(DateSE_NoSeconds,"String",false);
         this.AddColumnToStructure(DateRes_NoSeconds,"String",false);
         this.AddColumnToStructure(default_datetimeformat,"String",false);
-
+        this.AddColumnToStructure( DateMeasurement_NoSeconds,"String",false);
+        this.AddColumnToStructure(datMesDate   ,"Datetime",false);
+        this.AddColumnToStructure(ynStartup ,"Boolean",false);
 
     }
 

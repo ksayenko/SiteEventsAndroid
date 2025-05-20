@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
@@ -44,7 +45,7 @@ import com.honeywell.aidc.AidcManager.CreatedCallback;
 import com.honeywell.aidc.BarcodeReader;
 import com.honeywell.aidc.InvalidScannerNameException;
 
-public class Activity_Main extends Activity {
+public class Activity_Main extends AppCompatActivity {
 
     private static final int WRITE_REQUEST_CODE =1 ;
     private static final int REQUEST_CODE_GETMESSAGE =1014 ;
@@ -71,10 +72,9 @@ public class Activity_Main extends Activity {
 
     Context context;
 
-    private Reading default_reading;
+    private SiteEvents default_reading;
     int versionCode = BuildConfig.VERSION_CODE;
     String versionName = BuildConfig.VERSION_NAME;
-
 
     private File directoryApp;
 
@@ -89,10 +89,10 @@ public class Activity_Main extends Activity {
         setContentView(R.layout.activity_se_main);
         directoryApp = getFilesDir();
         context = this;
-        default_reading = Reading.GetDefaultReading();
+        default_reading = SiteEvents.GetDefaultReading();
 
         AppDataTables tables= new AppDataTables();
-        tables.SetStdetTablesStructure();
+        tables.SetSiteEventsTablesStructure();
         HandHeld_SQLiteOpenHelper dbHelper =  new HandHeld_SQLiteOpenHelper(context,tables);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         // set lock the orientation
@@ -197,7 +197,7 @@ public class Activity_Main extends Activity {
                             // For decryption not ise null or empty string
                             if (encryptedPassword == null || encryptedPassword == "")
                                 encryptedPassword = "NA";
-                            String pwd = StDEtEncrypt.decrypt(encryptedPassword);
+                            String pwd = Application_Encrypt.decrypt(encryptedPassword);
                             String[] errormessage = new String[]{""};
 
                             Boolean bCanUpload = ws.WS_GetLogin(name, pwd, errormessage);
@@ -462,10 +462,10 @@ public class Activity_Main extends Activity {
             Bundle extras = getIntent().getExtras();
             if (requestCode == REQUEST_CODE_GETMESSAGE  && resultCode  == RESULT_OK && extras != null) {
 
-                default_reading = (Reading) getIntent().getSerializableExtra("IR");
+                default_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
                 if (default_reading == null)
-                    default_reading = Reading.GetDefaultReading();
-                Toast.makeText(context, default_reading.getStrD_Col_ID(), Toast.LENGTH_SHORT).show();
+                    default_reading = SiteEvents.GetDefaultReading();
+                Toast.makeText(context, default_reading.getStrSE_ID(), Toast.LENGTH_SHORT).show();
             }
         } catch (Exception ex) {
             Toast.makeText(context, ex.toString(),
@@ -502,7 +502,7 @@ public class Activity_Main extends Activity {
     public void ActivitySetting() {
 
         this.txtInfo= findViewById(R.id.txtInfo);
-        txtInfo.setText("AdditionatDetl options available under the menu (three dots) above");
+        txtInfo.setText("Additional options available under the menu (three dots) above");
 
         this.btnInputForms = findViewById(R.id.btnInputSEs);
         btnInputForms.setOnClickListener(new View.OnClickListener() {
@@ -510,10 +510,10 @@ public class Activity_Main extends Activity {
             public void onClick(View v) {
                 Log.i("------------onClick SiteEventActivity", "12");
                 // get the intent action string from AndroidManifest.xml
-                Intent barcodeIntent = new Intent("android.intent.action.SE_INPUT_BARCODEACTIVITY");
-                barcodeIntent.putExtra("IR", default_reading);
+                Intent barcodeIntent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");
+                barcodeIntent.putExtra("SE", default_reading);
                 startActivityForResult(barcodeIntent,REQUEST_CODE_GETMESSAGE);
-                System.out.println("In MAIN btnInputForms.setOnClickListener " + default_reading.getStrD_Loc_ID());
+                System.out.println("In MAIN btnInputForms.setOnClickListener " + default_reading.getStrEq_ID());
                 bAcceptWarningDuplicate = false;
 
             }
@@ -528,7 +528,7 @@ public class Activity_Main extends Activity {
                 // get the intent action string from AndroidManifest.xml
                 Intent barcodeIntent = new Intent("android.intent.action.STDETEDITLISTACTIVITY");
                 startActivity(barcodeIntent);
-                System.out.println("In MAIN btnReviewForms.setOnClickListener " + default_reading.getStrD_Col_ID());
+                System.out.println("In MAIN btnReviewForms.setOnClickListener " + default_reading.getStrEq_ID());
             }
         });
 
@@ -593,7 +593,7 @@ public class Activity_Main extends Activity {
                                 // For decryption not ise null or empty string
                                 if (encryptedPassword == null || encryptedPassword == "")
                                     encryptedPassword = "NA";
-                                String pwd = StDEtEncrypt.decrypt(encryptedPassword);
+                                String pwd = Application_Encrypt.decrypt(encryptedPassword);
                                 String[] errormessage = new String[]{""};
 
                                 Boolean bCanUpload = ws.WS_GetLogin(name, pwd, errormessage);

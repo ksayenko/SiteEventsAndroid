@@ -57,7 +57,7 @@ public class StDetEditListActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         AppDataTables tables = new AppDataTables();
-        tables.SetStdetTablesStructure();
+        tables.SetSiteEventsTablesStructure();
 
         dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
         db = dbHelper.getReadableDatabase();

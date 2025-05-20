@@ -4,21 +4,8 @@ import java.util.Objects;
 
 public class SiteEvents implements Serializable {
 
-    public String getLocMin() {
-        return locMin;
-    }
+  
 
-    public void setLocMin(String locMin) {
-        this.locMin = locMin;
-    }
-
-    public String getLocMax() {
-        return locMax;
-    }
-
-    public void setLocMax(String locMax) {
-        this.locMax = locMax;
-    }
 
     //public enum VALIDATION {VALID,ERROR,WARNING}
 //#strd_loc_id	#strusername	#datse_date	#datse_time	#strs_loc_id	#strse_id	#strtofo_id	#streqid	#streqdesc	#strcomment	#strm_per_id	#datresdate	#ynresolved
@@ -26,7 +13,7 @@ public class SiteEvents implements Serializable {
     private Integer lngID = -1;
     private Integer facility_id = 1;
     private String strD_Loc_ID = "NA";
-
+    private String strSE_ID = "NA";
     private String strUserName = "NA";
     private String datSE_Date = "01/01/2000";
 
@@ -169,7 +156,6 @@ public class SiteEvents implements Serializable {
     private String datSE_Date_NoSeconds = "01/01/2000";
 
     private String strS_Loc_ID = "99";
-    private String strSE_ID = "NA";
     private String strTOFO_ID = "NA";
     private String strEq_ID = "NA";
     private String strEqDesc = "NA";
@@ -185,8 +171,7 @@ public class SiteEvents implements Serializable {
     private String datetimedefault = "2000-01-01";
     private String Value = null;
     private String Unit = "NA";
-    private String locMin = null;
-    private String locMax = null;
+
     private double UNDEFINED = -99999.999;
     public SiteEvents() {
     }
@@ -279,64 +264,6 @@ public class SiteEvents implements Serializable {
         Validation isValid = new Validation();
         isValid.setValidation(Validation.VALIDATION.VALID);
 
-
-        // returning the record is valid if the value in the database for loc_min or loc_max is wrong or empty string
-
-        if (locMin == "" || locMax == "") {
-            isValid.setValidationMessageWarning("No valid records for loc_min or loc_max in the database");
-            isValid.setValidation(Validation.VALIDATION.VALID);
-            return isValid;//VALIDATION.VALID;
-
-        }
-        double min = 0.0, max = 0.0, val = 0.0;
-        try {
-            min = Double.parseDouble(locMin);
-        } catch (Exception ignored) {
-            isValid.setValidationMessageWarning("No valid records for loc_min or loc_max in the database");
-            isValid.setValidation(Validation.VALIDATION.VALID);
-            return isValid;//VALIDATION.VALID;
-
-        }
-        try {
-            max = Double.parseDouble(locMax);
-        } catch (Exception ignored) {
-            isValid.setValidationMessageWarning("No valid records for loc_min or loc_max in the database");
-            isValid.setValidation(Validation.VALIDATION.VALID);
-            return isValid;//VALIDATION.VALID;
-
-        }
-
-        //Cursor.Current = Cursors.WaitCursor;
-        try {
-            //NOTE: We can no longer range check flow totalizers now that we switched to location characteristics
-            if (strD_Loc_ID.startsWith("FT"))    //if this is a water level location
-            {
-                if (reading < 0) {
-                    isValid.addToValidationMessageError("The Reading value is not a positive number!");
-                    isValid.setValidation(Validation.VALIDATION.ERROR);
-                } //else
-                //isValid = VALIDDATION.VALID;
-            }
-            //not an FT location 12/2022 KS
-            else {
-                if (min == UNDEFINED || max == UNDEFINED) {
-                    // no defined range
-                    isValid.addToValidationMessageError(" no loc_min and loc_max defined range");
-                    isValid.setValidation(Validation.VALIDATION.ERROR);
-                } else if (reading >= min && reading <= max) {
-                    isValid.setValidationMessageValid("OK");// within bounds
-                    isValid.setValidation(Validation.VALIDATION.VALID);
-                } else {
-                    isValid.setValidationMessageWarning("The Reading value falls outside the defined range: " + locMin + ".." + locMax);
-                    isValid.setValidation(Validation.VALIDATION.WARNING);
-                    System.out.println(isValid.getValidationMessage());
-                }
-            }
-            //Cursor.Current = Cursors.Default;
-        } catch (Exception ex) {
-            System.out.println("isReadingWithinRange exception " + ex.toString());
-        }
-        System.out.println("Within range message " + isValid.getValidationMessage());
 
         return isValid;
     }
