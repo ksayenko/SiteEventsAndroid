@@ -84,7 +84,7 @@ public class Validation implements Serializable {
         }
     }
     public enum FOCUS {
-        COLLECTOR, LOCATION, READING, ELEVATION;
+        USER, SITEEVENT, EQUIPMENT, READING;
 
         @Override
         public String toString() {

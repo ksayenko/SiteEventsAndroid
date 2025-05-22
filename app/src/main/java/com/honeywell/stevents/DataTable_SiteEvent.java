@@ -41,10 +41,7 @@ public class DataTable_SiteEvent extends AppDataTable {
     public static final String DateSE_NoSeconds="DateSE_NoSeconds";
     public static final String DateRes_NoSeconds="DateRes_NoSeconds";
 
-    //adding
-    public static final String DateMeasurement_NoSeconds="DateMeasurement_NoSeconds";
-    public static final String datMesDate  ="datMesDate";
-    public static final String ynStartup    ="ynStartup";
+
     public static final String default_datetimeformat="default_datetimeformat";
 
     //datetime formats
@@ -86,9 +83,7 @@ public class DataTable_SiteEvent extends AppDataTable {
         this.AddColumnToStructure(DateSE_NoSeconds,"String",false);
         this.AddColumnToStructure(DateRes_NoSeconds,"String",false);
         this.AddColumnToStructure(default_datetimeformat,"String",false);
-        this.AddColumnToStructure( DateMeasurement_NoSeconds,"String",false);
-        this.AddColumnToStructure(datMesDate   ,"Datetime",false);
-        this.AddColumnToStructure(ynStartup ,"Boolean",false);
+
 
     }
 
@@ -105,7 +100,7 @@ public class DataTable_SiteEvent extends AppDataTable {
 
         Integer maxID = -1;
         String facility_id1 = "1";
-        String loc1 = "NA";
+        String loc1 = "";
 
         String user = "user";
         String reading_value1 = "-9999";
@@ -114,11 +109,11 @@ public class DataTable_SiteEvent extends AppDataTable {
         String datetime2 = "01/01/2000";
         String datetime_nosec2 = "01/01/2000";
         String resolved = "true";
-        String se1 = "NA";
-        String tofo1 = "NA";
-        String eq1 = "NA";
-        String eqdesc = "NA";
-        String el_code1 = "NA";
+        String se1 = "";
+        String tofo1 = "";
+        String eq1 = "";
+        String eqdesc = "";
+        String el_code1 = "";
         String comment1 = "";
         String perid1 = "";
         String recordToUpload1 = "1";
@@ -353,12 +348,12 @@ public class DataTable_SiteEvent extends AppDataTable {
     }
 
 
-    public static String PotentialNewDups(String Location, String TheDate) {
+    public static String PotentialNewDups(String Equipment, String TheDate) {
         String select = "select count(*) count_dup "
                 + " from " + HandHeld_SQLiteOpenHelper.SITE_EVENT
                 + " where ( " + DataTable_SiteEvent.uploaded + " is null  or " + DataTable_SiteEvent.uploaded + " = 0) " +
                 "  and  (" + DataTable_SiteEvent.recordToUpload + " = 1 or " + DataTable_SiteEvent.recordToUpload + " is null) " +
-                " and  " + DataTable_SiteEvent.strEq_ID + " = '"+Location+"' and " + DataTable_SiteEvent.datSE_Date + " like '"+TheDate+"%'";
+                " and  " + DataTable_SiteEvent.strEq_ID + " = '"+Equipment+"' and " + DataTable_SiteEvent.datSE_Date + " like '"+TheDate+"%'";
 
         return select;
     }
@@ -403,11 +398,11 @@ public class DataTable_SiteEvent extends AppDataTable {
         return select;
     }
 
-    public Boolean IsPotentialDuplicateInInnerTable(String Location, String TheDate){
+    public Boolean IsPotentialDuplicateInInnerTable(String equip, String TheDate){
         for (int i = 0; i < GetNumberOfRecords(); i++ ) {
-            String loc = getValueFromData(i, DataTable_SiteEvent.strSE_ID);
+            String eq = getValueFromData(i, DataTable_SiteEvent.strEq_ID);
             String dt = getValueFromData(i, DataTable_SiteEvent.datSE_Date).substring(0,10);
-            if (loc.equals(Location) && dt.equals(TheDate))
+            if (eq.equals(equip) && dt.equals(TheDate))
                 return true;
         }
         return false;

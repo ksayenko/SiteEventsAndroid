@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.honeywell.stevents.Activity_SE_Input"
+    tools:context="com.honeywell.stevents.Activity_GeneralEq_Input"
     android:id="@+id/txt_Header"
     android:gravity="center_vertical"
     android:layout_width="match_parent"
@@ -25,24 +25,28 @@
 
         <TableRow
             android:id="@+id/row1"
+            android:layout_marginTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:gravity="right"
             android:minHeight="40dp">
 
             <TextView
                 android:id="@+id/lbl_Site_Event_Code"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
+                android:layout_weight="1"
+                android:ellipsize="end"
                 android:gravity="center_vertical"
+                android:maxLines="1"
                 android:text="@string/site_Event_Code"
+                android:textColor="@color/Very_dark_cyan"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <Spinner
                 android:id="@+id/txt_Site_Event_Code"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/custom_spinner_background"
@@ -62,18 +66,21 @@
 
             <TextView
                 android:id="@+id/lbl_Equipment_code"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0"
                 android:layout_gravity="start"
+                android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:text="@string/Equipment_code"
+                android:textColor="@color/Very_dark_cyan"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <Spinner
                 android:id="@+id/txt_equip_id"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/custom_spinner_background"
@@ -91,17 +98,20 @@
 
             <TextView
                 android:id="@+id/lbl_User_name"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:layout_gravity="start"
-                android:layout_weight="0"
+                android:textColor="@color/Very_dark_cyan"
+                android:layout_weight="1"
                 android:gravity="start|center_vertical"
                 android:text="@string/User_name"
                 android:textSize="16sp"
                 android:textStyle="bold" />
             <Spinner
-                android:id="@+id/User_name"
-                android:layout_width="wrap_content"
+                android:id="@+id/txt_User_name"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/custom_spinner_background"
@@ -119,58 +129,58 @@
 
             <TextView
                 android:id="@+id/lbl_Event_date"
-                android:layout_width="match_parent"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0"
+                android:textColor="@color/Very_dark_cyan"
+                android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:text="@string/Event_date"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <LinearLayout
-                android:layout_width="215dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_gravity="center"
                 android:orientation="horizontal">
 
                 <EditText
                     android:id="@+id/text_event_date"
-                    android:layout_width="113dp"
+                    android:layout_width="115dp"
                     android:layout_height="match_parent"
                     android:layout_marginStart="3dp"
                     android:layout_weight="1"
-                    android:autofillHints=""
                     android:background="@drawable/border"
-                    android:inputType="text"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:inputType="none"
                     android:selectAllOnFocus="true"
                     android:text="12/12/25"
                     android:textSize="14sp"
                     tools:ignore="TouchTargetSizeCheck" />
 
+
                 <EditText
                     android:id="@+id/text_event_time"
-                    android:layout_width="wrap_content"
+                    android:layout_width="80dp"
                     android:layout_height="match_parent"
                     android:layout_marginStart="3dp"
                     android:layout_weight="0"
                     android:autofillHints=""
                     android:background="@drawable/border"
                     android:selectAllOnFocus="true"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:inputType="none"
                     android:text="11:43 pm"
                     android:textSize="14sp"
                     tools:ignore="TouchTargetSizeCheck" />
 
-                <Button
-                    android:id="@+id/myDatePickerButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:text="Date" />
-
             </LinearLayout>
-            </TableRow>
-
-
+        </TableRow>
 
         <TableRow
             android:id="@+id/row5"
@@ -181,30 +191,35 @@
 
             <TextView
                 android:id="@+id/lbl_Resolved"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0"
+                android:textColor="@color/Very_dark_cyan"
+                android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="Resolved"
+                android:text="Action"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <RadioGroup
-                android:layout_width="match_parent"
+            <RadioGroup android:id="@+id/radio_group"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:layout_gravity="center"
                 android:orientation="horizontal">
+
                 <RadioButton android:id="@+id/radio_true"
                     android:layout_width="wrap_content"
                     android:layout_gravity="center"
                     android:layout_height="wrap_content"
-                    android:text="True"/>
+                    android:text="Startup"/>
                 <RadioButton android:id="@+id/radio_false"
                     android:layout_width="wrap_content"
                     android:layout_gravity="center"
                     android:layout_height="wrap_content"
-                    android:text="False"/>
+                    android:text="Shutdown"/>
             </RadioGroup>
 
         </TableRow>
@@ -218,29 +233,35 @@
 
             <TextView
                 android:id="@+id/lbl_Resolved_date"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0"
+                android:textColor="@color/Very_dark_cyan"
+                android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="Resolved Date"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="Measurement Date"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <LinearLayout
-                android:layout_width="215dp"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:orientation="horizontal">
 
                 <EditText
                     android:id="@+id/text_resolve_date"
-                    android:layout_width="113dp"
+                    android:layout_width="115dp"
                     android:layout_height="match_parent"
+                    android:layout_gravity="left"
                     android:layout_marginStart="3dp"
-                    android:layout_weight="1"
-                    android:autofillHints=""
+                    android:layout_weight="0"
                     android:background="@drawable/border"
-                    android:inputType="text"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:inputType="none"
                     android:selectAllOnFocus="true"
                     android:text="12/12/25"
                     android:textSize="14sp"
@@ -248,24 +269,20 @@
 
                 <EditText
                     android:id="@+id/text_resolve_time"
-                    android:layout_width="wrap_content"
+                    android:layout_width="80dp"
                     android:layout_height="match_parent"
+                    android:layout_gravity="right"
                     android:layout_marginStart="3dp"
                     android:layout_weight="0"
-                    android:autofillHints=""
                     android:background="@drawable/border"
+                    android:clickable="true"
+                    android:contextClickable="true"
+                    android:focusable="false"
+                    android:inputType="none"
                     android:selectAllOnFocus="true"
+                    android:singleLine="true"
                     android:text="11:43 pm"
-                    android:textSize="14sp"
-                    tools:ignore="TouchTargetSizeCheck" />
-
-                <Button
-                    android:id="@+id/myDatePickerButton2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:text="Date" />
-
+                    android:textSize="14sp" />
             </LinearLayout>
 
         </TableRow>
@@ -279,9 +296,12 @@
 
             <TextView
                 android:id="@+id/lbl_comment"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/Very_dark_cyan"
+                android:layout_weight="0.5"
                 android:gravity="center_vertical"
                 android:text="Comments"
                 android:textSize="16sp"
@@ -289,10 +309,10 @@
 
             <EditText
                 android:id="@+id/txt_comment"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_marginLeft="0dp"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:autofillHints=""
                 android:background="@drawable/border"
                 android:textSize="16sp"
@@ -359,4 +379,5 @@
             android:textSize="25sp"></ListView>
 
     </TableLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

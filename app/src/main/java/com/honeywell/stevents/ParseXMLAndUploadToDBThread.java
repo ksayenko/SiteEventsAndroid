@@ -14,6 +14,10 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.io.File;
@@ -24,13 +28,13 @@ public class ParseXMLAndUploadToDBThread{
     public Handler mHandler;
     TextView txtInfo;
     ProgressBar progressBar;
-    public Activity activity;
+    public AppCompatActivity activity;
     boolean bDownloadFromWS;
     private Button btnInputForms;
     private Button btnReviewForms;
     private Button btnUploadDataToServer;
 
-    public ParseXMLAndUploadToDBThread(Activity _activity, boolean _bDownloadFromWS) {
+    public ParseXMLAndUploadToDBThread(AppCompatActivity _activity, boolean _bDownloadFromWS) {
 
         activity = _activity;
         context = activity;
@@ -62,60 +66,56 @@ public class ParseXMLAndUploadToDBThread{
 
     private void populateDB() {
 
-        //ExecutorService es = Executors.newFixedThreadPool(1);
-        // Display message only for better readability
+        btnInputForms.setEnabled(false);
+        btnUploadDataToServer.setEnabled(false);
+        btnReviewForms.setEnabled(false);
 
-        ExecutorService executor = Executors.newFixedThreadPool(3);//.newSingleThreadScheduledExecutor();
+        ExecutorService executor = Executors.newFixedThreadPool(5);//.newSingleThreadScheduledExecutor();
         progressBar.setVisibility(View.VISIBLE);
         final Handler handler = new Handler(Looper.getMainLooper());
         executor.execute(new Runnable() {
 
-            int count;
+            int count = 0;
+
             @Override
             public void run() {
+
                 //Background work here
                 try {
-                System.out.println("Startings run");
-
-                    btnInputForms.setEnabled(false);
-                    btnUploadDataToServer.setEnabled(false);
-                    btnReviewForms.setEnabled(false);
+                    System.out.println("KS :: Start run()");
                     doInBackground();
-                    //System.out.println("After  doInBackground();");
-                   // onPostExecute(11);
+                    System.out.println("KS :: After  doInBackground();");
+                    // onPostExecute(11);
 
-                    handler.post(new Runnable() {
+                    handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             //UI Thread work here
-                             onPostExecute(11);
-                            }
+                            onPostExecute(11);
+                        }
 
                         private void onPostExecute(Integer result) {
-                            System.out.println("INSIDE THIS ONPOSTEXECUTE");
+                            System.out.println("KS :: INSIDE THIS ONPOSTEXECUTE");
                             btnInputForms.setEnabled(true);
                             btnUploadDataToServer.setEnabled(true);
                             btnReviewForms.setEnabled(true);
-                          
                         }
-
-
-                    });
+                    }, 6000);
                 } catch (Exception e) {
-                    System.out.println("Error :: "+e.toString());
+                    System.out.println("KS :: Error FROM THE APP 1 : " + e.fillInStackTrace());
 
                 }
             }
         });
 
         // Display message only for better readability
-        System.out.println("Done");
+        System.out.println("KS :: Done");
         progressBar.setVisibility(View.INVISIBLE);
     }
 
 
     private void onPostExecute(int result) {
-        System.out.println("INSIDE THAT ONPOSTEXECUTE");
+        System.out.println("KS :: INSIDE THAT ONPOSTEXECUTE");
         btnInputForms.setEnabled(true);
         btnUploadDataToServer.setEnabled(true);
 
@@ -165,15 +165,15 @@ public class ParseXMLAndUploadToDBThread{
         if (!directoryApp.exists())
             directoryApp.mkdir();
 
-        System.out.println("Starting doInBackground");
+        System.out.println("KS:: Starting doInBackground : DOWNLOADING DATE FROM WEBSERVICES");
         StdetFiles f = new StdetFiles(directoryApp);
-        System.out.println("Starting new StdetFiles(directoryApp);");
+        System.out.println("KS:: Starting new StdetFiles(directoryApp);");
         AppDataTables tables;// = f.ReadXMLToSTDETables();
 
 
         //final AlertDialog ad = new AlertDialog.Builder(context).create();
         try {
-            System.out.println("doInBackground");
+            System.out.println("KS:: doInBackground");
             String resp = "LookUp Tables Loadeding";
 
             if (bDownloadFromWS) {
@@ -187,12 +187,12 @@ public class ParseXMLAndUploadToDBThread{
                     txtInfo.setText(response);
                     bConnection = false;
                     //pause
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
+                    Executor handler = ContextCompat.getMainExecutor(activity);
+                    handler.execute(new Runnable() {
                         public void run() {
                             // yourMethod();
                         }
-                    }, 5000);// 5sec
+                    });
                     //btnInputForms.setEnabled(true);
                     //btnUploadDataToServer.setEnabled(true);
                 }
@@ -218,10 +218,10 @@ public class ParseXMLAndUploadToDBThread{
 
                 tables.AddStdetDataTable(new DataTable_SiteEvent());
                 tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml"));
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.USERS + " is reading to memory ");
+                publishProgressTextView(" Table  " + HandHeld_SQLiteOpenHelper.USERS + " is reading to memory ");
                 publishProgressBar(1);
                 tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml"));
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.EQUIP_IDENT + " is reading to memory ");
+                publishProgressTextView("   Table  " + HandHeld_SQLiteOpenHelper.EQUIP_IDENT + " is reading to memory ");
                 publishProgressBar(2);
                 tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + ".xml"));
                 publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + " is reading to memory ");
@@ -230,7 +230,7 @@ public class ParseXMLAndUploadToDBThread{
 
             } catch (Exception exception) {
                 exception.printStackTrace();
-                System.out.println(exception.toString());
+                System.out.println("KS :: "+exception.toString());
                 return -1;
             }
             publishProgressTextView(" Start Uploading to DB");
@@ -239,7 +239,7 @@ public class ParseXMLAndUploadToDBThread{
             //dbHelper.getInsertFromTables(db);
 
             int n = tables.getDataTables().size();
-            System.out.println("!!!!!!!In getInsertFromTables : " + String.valueOf(n));
+            System.out.println("KS :: !!!!!!!In getInsertFromTables : " + String.valueOf(n));
 
             for (int i = 0; i < n; i++) {
 
@@ -248,7 +248,7 @@ public class ParseXMLAndUploadToDBThread{
                     String tbName = tables.getDataTables().get(i).getName();
                     publishProgressBar(11 + i);
                     publishProgressTextView("Inserting Data for table " + String.valueOf(i + 1) + ": " + tbName);
-                    System.out.println("In getInsertFromTables " + String.valueOf(i) + " " + tbName);
+                    System.out.println("KS ::In getInsertFromTables " + String.valueOf(i) + " " + tbName);
                     if (!tbName.equalsIgnoreCase("NA")
                             && tables.getDataTables().get(i).getTableType() == AppDataTable.TABLE_TYPE.LOOKUP) {
                         dbHelper.getInsertFromTable(db, tables.getDataTables().get(i));
@@ -262,7 +262,7 @@ public class ParseXMLAndUploadToDBThread{
             //ad.setMessage(resp);
         } catch (Exception ex) {
             ex.printStackTrace();
-            System.out.println(ex.toString());
+            System.out.println("KS ::"+ex.toString());
             return -1;
         }
         //ad.show();

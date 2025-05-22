@@ -37,6 +37,14 @@ public class AppDataTable implements Serializable {
 
     private ArrayList<ArrayList<String>> dataTable;
 
+    public int GetRowsCount()
+    {
+        if (dataTable == null)
+            return -1;
+        else
+            return dataTable.size();
+    }
+
 
     public AppDataTable() {
         this("NA");
@@ -245,6 +253,7 @@ public class AppDataTable implements Serializable {
         String type;
         String sValue;
         int nColumns = ColumnNames.toArray().length;
+        try {
         for (int i = 0; i < nColumns; i++) {
             sInsert1 += getColumnNames().get(i);
             sValue = dataTable.get(element).get(i);
@@ -257,6 +266,11 @@ public class AppDataTable implements Serializable {
                 sInsert2 += ", ";
             }
         }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.out.println("insert parts " + sInsert1 +" " + sInsert2 + ex);
+            return "";
+        }
 
         sInsert1 += " )";
         sInsert2 += " )";
@@ -266,7 +280,7 @@ public class AppDataTable implements Serializable {
 
     private String getConvertedValue(String type, String sValue) {
         boolean bNull = false;
-        if (sValue.equals("") || sValue.equalsIgnoreCase("null")) {
+        if (sValue == null ||sValue.equals("") || sValue.equalsIgnoreCase("null")) {
             sValue = "NULL";
             bNull = true;
         }

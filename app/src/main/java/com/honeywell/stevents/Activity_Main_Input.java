@@ -1,14 +1,14 @@
 package com.honeywell.stevents;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -28,14 +28,10 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 
 import com.honeywell.aidc.BarcodeFailureEvent;
 import com.honeywell.aidc.BarcodeReadEvent;
@@ -45,7 +41,6 @@ import com.honeywell.aidc.ScannerUnavailableException;
 import com.honeywell.aidc.TriggerStateChangeEvent;
 import com.honeywell.aidc.UnsupportedPropertyException;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -56,7 +51,7 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public class Activity_SE_Main_Input extends AppCompatActivity
+public class Activity_Main_Input extends AppCompatActivity
         implements BarcodeReader.BarcodeListener,
         BarcodeReader.TriggerListener {
 
@@ -64,8 +59,6 @@ public class Activity_SE_Main_Input extends AppCompatActivity
     //public enum VALIDATION {VALID,ERROR,WARNING}
     private BarcodeReader barcodeReader;
     private ListView barcodeList;
-
-    SiteEvents input_reading;
 
     private Context mContext;
     private Date currentDateTime;
@@ -90,8 +83,7 @@ public class Activity_SE_Main_Input extends AppCompatActivity
     Cursor Cursor_SE_code = null;
     ArrayList<String[]> array_SE_code = null;
     private String current_se = "";
-    int iCol_se_id = 1;
-    int iCol_se_desq = 2;
+
     Cursor Cursor_Users = null;
     ArrayList<String[]> array_Users = null;
     String curent_username = "";
@@ -99,18 +91,16 @@ public class Activity_SE_Main_Input extends AppCompatActivity
     Cursor Cursor_Eq = null;
     ArrayList<String[]> array_Eq = null;
     String current_equipment = "";
-    int iCol_eq_id = 1;
-    int iCol_eq_type = 2;
+    String current_equipment_type="";
 
-    boolean bresolve=true;
+
+    boolean current_yn_resolve=true;
 
     String current_comment = "";
     String current_reading = "";
     String current_unit = "";
     Boolean bBarcodeEquip = false;
-
     Integer maxId = 0;
-
     Button btnInputForms;
     public HandHeld_SQLiteOpenHelper dbHelper;
     public SQLiteDatabase db;
@@ -125,7 +115,8 @@ public class Activity_SE_Main_Input extends AppCompatActivity
     Boolean bAcceptWarningDuplicate = false;
 
 
-    private SiteEvents default_reading;
+    private SiteEvents default_site_event_reading;
+    private SiteEvents current_site_event_reading;
     private DataTable_SiteEvent se_table = new DataTable_SiteEvent();
 
     Boolean[] bDialogChoice = {false};
@@ -141,28 +132,37 @@ public class Activity_SE_Main_Input extends AppCompatActivity
         bAcceptWarningDuplicate = false;
         mContext = this;
 
-        input_reading = new SiteEvents();
-        default_reading = SiteEvents.GetDefaultReading();
+
+        default_site_event_reading = SiteEvents.GetDefaultReading();
+        current_site_event_reading= SiteEvents.GetDefaultReading();
+
+        try {
+            current_site_event_reading = (SiteEvents)default_site_event_reading.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             System.out.println("we have default reading");
-            default_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
+            default_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
+            se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
         } else {
             System.out.println("no default reading");
-            default_reading = SiteEvents.GetDefaultReading();
+            default_site_event_reading = SiteEvents.GetDefaultReading();
+            se_table = new DataTable_SiteEvent();
         }
 
-        current_se = default_reading.getStrSE_ID();
-        current_equipment = default_reading.getStrEq_ID();
-        curent_username = default_reading.getStrUserName();
-        current_comment = default_reading.getStrComment();
+        current_se = default_site_event_reading.getStrSE_ID();
+        current_equipment = default_site_event_reading.getStrEq_ID();
+        curent_username = default_site_event_reading.getStrUserName();
+        current_comment = default_site_event_reading.getStrComment();
 
 
 
-        Log.i("------------onCreate Activity_SE_Main_Input", "10");
+        Log.i("------------onCreate Activity_Main_Input", "10");
         //super.onCreate(savedInstanceState);
-        Log.i("------------onCreate Activity_SE_Main_Input", "1");
+        Log.i("------------onCreate Activity_Main_Input", "1");
         setContentView(R.layout.activity_input_main_se);
 
         //((TextView)findViewById(R.id.txtActivityTitle)).setText("Input Form");
@@ -186,173 +186,43 @@ public class Activity_SE_Main_Input extends AppCompatActivity
         spin_User_name = (Spinner) findViewById(R.id.txt_User_name);
 
         String selectedDate = DateTimeHelper.GetDateTimeNow();
-        default_reading.setDatResDate(selectedDate);
-        default_reading.setDatSE_Date(selectedDate);
+        current_site_event_reading.setDatResDate(selectedDate);
+        current_site_event_reading.setDatSE_Date(selectedDate);
 
         rbTrue =(RadioButton) findViewById(R.id.radio_true);
         rbFalse =(RadioButton) findViewById(R.id.radio_false);
-        if (default_reading.getYnResolved()=="true")
-            rbTrue.setChecked(true);
-        else rbFalse.setChecked(false);
-        rbTrue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (rbTrue.isChecked())
-                    bresolve = true;
-                else
-                    bresolve = false;
-            }
-        }) ;
+        rbResloved = (RadioGroup) findViewById(R.id.radio_group);
+        rbResloved.clearCheck();
+current_yn_resolve = false;
+        if (current_site_event_reading.getYnResolved()=="true")
+            current_yn_resolve = true;
+        if (current_yn_resolve)
+            rbResloved.check(R.id.radio_true);
+        else
+            rbResloved.check(R.id.radio_false);
 
 
-
-        String aDate = DateTimeHelper.GetDateFromDateTime(selectedDate,"");
-        String aTime = DateTimeHelper.GetTimeFromDateTime(selectedDate,"");
+        String aDate = DateTimeHelper.GetStringDateFromDateTime(selectedDate,"");
+        String aTime = DateTimeHelper.GetStringTimeFromDateTime(selectedDate,"");
 
         //text_event_time
         text_event_time =(TextView)findViewById(R.id.text_event_time);
         text_event_time.setText(aTime);
-        text_event_time.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                final Calendar mcurrentTime = Calendar.getInstance();
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                int minute = mcurrentTime.get(Calendar.MINUTE);
-
-                TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(mContext,
-                        new TimePickerDialog.OnTimeSetListener() {
-                            @Override
-                            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                                if (selectedHour < 12 )
-                                    text_event_time.setText( selectedHour + ":" + selectedMinute + " am");
-                                else
-                                    text_event_time .setText( selectedHour-12 + ":" + selectedMinute + " pm");
-                            }
-                        }, hour, minute, true);
-                mTimePicker.setTitle("Select Time");
-                mTimePicker.show();
-
-            }
-        });
-
+        text_event_time_picker();
         //text_event_date
         text_event_date =(TextView)findViewById(R.id.text_event_date);
         text_event_date.setText(aDate);
-        text_event_date.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                final Calendar mcurrentTime = Calendar.getInstance();
-                int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
-                int month = mcurrentTime.get(Calendar.MONTH);
-                int year = mcurrentTime.get(Calendar.YEAR);
+        text_event_date_picker();
 
-
-                DatePickerDialog mDatePicker;
-                mDatePicker = new DatePickerDialog(mContext,
-                        new DatePickerDialog.OnDateSetListener() {
-
-                            @Override
-                            public void onDateSet (DatePicker dPicker, int year,
-                                                       int month, int day) {
-
-                                text_event_date.setText( month + "/" + day + "/"+ year);
-
-                            }
-                        },year, month, day);
-                mDatePicker.setTitle("Select Date");
-                mDatePicker.show();
-
-            }
-        });
-        text_event_time =(TextView)findViewById(R.id.text_event_time);
-        text_event_time.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                final Calendar mcurrentTime = Calendar.getInstance();
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                int minute = mcurrentTime.get(Calendar.MINUTE);
-
-                TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(mContext,
-                        new TimePickerDialog.OnTimeSetListener() {
-                            @Override
-                            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                                if (selectedHour < 12 )
-                                    text_event_time.setText( selectedHour + ":" + selectedMinute + " am");
-                                else
-                                    text_event_time .setText( selectedHour-12 + ":" + selectedMinute + " pm");
-                            }
-                        }, hour, minute, true);
-                mTimePicker.setTitle("Select Time");
-                mTimePicker.show();
-
-            }
-        });
-
+        //////////////////////
         //resolve date
         text_resolve_date =(TextView)findViewById(R.id.text_resolve_date);
         text_resolve_date.setText(aDate);
-        text_resolve_date.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                final Calendar mcurrentTime = Calendar.getInstance();
-                int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
-                int month = mcurrentTime.get(Calendar.MONTH);
-                int year = mcurrentTime.get(Calendar.YEAR);
-
-
-                DatePickerDialog mDatePicker;
-                mDatePicker = new DatePickerDialog(mContext,
-                        new DatePickerDialog.OnDateSetListener() {
-
-                            @Override
-                            public void onDateSet (DatePicker dPicker, int year,
-                                                   int month, int day) {
-
-                                text_resolve_date.setText( month + "/" + day + "/"+ year);
-
-                            }
-                        },year, month, day);
-                mDatePicker.setTitle("Select Date");
-                mDatePicker.show();
-
-            }
-        });
+        text_resolve_date_picker();
         //text_resolve_time
         text_resolve_time = (TextView) findViewById(R.id.text_resolve_time);
         text_resolve_time.setText(aTime);
-        text_resolve_time.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                final Calendar mcurrentTime = Calendar.getInstance();
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                int minute = mcurrentTime.get(Calendar.MINUTE);
-
-                TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(mContext,
-                        new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        if (selectedHour < 12 )
-                            text_resolve_time.setText( selectedHour + ":" + selectedMinute + " am");
-                        else
-                            text_resolve_time .setText( selectedHour-12 + ":" + selectedMinute + " pm");
-                    }
-                }, hour, minute, true);
-                mTimePicker.setTitle("Select Time");
-                mTimePicker.show();
-
-            }
-        });
+        text_resolve_time_picker();
 
 
         // needed for spinner
@@ -361,7 +231,7 @@ public class Activity_SE_Main_Input extends AppCompatActivity
         // equipment
         Cursor_Eq = dbHelper.GetCursorEquipment(db);
         array_Eq = transferCursorToArrayList(Cursor_Eq);
-        String[] from_Eq= new String[]{DataTable_Equip_Ident.strEqTypeID};
+        String[] from_Eq= new String[]{DataTable_Equip_Ident.strEqID};
         SimpleCursorAdapter adapter_Eq =
                 new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item,
                         Cursor_Eq, from_Eq, toL, 0);
@@ -437,6 +307,7 @@ public class Activity_SE_Main_Input extends AppCompatActivity
 
 
         txt_comment = (EditText) findViewById(R.id.txt_comment);
+        txt_comment.setText(current_site_event_reading.getStrComment());
         txt_comment.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -449,6 +320,7 @@ public class Activity_SE_Main_Input extends AppCompatActivity
 
             public void afterTextChanged(Editable s) {
                 Log.i("isLastRecordSavedToTable", "txtComment.addTextChangedListener " + isLastRecordSavedToTable.toString());
+
                 isLastRecordSavedToTable = false;
             }
         });
@@ -467,6 +339,7 @@ public class Activity_SE_Main_Input extends AppCompatActivity
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SaveReadingsToSiteEventRecord();
                 System.out.println(bAcceptWarningValid);
                 Validation iChecked = saveForms(bAcceptWarningValid, bAcceptWarningDuplicate);
                 if (iChecked.isValid() ||
@@ -530,31 +403,11 @@ public class Activity_SE_Main_Input extends AppCompatActivity
         });
         int idCol = getIndexFromArraylist(array_SE_code, current_se, 1);
         spin_SE_Code.setSelection(idCol);
+
+
         spin_Equip_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                Object item = parent.getItemAtPosition(pos);
-
-                String desc = ((String[]) array_Eq.get(pos))[2];
-                current_se = ((String[]) array_Eq.get(pos))[1];
-
-                if (!bBarcodeEquip) {
-                    //strDataModComment = "Manual";
-                    bBarcodeEquip = false;
-                } else {
-                    //strDataModComment = "";
-                    bBarcodeEquip = false;
-                }
-
-
-                bAcceptWarningValid = false;
-                bAcceptWarningDuplicate = false;
-
-                if (!Objects.equals(current_se, "NA"))
-                    isLastRecordSavedToTable = false;
-
-                Log.i("isLastRecordSavedToTable", "spin_loc_id.listener isLastRecordSavedToTable:" + isLastRecordSavedToTable.toString());
-                Log.i("isLastRecordSavedToTable", "spin_loc_id.listener isRecordsSavedToDB:" + isRecordsSavedToDB.toString());
-                Log.i("current_se", "spin_loc_id.listener current_se" + current_se);
+                spin_Equip_Code_Listener(parent, pos);
             }
 
             public void onNothingSelected(AdapterView<?> parent) {
@@ -661,6 +514,199 @@ public class Activity_SE_Main_Input extends AppCompatActivity
         Log.i("barcodeList", barcodeList.toString());
     }
 
+    private void spin_Equip_Code_Listener(AdapterView<?> parent, int pos) {
+        Object item = parent.getItemAtPosition(pos);
+
+        current_equipment_type = ((String[]) array_Eq.get(pos))[2];
+        current_equipment = ((String[]) array_Eq.get(pos))[1];
+
+        if (!bBarcodeEquip) {
+            //strDataModComment = "Manual";
+            bBarcodeEquip = false;
+        } else {
+            //strDataModComment = "";
+            bBarcodeEquip = false;
+        }
+
+        if(!current_equipment.startsWith("NA")) {
+//collect dataIntent seintent
+            Intent seintent = null;
+            SaveReadingsToSiteEventRecord();
+
+            MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+            if (type == MeasurementTypes.MEASUREMENT_TYPES.SE) {
+                seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
+            }
+            if (type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
+                seintent = new Intent("android.intent.action.INPUT_VOC_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
+            }
+            if (seintent != null)
+                SetAndStartIntent(seintent);
+        }
+        bAcceptWarningValid = false;
+        bAcceptWarningDuplicate = false;
+
+        if (!Objects.equals(current_equipment, "NA"))
+            isLastRecordSavedToTable = false;
+
+        Log.i("isLastRecordSavedToTable", "spin_Equip_Code.listener isLastRecordSavedToTable:" + isLastRecordSavedToTable.toString());
+        Log.i("isLastRecordSavedToTable", "spin_Equip_Code.listener isRecordsSavedToDB:" + isRecordsSavedToDB.toString());
+        Log.i("current_equipment", "spin_Equip_Code.listener current_equipment" + current_equipment);
+    }
+
+    private void SetAndStartIntent(Intent seintent) {
+        seintent.putExtra("SE", current_site_event_reading);
+        seintent.putExtra("SE_TABLE", se_table );
+        startActivity(seintent);
+    }
+
+    private void SaveReadingsToSiteEventRecord() {
+        //note that dates and times saved in the events
+        String comm = (String) txt_comment.getText().toString();
+        current_site_event_reading.setStrComment(comm);
+        current_site_event_reading.setStrUserName(curent_username);
+        current_site_event_reading.setStrEq_ID(current_equipment);
+        current_site_event_reading.setStrSE_ID(current_se);
+        if (rbTrue.isChecked()) {
+            current_yn_resolve = true;
+            current_site_event_reading.setYnResolved("true");
+        }
+        else {
+            current_yn_resolve = false;
+            current_site_event_reading.setYnResolved("false");
+        }
+        
+    }
+
+    private void text_event_time_picker() {
+        text_event_time.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                final Calendar mcurrentTime =
+                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatSE_Time(),"");
+
+                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                int minute = mcurrentTime.get(Calendar.MINUTE);
+//https://stackoverflow.com/questions/32678968/android-timepickerdialog-styling-guide-docs
+                TimePickerDialog mTimePicker;
+                mTimePicker = new TimePickerDialog(ct,R.style.CustomTimePickerDialog,
+                        (timePicker, selectedHour, selectedMinute) -> {
+                    String strSE_DateTime = current_site_event_reading.getDatSE_Date();
+                    Calendar cal = DateTimeHelper.GetCalendarFromDateTime(strSE_DateTime,"");
+                            strSE_DateTime= DateTimeHelper.UpdateTime(strSE_DateTime,selectedHour, selectedMinute,0);
+                            String aTime=DateTimeHelper.GetStringTimeFromDateTime(strSE_DateTime);
+                            text_event_time.setText(aTime);
+                            current_site_event_reading.setDatSE_Date(strSE_DateTime);
+                        }, hour, minute, false);
+                mTimePicker.setTitle("Select Event Time");
+                mTimePicker.show();
+
+            }
+        });
+    }
+
+    private void text_resolve_time_picker() {
+        text_resolve_time.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                final Calendar mcurrentTime =
+                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatResDate(),"");
+
+                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                int minute = mcurrentTime.get(Calendar.MINUTE);
+
+                TimePickerDialog mTimePicker;
+                mTimePicker = new TimePickerDialog(ct,R.style.CustomTimePickerDialog,
+                        (timePicker, selectedHour, selectedMinute) -> {
+                            String strSE_DateTime = current_site_event_reading.getDatSE_Date();
+                            Calendar cal = DateTimeHelper.GetCalendarFromDateTime(strSE_DateTime,"");
+                            strSE_DateTime= DateTimeHelper.UpdateTime(strSE_DateTime,selectedHour, selectedMinute,0);
+                            text_resolve_time.setText(DateTimeHelper.GetStringTimeFromDateTime(strSE_DateTime));
+                            current_site_event_reading.setDatResDate(strSE_DateTime);
+                        }, hour, minute, false);
+                mTimePicker.setTitle("Select Resolved Time");
+                mTimePicker.show();
+
+            }
+        });
+    }
+
+    private void text_resolve_date_picker() {
+        text_resolve_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                final Calendar mcurrentTime =
+                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatResDate(),"");
+
+                int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
+                int month = mcurrentTime.get(Calendar.MONTH);
+                int year = mcurrentTime.get(Calendar.YEAR);
+
+
+                DatePickerDialog mDatePicker;
+                mDatePicker = new DatePickerDialog(mContext, R.style.SpinnerDatePickerDialog,
+                        new DatePickerDialog.OnDateSetListener() {
+
+                            @Override
+                            public void onDateSet (DatePicker dPicker, int year,
+                                                   int month, int day) {
+
+                                String strSE_DateTime = current_site_event_reading.getDatResDate();
+                                Calendar cal = DateTimeHelper.GetCalendarFromDateTime(strSE_DateTime,"");
+                                strSE_DateTime= DateTimeHelper.UpdateDate(strSE_DateTime,year, month,day);
+
+                                text_resolve_date.setText(DateTimeHelper.GetStringDateFromDateTime(strSE_DateTime,""));
+                                current_site_event_reading.setDatResDate(strSE_DateTime);
+
+                            }
+                        },year, month, day);
+                mDatePicker.setTitle("Select Resolved Date");
+                mDatePicker.show();
+            }
+        });
+    }
+
+    private void text_event_date_picker() {
+        text_event_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                final Calendar mcurrentTime =
+                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatSE_Time(),"");
+
+                int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
+                int month = mcurrentTime.get(Calendar.MONTH);
+                int year = mcurrentTime.get(Calendar.YEAR);
+
+
+                DatePickerDialog mDatePicker;
+                mDatePicker = new DatePickerDialog(mContext,R.style.SpinnerDatePickerDialog,
+                        new DatePickerDialog.OnDateSetListener() {
+
+                            @Override
+                            public void onDateSet (DatePicker dPicker, int year,
+                                                       int month, int day) {
+
+                                String strSE_DateTime = current_site_event_reading.getDatSE_Date();
+                                Calendar cal = DateTimeHelper.GetCalendarFromDateTime(strSE_DateTime,"");
+                                strSE_DateTime= DateTimeHelper.UpdateDate(strSE_DateTime,year, month,day);
+
+                                text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(strSE_DateTime,""));
+                                current_site_event_reading.setDatSE_Date(strSE_DateTime);
+
+                            }
+                        },year, month, day);
+                mDatePicker.setTitle("Select Event Date");
+                mDatePicker.show();
+
+            }
+        });
+    }
+
     @Override
     public void onBarcodeEvent(final BarcodeReadEvent event) {
         runOnUiThread(new Runnable() {
@@ -679,7 +725,7 @@ public class Activity_SE_Main_Input extends AppCompatActivity
                 isLastRecordSavedToTable = false;
 
                 final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(
-                        Activity_SE_Main_Input.this, android.R.layout.simple_list_item_1, list);
+                        Activity_Main_Input.this, android.R.layout.simple_list_item_1, list);
 
                 int id = getIndexFromArraylist(array_Eq, getCurrent_Equipment(), 1);
 
@@ -766,10 +812,10 @@ Wedge as keys to empty
                     bBarcodeEquip = false;
                     //spin_Loc_id.setSelection(id);
                     //barcodeList.setAdapter(dataAdapter);
-                    Toast.makeText(Activity_SE_Main_Input.this, "No data yet", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Activity_Main_Input.this, "No data yet", Toast.LENGTH_SHORT).show();
 
                 } else {
-                    Toast.makeText(Activity_SE_Main_Input.this, current_equipment, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Activity_Main_Input.this, current_equipment, Toast.LENGTH_SHORT).show();
 
                 }
 
@@ -878,172 +924,104 @@ Wedge as keys to empty
         //txt_Reading.requestFocus();
     }
 
-    public Validation saveForms(boolean bAcceptWarning, boolean bAcceptWarningDuplicate) {
 
-        input_reading.setLngID((int) (new Date().getTime() / 1000));
-
-        currentDateTime = Calendar.getInstance().getTime();
-        //adding seconds April 2023. KS
-        //default sqlllite format YYYY-MM-DD HH:MM:SS
-        String timestamp1 = new SimpleDateFormat(DataTable_SiteEvent.Datetime_pattern_default).format(currentDateTime);
-        String timeStamp = new SimpleDateFormat(DataTable_SiteEvent.Datetime_pattern_with_sec).format(currentDateTime);
-
-//        TextView temp;
-//        temp = (TextView) spin_Loc_id.getSelectedView();
-//        current_se = temp.getText().toString();
-//        input_reading.setStrD_Loc_ID(current_se);
-//        input_reading.setDatIR_Date(timeStamp);
-//
-//        temp = (TextView) spin_COL_ID.getSelectedView();
-//        current_equipment = temp.getText().toString();
-//        input_reading.setStrD_Col_ID(current_equipment);
-//        default_reading.setStrD_Col_ID(current_equipment);//saving the last collector id
-//
-//        temp = (TextView) spin_EQ_OP.getSelectedView();
-//        curent_username = temp.getText().toString();
-//        input_reading.setStrEqO_StatusID(curent_username);
-//
-//        temp = (TextView) spin_FAC_OP.getSelectedView();
-//        curent_fo = temp.getText().toString();
-//        input_reading.setStrFO_StatusID(curent_fo);
-//
-//        temp = (TextView) spin_UNITS.getSelectedView();
-//        current_unit = temp.getText().toString();
-//        input_reading.setStrIR_Units(current_unit);
-//
-//        current_reading = txt_Reading.getText().toString();
-//        input_reading.setDblIR_Value(current_reading);
-//
-//        current_comment = txt_comment.getText().toString();
-//        input_reading.setStrComment(current_comment);
-//
-//
-//        temp = (TextView) spin_elev_code.getSelectedView();
-//        curent_elevationcode = temp.getText().toString();
-//        input_reading.setElev_code(curent_elevationcode);
-//
-//
-       Validation isTheRecordValid = isRecordValid();
-        Validation isTheRecordDup = isRecordDup();
-
-//        boolean bAcceptDup = isTheRecordDup.isValid() || (isTheRecordDup.isWarningDuplicate() && bAcceptWarningDuplicate);
-//        boolean bAcceptRecord = isTheRecordValid.isValid() || (isTheRecordValid.isWarning() && bAcceptWarning);
-
-//        if (isTheRecordValid.isError()) {
-//            AlertDialogShowError(isTheRecordValid.getValidationMessage(), "ERROR");
-//        } else if (isTheRecordValid.isWarning() && !bAcceptWarning) {
-//            AlertDialogShow("Please check\n" + isTheRecordValid.getValidationMessage() + "\nPress 'Save' one more time to confirm the data as VALID or update the input data.", "Warning");
-//        } else if (isTheRecordDup.isWarningDuplicate() && !bAcceptWarningDuplicate) {
-//            AlertDialogHighWarning("Please check\n" + isTheRecordDup.getValidationMessage() + "\nPress 'Save' one more time to confirm the data as VALID or update the input data.", "Warning");
-//            return isTheRecordDup;
-//        } else if ((bAcceptRecord) && (bAcceptDup)) {
-//            System.out.println(isTheRecordValid.getValidationMessageWarning() + isTheRecordValid.getValidationMessageError());
-//            maxId = se_table.AddToTable(input_reading);
-//            isRecordsSavedToDB = false;
-//            maxId++;
-//            clearForms();
-//            System.out.println("NEW max id " + maxId.toString());
-//        }
-
-        return isTheRecordValid;
-    }
-
-//    public static void getTimePicker(Context context, final int position, final PickerClickListener pickerClickListener) {
-//        final Dialog dialog = new Dialog(context);
-//        dialog.setContentView(R.layout.dialog_time);
-//        dialog.show();
-//        final TimePicker timePicker = (TimePicker) dialog.findViewById(R.id.timePicker);
-//        timePicker.setIs24HourView(false);
-//        Button buttonOk = (Button) dialog.findViewById(R.id.buttonOk);
-//        Button buttonCancel = (Button) dialog.findViewById(R.id.buttonCancel);
-//        buttonCancel.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                dialog.dismiss();
-//            }
-//        });
-//        buttonOk.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                try {
-//                    SimpleDateFormat sdf24 = new SimpleDateFormat("HH:mm");
-//                    SimpleDateFormat sdf12 = new SimpleDateFormat("hh:mm a");
-//
-//                    String strTime = timePicker.getCurrentHour() + ":" + timePicker.getCurrentMinute();
-//                    Date time = sdf24.parse(strTime);
-//                    String formattedTime = sdf12.format(time);
-//                    Log.d(TAG, "formattedTime: " + formattedTime);
-//                    pickerClickListener.onTimeSelect(formattedTime, position);
-//                    dialog.dismiss();
-//
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
-//
-//
-//            }
-//        });
-//    }
-
-    private Validation isRecordDup() {
-        Validation isValidPotentialDups = new Validation();
-
-        //check the database
-        String datestamp1 = new SimpleDateFormat(DataTable_SiteEvent.Datetime_pattern_dateonly).format(currentDateTime);
-        String sql = DataTable_SiteEvent.PotentialNewDups(current_se, datestamp1);
-        String scount = dbHelper.GeneralQueryFirstValue(db, sql);
-        //check the inner table se_table
-        boolean bPotDup2 = se_table.IsPotentialDuplicateInInnerTable(current_se, datestamp1);
-
-        if ((!Objects.equals(scount, "") && !Objects.equals(scount, "0")) || bPotDup2) {
-            isValidPotentialDups.setValidation(Validation.VALIDATION.WARNING_DUPLICATE);
-            isValidPotentialDups.setValidationMessageWarning("Potential Duplicate Found! \nLocation : " + current_se);
-            isValidPotentialDups.setFocus(Validation.FOCUS.LOCATION);
-        }
-        return isValidPotentialDups;
-    }
-
-    private Validation isRecordValid() {
+    public static Validation IsRecordValid(SiteEvents site_event_reading,
+                                            View tvEquip,
+                                           View tvSE,
+                                           View tvUser,
+                                           View tvValue) {
         String message = "";
         String[] focus = new String[]{""};
         Validation isValid = new Validation();
 
         double reading;
+        String sreading = site_event_reading.getValue();
         try {
-            reading = Double.parseDouble(current_reading);
+            reading = Double.parseDouble(sreading);
         } catch (Exception ex) {
             reading = 0.0;
         }
 
-        isValid = input_reading.isRecordValid();
+        isValid = site_event_reading.isRecordValid();
 
-//        if (isValid.getValidation() != Validation.VALIDATION.VALID) {
-//            if (isValid.getFocus() == Validation.FOCUS.READING)
-//                txt_Reading.requestFocus();
-//            else if (isValid.getFocus() == Validation.FOCUS.LOCATION)
-//                spin_Loc_id.requestFocus();
-//            else if (isValid.getFocus() == Validation.FOCUS.COLLECTOR)
-//                spin_COL_ID.requestFocus();
-//            else if (isValid.getFocus() == Validation.FOCUS.ELEVATION)
-//                spin_elev_code.requestFocus();
- //       }
+        if (isValid.getValidation() != Validation.VALIDATION.VALID) {
+            if (isValid.getFocus() == Validation.FOCUS.EQUIPMENT && tvEquip != null)
+                tvEquip.requestFocus();
+            else if (isValid.getFocus() == Validation.FOCUS.USER && tvUser !=null)
+                tvUser.requestFocus();
+            else if (isValid.getFocus() == Validation.FOCUS.SITEEVENT && tvSE != null)
+                tvSE.requestFocus();
+            else if (isValid.getFocus() == Validation.FOCUS.READING && tvValue != null)
+                tvValue.requestFocus();
+        }
+
 
         return isValid;
     }
 
+    public Validation saveForms(boolean bAcceptWarning, boolean bAcceptWarningDuplicate) {
 
-    public DataTable_SiteEvent getIr_table() {
-        return se_table;
+        current_site_event_reading.setLngID((int) (new Date().getTime() / 1000));
+
+        currentDateTime = Calendar.getInstance().getTime();
+
+        Validation isTheRecordValid = Activity_Main_Input.IsRecordValid(current_site_event_reading,
+                spin_Equip_Code,
+                spin_SE_Code, spin_User_name, null);
+        Validation isTheRecordDup = Activity_Main_Input.IsRecordDup(db, dbHelper,current_site_event_reading, se_table);
+
+           boolean bAcceptDup = isTheRecordDup.isValid() || (isTheRecordDup.isWarningDuplicate() && bAcceptWarningDuplicate);
+        boolean bAcceptRecord = isTheRecordValid.isValid() || (isTheRecordValid.isWarning() && bAcceptWarning);
+
+        if (isTheRecordValid.isError()) {
+            AlertDialogShowError(isTheRecordValid.getValidationMessage(), "ERROR");
+        } else if (isTheRecordValid.isWarning() && !bAcceptWarning) {
+            AlertDialogShow("Please check\n" + isTheRecordValid.getValidationMessage() + "\nPress 'Save' one more time to confirm the data as VALID or update the input data.", "Warning");
+        } else if (isTheRecordDup.isWarningDuplicate() && !bAcceptWarningDuplicate) {
+            AlertDialogHighWarning("Please check\n" + isTheRecordDup.getValidationMessage() + "\nPress 'Save' one more time to confirm the data as VALID or update the input data.", "Warning");
+            return isTheRecordDup;
+        } else if ((bAcceptRecord) && (bAcceptDup)) {
+            System.out.println(isTheRecordValid.getValidationMessageWarning() + isTheRecordValid.getValidationMessageError());
+            maxId = se_table.AddToTable(current_site_event_reading);
+            isRecordsSavedToDB = false;
+            maxId++;
+            clearForms();
+            System.out.println("NEW max id " + maxId.toString());
+        }
+
+        return isTheRecordValid;
     }
 
-    public void setIr_table(DataTable_SiteEvent ir_table) {
-        this.se_table = ir_table;
+
+    public static  Validation IsRecordDup( SQLiteDatabase db, HandHeld_SQLiteOpenHelper dbHelper, SiteEvents current_site_event_reading ,
+        DataTable_SiteEvent dataTable_siteEvent)
+    {
+
+        Validation isValidPotentialDups = new Validation();
+
+        //check the database
+        String datestamp1 = current_site_event_reading.getDatSE_Date();
+        String eq = current_site_event_reading.getStrEq_ID();
+        String sql = DataTable_SiteEvent.PotentialNewDups(eq, datestamp1);
+
+        String scount = dbHelper.GeneralQueryFirstValue(db, sql);
+        //check the inner table se_table
+        boolean bPotDup2 = false;
+        if (dataTable_siteEvent != null && dataTable_siteEvent.GetRowsCount() > 0)
+            bPotDup2 = dataTable_siteEvent.IsPotentialDuplicateInInnerTable(eq, datestamp1);
+
+
+        if ((!Objects.equals(scount, "") && !Objects.equals(scount, "0")) || bPotDup2) {
+            isValidPotentialDups.setValidation(Validation.VALIDATION.WARNING_DUPLICATE);
+            isValidPotentialDups.setValidationMessageWarning("Potential Duplicate Found! \nLocation : " + dataTable_siteEvent);
+            isValidPotentialDups.setFocus(Validation.FOCUS.SITEEVENT);
+        }
+        return isValidPotentialDups;
     }
 
-    private boolean isNA(String sValue) {
-        boolean isna = sValue == null || sValue.equals("") || sValue.equalsIgnoreCase("NA");
-        return isna;
-    }
+
+
+
 
     private void AlertDialogShowError(String message, String title) {
         AlertDialogShow(message, title, "OK", "error");

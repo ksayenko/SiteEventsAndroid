@@ -24,10 +24,10 @@
     <string name="textInfo">Info</string>
     <string name="title_activity_with_fragment">ActivityWithFragment</string>
     <string name="action_settings">Settings</string>
-    <string name="site_Event_Code">Site Event Code:</string>
-    <string name="Equipment_code">Equipment Code:</string>
-    <string name="User_name">User Name:</string>
-    <string name="Event_date">Event Date:</string>
+    <string name="site_Event_Code">Site Event Code</string>
+    <string name="Equipment_code">Equipment Code</string>
+    <string name="User_name">User Name</string>
+    <string name="Event_date">Event Date</string>
     <string name="comment">Comment</string>
     <string name="loc_id">Loc Id:</string>
     <string name="na">NA</string>
@@ -75,4 +75,7 @@
     <color name="greenblue1L">#C8E5E3</color>
     <color name="lightblue">#e3eded</color>
     <color name="brightblue">#85CAE6</color>
+    <color name="darkblue">#003366 </color>
+    <color name="Very_dark_cyan">#004d5c</color>
+
 </resources>

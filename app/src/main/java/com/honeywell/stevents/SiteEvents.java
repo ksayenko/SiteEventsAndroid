@@ -1,10 +1,10 @@
 package com.honeywell.stevents;
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.Objects;
 
-public class SiteEvents implements Serializable {
-
-  
+public class SiteEvents implements Serializable, Cloneable {
 
 
     //public enum VALIDATION {VALID,ERROR,WARNING}
@@ -12,10 +12,33 @@ public class SiteEvents implements Serializable {
 
     private Integer lngID = -1;
     private Integer facility_id = 1;
-    private String strD_Loc_ID = "NA";
-    private String strSE_ID = "NA";
-    private String strUserName = "NA";
+    private String strD_Loc_ID = null;
+    private String strSE_ID = "";
+    private String strUserName = "";
     private String datSE_Date = "01/01/2000";
+    private String strS_Loc_ID = "99";
+    private String strTOFO_ID = null;
+    private String strEq_ID = "";
+    private String strEqDesc = null;
+    private String strComment = "";
+    private String strm_Per_ID = null;
+    private String datResDate = "01/01/2000";
+    private String datResDate_NoSeconds = "01/01/2000";
+    private String ynResolved = "false";
+    //YYYY-MM-DD HH:MM:SS
+    private String datetimedefault = "2000-01-01";
+    private String Value = null;
+    private String Unit = null;
+
+    public MeasurementTypes.MEASUREMENT_TYPES getMeasurementType() {
+        return measurementType;
+    }
+
+    public void setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES measurementType) {
+        this.measurementType = measurementType;
+    }
+
+    private MeasurementTypes.MEASUREMENT_TYPES measurementType = MeasurementTypes.MEASUREMENT_TYPES.OTHER;
 
     public String getStrUserName() {
         return strUserName;
@@ -31,8 +54,6 @@ public class SiteEvents implements Serializable {
 
     public void setDatSE_Date(String datSE_Date) {
         this.datSE_Date = datSE_Date;
-
-
         setDatSE_Time(datSE_Date);
         setDatSE_Date_NoSeconds(datSE_Date);
     }
@@ -155,24 +176,9 @@ public class SiteEvents implements Serializable {
     private String datSE_Time = "01/01/2000";
     private String datSE_Date_NoSeconds = "01/01/2000";
 
-    private String strS_Loc_ID = "99";
-    private String strTOFO_ID = "NA";
-    private String strEq_ID = "NA";
-    private String strEqDesc = "NA";
-
-    private String strComment = "";
-    private String strm_Per_ID = "NA";
-
-    private String datResDate = "01/01/2000";
-    private String datResDate_NoSeconds = "01/01/2000";
-
-    private String ynResolved = "false";
-    //YYYY-MM-DD HH:MM:SS
-    private String datetimedefault = "2000-01-01";
-    private String Value = null;
-    private String Unit = "NA";
 
     private double UNDEFINED = -99999.999;
+
     public SiteEvents() {
     }
 
@@ -195,7 +201,7 @@ public class SiteEvents implements Serializable {
                       String datRes_Date,
                       String ynResolved,
                       String Value, String Unit
-                     ) {
+    ) {
         this.lngID = lngID;
         this.facility_id = 1;
 
@@ -244,16 +250,17 @@ public class SiteEvents implements Serializable {
         return "SiteEvent{" +
                 "lngID=" + lngID +
                 ", facility_id=" + facility_id +
-                ", strUserName='" + strUserName    + '\'' +
-                ", datSE_Date=" + datSE_Date    +
+                ", strEq_ID='" + strEq_ID + '\'' +
+                ", strUserName='" + strUserName + '\'' +
+                ", strSE_ID='" + strSE_ID + '\'' +
+                ", datSE_Date=" + datSE_Date +
                 ", datSE_Time=" + datSE_Time +
                 ", datSE_Date_NoSeconds=" + datSE_Date_NoSeconds +
-                ", strSE_ID='" + strD_Loc_ID + '\'' +
-                ", strEq_ID='" + strEq_ID + '\'' +
+
                 ", strComment='" + strComment + '\'' +
                 ", ynResolved=" + ynResolved +
-                ", Value='" + Value + '\'' +
-                ", Unit='" + Unit + '\'' +
+                ", Value='" + Objects.toString(Value, "") + '\'' +
+                ", Unit='" + Objects.toString(Unit, "") + '\'' +
                 ", datResDate='" + datResDate + '\'' +
                 ", datResDate_NoSeconds='" + datResDate_NoSeconds + '\'' +
                 '}';
@@ -269,78 +276,41 @@ public class SiteEvents implements Serializable {
     }
 
     public Validation isRecordValid() {//(String[] error_message, String[] whereToFocus) {
-        // String message = "";
-        // String whereToFocus1="";
+        String message = "";
+        String whereToFocus1 = "";
         Validation isValid = new Validation();
         isValid.setValidation(Validation.VALIDATION.VALID);
 
-        double reading;
+        double dValue;
 
-//        try {
-//            reading = Double.parseDouble(dblIR_Value);
-//        } catch (Exception ex) {
-//            reading = 0.0;
-//        }
-//
-//        if (isNA(strD_Col_ID)) {
-//            isValid.addToValidationMessageError("Please select a Data Collector Id. ");
-//            isValid.setFocus(Validation.FOCUS.COLLECTOR);
-//            isValid.setValidation(Validation.VALIDATION.ERROR);
-//        } else if (isNA(strD_Loc_ID)) {
-//            isValid.addToValidationMessageError("Please input a Location Id. ");
-//            isValid.setFocus(Validation.FOCUS.LOCATION);
-//            isValid.setValidation(Validation.VALIDATION.ERROR);
-//        } /*else if (isNA(strFO_StatusID)) {
-//            //message += "Please select a Facility Oper Status. ";
-//            //spin_FAC_OP.requestFocus();
-//            //isValid =VALIDDATION.ERROR;
-//        } else if (isNA(strEqO_StatusID)) {
-//            //message += "Please select an Equipment Oper Status. ";
-//            //spin_FAC_OP.requestFocus();
-//            //isValid = VALIDDATION.ERROR;
-//        } */ else if (strD_Loc_ID.startsWith("WL") && isNA(elev_code)) {
-//            isValid.addToValidationMessageError("Water level values require an elevation code. Please select a Elevation Code designator manually. ");
-//            isValid.setFocus(Validation.FOCUS.ELEVATION);
-//            isValid.setValidation(Validation.VALIDATION.ERROR);
-//        }/* else if (reading == 0.0 && strEqO_StatusID.equalsIgnoreCase("NotOper")) {
-//            String im1 = "A Reading value of 0, together with a 'NotOper' Equip Oper Status indicates a non-valid reading.";
-//            message += im1;
-//            isValid = VALIDATION.WARNING;
-//            whereToFocus1 = "READING";
-//
-//        }   else if (reading == 0.0 && !strEqO_StatusID.equalsIgnoreCase("NotOper")) {
-//            message += "A Reading value of 0 is detected!";
-//            whereToFocus1 = "READING";
-//            //to do not valid reeading confirm
-//            String[] innermessage = new String[]{""};
-//            isValid = VALIDATION.ERROR;
-//            message += innermessage[0];
-//
-//        }*/
-//        //Now allow all locations top have a 0 as a possible value with a warning 12082022 KS
-//        else if (reading == 0.0) {// && (strD_Loc_ID.startsWith("WL") || strD_Loc_ID.startsWith("FT"))) {
-//            String im1 = "A Reading value of 0, for location " + strD_Loc_ID + " is Detected.";
-//            isValid.addToValidationMessageWarning(im1);
-//            isValid.setValidation(Validation.VALIDATION.WARNING);
-//            isValid.setFocus(Validation.FOCUS.READING);
-//
-//        } else {
-//            Validation isValidRange = isReadingWithinRange(reading);
-//            if (isValid.getValidation() == Validation.VALIDATION.VALID || isValid.getValidation().value() < isValidRange.getValidation().value()) {
-//                isValid = isValidRange;
-//            } else if ((isValid.getValidation().value() == isValidRange.getValidation().value()) && isValid.getValidation().value() > 0) {
-//                isValid.setFocus(isValidRange.getFocus());
-//
-//                if (isValidRange.getValidation() == Validation.VALIDATION.WARNING) {
-//                    isValid.addToValidationMessageWarning(isValidRange.getValidationMessage());
-//
-//                }
-//                if (isValidRange.getValidation() == Validation.VALIDATION.ERROR) {
-//                    isValid.addToValidationMessageError(isValidRange.getValidationMessage());
-//                }
-//            }
-//
-//        }
+        try {
+            dValue = Double.parseDouble(Value);
+        } catch (Exception ex) {
+            dValue = 0.0;
+        }
+
+        if (isNA(strEq_ID)) {
+            isValid.addToValidationMessageError("Please select a Equipment Id. ");
+            isValid.setFocus(Validation.FOCUS.EQUIPMENT);
+            isValid.setValidation(Validation.VALIDATION.ERROR);
+
+        } else if (isNA(strUserName)) {
+            isValid.addToValidationMessageError("Please input a User Name ");
+            isValid.setFocus(Validation.FOCUS.USER);
+            isValid.setValidation(Validation.VALIDATION.ERROR);
+
+        } else if (isNA(strSE_ID)) {
+            isValid.addToValidationMessageError("Please input a Site Event Code. ");
+            isValid.setFocus(Validation.FOCUS.SITEEVENT);
+            isValid.setValidation(Validation.VALIDATION.ERROR);
+
+        } else if (dValue == 0.0 && (measurementType == MeasurementTypes.MEASUREMENT_TYPES.NOISE
+                || measurementType == MeasurementTypes.MEASUREMENT_TYPES.VOC)) {
+            message += "A Reading value of 0 is detected!";
+            isValid.setValidation(Validation.VALIDATION.WARNING);
+            isValid.setFocus(Validation.FOCUS.READING);
+        }
+
 
         return isValid;
 
@@ -387,7 +357,6 @@ public class SiteEvents implements Serializable {
     }
 
 
-
     public String getStrComment() {
         return strComment;
     }
@@ -396,4 +365,9 @@ public class SiteEvents implements Serializable {
         this.strComment = strComment;
     }
 
+    @NonNull
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

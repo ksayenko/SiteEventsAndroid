@@ -257,6 +257,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 
         int n = table.GetNumberOfRecords();
         String insert = "", delete;
+
         Boolean isInserted = true;
         try {
             String create = table.createTableSQL();

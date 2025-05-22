@@ -2,7 +2,7 @@ package com.honeywell.stevents;
 import java.io.Serializable;
 public class MeasurementTypes implements Serializable {
 
-    public enum MEASUREMENT_TYPES {
+    public static enum MEASUREMENT_TYPES {
          PH, VOC, NOISE, SE,OTHER;
 
         @Override

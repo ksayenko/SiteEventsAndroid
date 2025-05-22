@@ -61,9 +61,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.honeywell.stevents.Activity_SE_Main_Input"
+            android:name="com.honeywell.stevents.Activity_Main_Input"
             android:exported="true"
-            android:label="@string/barcode"
+            android:label="Main"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -73,12 +73,25 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.honeywell.stevents.Activity_SE_Input"
+            android:name="com.honeywell.stevents.Activity_GeneralEq_Input"
             android:exported="true"
-            android:label="@string/barcode"
+            android:label="General Equipment"
+            android:theme="@style/AppTheme"
             android:screenOrientation="portrait" >
             <intent-filter>
-                <action android:name="android.intent.action.SE_INPUT_BARCODEACTIVITY" />
+                <action android:name="android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.honeywell.stevents.Activity_VOC_Input"
+            android:exported="true"
+            android:label="VOC"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.INPUT_VOC_BARCODEACTIVITY" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

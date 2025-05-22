@@ -314,13 +314,13 @@ public class CallSoapWS {
 
         dataset1 = WS_GetDataset(USERS);
         tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, USERS + ".xml"));
-
+        System.out.println("ks:: TABLE USERS.XML ");
         dataset1 = WS_GetDataset(CallSoapWS.SITE_EVENT_DEF);
         tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, CallSoapWS.SITE_EVENT_DEF + ".xml"));
-
+        System.out.println("KS:: SITE_EVENT_DEF.XML");
         dataset1 = WS_GetDataset(CallSoapWS.EQUIP_IDENT);
         tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, CallSoapWS.EQUIP_IDENT + ".xml"));
-
+        System.out.println("KS:: EQUIP_IDENT.XML");
 
         // Gets the data repository in write mode
         return tables;

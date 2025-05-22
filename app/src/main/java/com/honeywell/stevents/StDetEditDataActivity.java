@@ -394,7 +394,7 @@ public class StDetEditDataActivity extends Activity {
         if (!isValid.isValid()) {
             if (isValid.getFocus() == Validation.FOCUS.READING)
                 txt_Reading.requestFocus();
-            else if (isValid.getFocus() == Validation.FOCUS.ELEVATION)
+            else if (isValid.getFocus() == Validation.FOCUS.SITEEVENT)
                 spin_elev_code.requestFocus();
         }
 

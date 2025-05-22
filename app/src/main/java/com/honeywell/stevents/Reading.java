@@ -203,11 +203,11 @@ public class Reading implements Serializable {
 
         if (isNA(strD_Col_ID)) {
             isValid.addToValidationMessageError("Please select a Data Collector Id. ");
-            isValid.setFocus(Validation.FOCUS.COLLECTOR);
+            isValid.setFocus(Validation.FOCUS.SITEEVENT);
             isValid.setValidation(Validation.VALIDATION.ERROR);
         } else if (isNA(strD_Loc_ID)) {
             isValid.addToValidationMessageError("Please input a Location Id. ");
-            isValid.setFocus(Validation.FOCUS.LOCATION);
+            isValid.setFocus(Validation.FOCUS.SITEEVENT);
             isValid.setValidation(Validation.VALIDATION.ERROR);
         } /*else if (isNA(strFO_StatusID)) {
             //message += "Please select a Facility Oper Status. ";
@@ -219,7 +219,7 @@ public class Reading implements Serializable {
             //isValid = VALIDDATION.ERROR;
         } */ else if (strD_Loc_ID.startsWith("WL") && isNA(elev_code)) {
             isValid.addToValidationMessageError("Water level values require an elevation code. Please select a Elevation Code designator manually. ");
-            isValid.setFocus(Validation.FOCUS.ELEVATION);
+            isValid.setFocus(Validation.FOCUS.SITEEVENT);
             isValid.setValidation(Validation.VALIDATION.ERROR);
         }/* else if (reading == 0.0 && strEqO_StatusID.equalsIgnoreCase("NotOper")) {
             String im1 = "A Reading value of 0, together with a 'NotOper' Equip Oper Status indicates a non-valid reading.";
