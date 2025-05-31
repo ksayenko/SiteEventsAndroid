@@ -690,19 +690,9 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 
     public Cursor GetCursorUsers(SQLiteDatabase db) {
 
-        //	COLUMN_NAME
-//        nID
-//        strUserName
-//        strEmailAddress
-//        strUserModifyName
-//        dtLastModificationDate
-//        IS_SharePoint_SF
-//        IS_SharePoint_WNOU
-//        IS_SqlServer
-//        IS_local_etss704dtsc1
-//        lab_name_code
-        return db.rawQuery("Select rowid _id, strUserName, '1' as ord from tbl_users   " +
-                " UNION ALL SELECT -1,'NA', '0' order by ord, strUserName", null);
+        String sql ="Select rowid _id, Name, strUserName, domain , '1' as ord from tbl_users    "+
+                " UNION ALL SELECT -1,'NA', 'NA', 'NA', '0' order by ord, nid, Name";
+        return db.rawQuery(sql, null);
     }
 
 
@@ -729,6 +719,33 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             arrayList.add(strs);
         }
         return arrayList;
+    }
+
+    public String GetUserNametoDB(SQLiteDatabase db, String spinUserName)
+    {
+        String sql = "Select "+ DataTable_Users.strUserName + " from " + USERS
+                + "  where "+ DataTable_Users.strName + " = '" + spinUserName+"'";
+        return GeneralQueryFirstValue(db, sql);
+    }
+
+    public String GetEqDescDB(SQLiteDatabase db, String strEqId)
+    {
+        String sql = "Select "+ DataTable_Equip_Ident.strEqDesc + " from " + EQUIP_IDENT
+                + "  where "+ DataTable_Equip_Ident.strEqID + " = '" + strEqId+"'";
+        return GeneralQueryFirstValue(db, sql);
+    }
+
+    public String GetDefaultUser(SQLiteDatabase db) {
+        String default_user = "NA";
+        String sql = "Select " + DataTable_Users.strName + " from " + USERS
+                + "  order by " + DataTable_Users.nID + " asc LIMIT 1";
+        try {
+            default_user = GeneralQueryFirstValue(db, sql);
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
+        return default_user;
     }
 
     public static void cursorToStringArray(Cursor c,

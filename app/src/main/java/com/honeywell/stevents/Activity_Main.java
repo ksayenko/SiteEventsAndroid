@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 //import java.util.concurrent;
@@ -462,7 +463,7 @@ public class Activity_Main extends AppCompatActivity {
             Bundle extras = getIntent().getExtras();
             if (requestCode == REQUEST_CODE_GETMESSAGE  && resultCode  == RESULT_OK && extras != null) {
 
-                default_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
+                default_reading = (SiteEvents) getIntent().getSerializableExtra("GENERAL_BARCODE");
                 if (default_reading == null)
                     default_reading = SiteEvents.GetDefaultReading();
                 Toast.makeText(context, default_reading.getStrSE_ID(), Toast.LENGTH_SHORT).show();
@@ -496,6 +497,13 @@ public class Activity_Main extends AppCompatActivity {
         return barcodeReader;
     }
 
+    private void SetAndStartIntent(Intent seintent) {
+        Log.i("SetAndStartIntent", "SetAndStartIntent - main");
+        seintent.putExtra("SE", default_reading);
+        seintent.putExtra("SE_TABLE", new DataTable_SiteEvent());
+        seintent.putExtra("USER", "NA");
+        startActivity(seintent);
+    }
     /**
      * Create buttons to launch demo activities.
      */
@@ -511,9 +519,9 @@ public class Activity_Main extends AppCompatActivity {
                 Log.i("------------onClick SiteEventActivity", "12");
                 // get the intent action string from AndroidManifest.xml
                 Intent barcodeIntent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");
-                barcodeIntent.putExtra("SE", default_reading);
+                SetAndStartIntent(barcodeIntent);
                 startActivityForResult(barcodeIntent,REQUEST_CODE_GETMESSAGE);
-                System.out.println("In MAIN btnInputForms.setOnClickListener " + default_reading.getStrEq_ID());
+
                 bAcceptWarningDuplicate = false;
 
             }
@@ -675,6 +683,35 @@ public class Activity_Main extends AppCompatActivity {
             // once closed, the object can no longer be used.
             manager.close();
         }
+    }
+
+    public String GetSpinnerValue(Spinner spinner) {
+        TextView textView = (TextView)spinner.getSelectedView();
+        String text = textView.getText().toString();
+
+        return text;
+
+    }
+    public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue) {
+        int index = GetIndexFromArraylist(strValues, strValue, 1);
+        spinner.setSelection(index);
+    }
+    public int GetIndexFromArraylist(ArrayList<String[]> list, String myString, Integer column) {
+
+        int n = list.size();
+
+
+        for (int i = 0; i < n; i++) {
+            String[] sValues = list.get(i);
+            String sValue = sValues[column];
+            String sId = sValues[0];
+
+            if (sValue.equalsIgnoreCase(myString)) {
+                return i;//Integer.valueOf(sId);
+            }
+        }
+
+        return 0;
     }
 
 }

@@ -63,7 +63,6 @@
         <activity
             android:name="com.honeywell.stevents.Activity_Main_Input"
             android:exported="true"
-            android:label="Main"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -75,7 +74,6 @@
         <activity
             android:name="com.honeywell.stevents.Activity_GeneralEq_Input"
             android:exported="true"
-            android:label="General Equipment"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -85,9 +83,30 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="com.honeywell.stevents.Activity_Noise_Input"
+            android:exported="true"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.INPUT_NOISE_BARCODEACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.honeywell.stevents.Activity_PH_Input"
+            android:exported="true"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.INPUT_PH_BARCODEACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name="com.honeywell.stevents.Activity_VOC_Input"
             android:exported="true"
-            android:label="VOC"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -96,6 +115,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="com.honeywell.stevents.StDetEditDataActivity"
             android:exported="true"

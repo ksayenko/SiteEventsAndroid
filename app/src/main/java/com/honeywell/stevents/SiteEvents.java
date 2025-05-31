@@ -102,7 +102,10 @@ public class SiteEvents implements Serializable, Cloneable {
     }
 
     public String getStrEq_ID() {
-        return strEq_ID;
+        if (strEq_ID == null)
+            return "NA";
+        else
+            return strEq_ID;
     }
 
     public void setStrEq_ID(String strEq_ID) {
@@ -110,7 +113,11 @@ public class SiteEvents implements Serializable, Cloneable {
     }
 
     public String getStrEqDesc() {
-        return strEqDesc;
+        if (strEqDesc == null)
+            return "NA";
+        else
+            return strEqDesc;
+
     }
 
     public void setStrEqDesc(String strEqDesc) {
@@ -232,15 +239,14 @@ public class SiteEvents implements Serializable, Cloneable {
         SiteEvents reading = (SiteEvents) o;
         return
                 facility_id.equals(reading.facility_id) &&
-                        strD_Loc_ID.equals(reading.strD_Loc_ID) &&
+
                         strUserName.equals(reading.strUserName) &&
                         datSE_Date.equals(reading.datSE_Date) &&
-                        strD_Loc_ID.equals(reading.strD_Loc_ID) &&
                         strSE_ID.equals(reading.strSE_ID) &&
                         strEq_ID.equals(reading.strEq_ID) &&
                         strComment.equals(reading.strComment) &&
                         datResDate.equals(reading.datResDate) &&
-                        strComment.equals(reading.strComment) &&
+
                         ynResolved.equals(reading.ynResolved) &&
                         Value.equals(reading.Value);
     }

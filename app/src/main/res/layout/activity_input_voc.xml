@@ -25,7 +25,7 @@
 
         <TableRow
             android:id="@+id/row1"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:minHeight="40dp">
@@ -50,6 +50,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/custom_spinner_background"
+                android:scrollbarThumbVertical="@drawable/scrollbar_style"
                 android:gravity="center_vertical"
                 android:scrollbarStyle="insideInset"
                 android:spinnerMode="dropdown"
@@ -59,7 +60,7 @@
 
         <TableRow
             android:id="@+id/row2"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:minHeight="40dp">
@@ -84,6 +85,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/custom_spinner_background"
+                android:scrollbarThumbVertical="@drawable/scrollbar_style"
                 android:spinnerMode="dialog"
                 tools:ignore="TouchTargetSizeCheck" />
 
@@ -91,7 +93,7 @@
 
         <TableRow
             android:id="@+id/row3"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:minHeight="40dp">
@@ -115,13 +117,14 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/custom_spinner_background"
+                android:scrollbarThumbVertical="@drawable/scrollbar_style"
                 android:spinnerMode="dialog"
                 tools:ignore="TouchTargetSizeCheck" />
         </TableRow>
 
         <TableRow
             android:id="@+id/row4"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:minHeight="40dp">
@@ -134,7 +137,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:textColor="@color/Very_dark_cyan"
-                android:layout_weight="1"
+                android:layout_weight="0.9"
                 android:gravity="center_vertical"
                 android:text="@string/Event_date"
                 android:textSize="16sp"
@@ -143,7 +146,7 @@
             <LinearLayout
                 android:layout_height="match_parent"
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="1.1"
                 android:layout_gravity="center"
                 android:orientation="horizontal">
 
@@ -152,7 +155,7 @@
                     android:layout_width="115dp"
                     android:layout_height="match_parent"
                     android:layout_marginStart="3dp"
-                    android:layout_weight="1"
+                    android:layout_weight="1.2"
                     android:background="@drawable/border"
                     android:focusable="false"
                     android:clickable="true"
@@ -168,7 +171,7 @@
                     android:layout_width="80dp"
                     android:layout_height="match_parent"
                     android:layout_marginStart="3dp"
-                    android:layout_weight="0"
+                    android:layout_weight="0.8"
                     android:autofillHints=""
                     android:background="@drawable/border"
                     android:selectAllOnFocus="true"
@@ -184,7 +187,7 @@
 
         <TableRow
             android:id="@+id/row5"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:minHeight="40dp">
@@ -194,7 +197,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:textColor="@color/Very_dark_cyan"
-                android:layout_weight="1"
+                android:layout_weight="0.9"
                 android:gravity="center_vertical"
                 android:text="Measurement"
                 android:maxLines="1"
@@ -204,7 +207,7 @@
 
             <RadioGroup android:id="@+id/radio_group"
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="1.1"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:layout_gravity="center"
@@ -228,7 +231,7 @@
 
         <TableRow
             android:id="@+id/row6"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:minHeight="40dp">
@@ -238,7 +241,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:textColor="@color/Very_dark_cyan"
-                android:layout_weight="1"
+                android:layout_weight="0.9"
                 android:gravity="center_vertical"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -248,7 +251,7 @@
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="1.1"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:orientation="horizontal">
@@ -259,7 +262,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="left"
                     android:layout_marginStart="3dp"
-                    android:layout_weight="0"
+                    android:layout_weight="1.2"
                     android:background="@drawable/border"
                     android:clickable="true"
                     android:focusable="false"
@@ -275,7 +278,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="right"
                     android:layout_marginStart="3dp"
-                    android:layout_weight="0"
+                    android:layout_weight="0.8"
                     android:background="@drawable/border"
                     android:clickable="true"
                     android:contextClickable="true"
@@ -290,7 +293,7 @@
         </TableRow>
         <TableRow
             android:id="@+id/row9"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:minHeight="40dp">
@@ -300,7 +303,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:textColor="@color/Very_dark_cyan"
-                android:layout_weight="1"
+                android:layout_weight="0.9"
                 android:gravity="center_vertical"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -310,7 +313,7 @@
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="1.1"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:orientation="horizontal">
@@ -324,10 +327,11 @@
                     android:layout_weight="0"
                     android:background="@drawable/border"
                     android:focusable="true"
-                    android:inputType="number"
+                    android:digits="0123456789."
                     android:selectAllOnFocus="true"
                     android:text="0"
                     android:textSize="14sp"
+                    android:imeOptions="actionDone"
                     tools:ignore="TouchTargetSizeCheck" />
 
                 <EditText
@@ -351,7 +355,7 @@
         </TableRow>
         <TableRow
             android:id="@+id/row7"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:gravity="center_vertical"
@@ -364,7 +368,7 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:textColor="@color/Very_dark_cyan"
-                android:layout_weight="0.5"
+                android:layout_weight="0.6"
                 android:gravity="center_vertical"
                 android:text="Comments"
                 android:textSize="16sp"
@@ -373,9 +377,9 @@
             <EditText
                 android:id="@+id/txt_comment"
                 android:layout_width="0dp"
-                android:layout_height="100dp"
+                android:layout_height="50dp"
                 android:layout_marginLeft="0dp"
-                android:layout_weight="1"
+                android:layout_weight="1.4"
                 android:autofillHints=""
                 android:background="@drawable/border"
                 android:textSize="16sp"
@@ -388,7 +392,7 @@
 
         <TableRow
             android:id="@+id/rowButtons"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:minHeight="50dp">

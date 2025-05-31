@@ -15,7 +15,7 @@ public class DateTimeHelper {
     private static final String AM_LOWERCASE = "am";
     private static final String AM_UPPERCASE = "AM";
 
-    private static final String  DefaultFormat ="MM/dd/yyyy HH:mm:ss";
+    public static final String  DefaultFormat ="MM/dd/yyyy HH:mm:ss";
     private static final String  DefaultJustDateFormat ="MM/dd/yyyy";
     private static final String DefaultJustTimeFormat = "hh:mm a";
 

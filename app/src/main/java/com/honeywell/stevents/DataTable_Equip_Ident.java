@@ -13,20 +13,20 @@ public class DataTable_Equip_Ident extends AppDataTable {
      */
     public static final String lngID="lngID";
     public static final String strEqID="strEqID";
-    public static final String strEqO_StatusDesc="strEqO_StatusDesc";
+//    public static final String strEqO_StatusDesc="strEqO_StatusDesc";
 
     public static final String strEqMfg="strEqMfg";
 
-    public static final String strEqModel="strEqModel";
-
-    public static final String strEqSerialNum="strEqSerialNum";
+//    public static final String strEqModel="strEqModel";
+//
+//    public static final String strEqSerialNum="strEqSerialNum";
 
     public static final String strEqDesc="strEqDesc";
 
     public static final String strEqTypeID="strEqTypeID";
 
-    public static final String ynCurrent="ynCurrent";
-    public static final String facility_id="facility_id";
+//    public static final String ynCurrent="ynCurrent";
+//    public static final String facility_id="facility_id";
 
 
 
@@ -48,15 +48,15 @@ public class DataTable_Equip_Ident extends AppDataTable {
     public DataTable_Equip_Ident(){
         super(HandHeld_SQLiteOpenHelper.EQUIP_IDENT);
 
-        this.AddColumnToStructure(lngID,"Integer",true);
-        this.AddColumnToStructure(strEqID,"String",false);
-        this.AddColumnToStructure(strEqMfg,"String",false);
-        this.AddColumnToStructure(strEqModel,"String",false);
-        this.AddColumnToStructure(strEqSerialNum,"String",false);
-        this.AddColumnToStructure(strEqDesc,"String",false);
-        this.AddColumnToStructure(strEqTypeID,"String",false);
-        this.AddColumnToStructure(ynCurrent,"String",false);
-        this.AddColumnToStructure(facility_id,"String",false);
+        //this.AddColumnToStructure(lngID,"Integer",true);
+        this.AddColumnToStructure(strEqID,"String",true);
+//        this.AddColumnToStructure(strEqMfg,"String",false);
+//        this.AddColumnToStructure(strEqModel,"String",false);
+//        this.AddColumnToStructure(strEqSerialNum,"String",false);
+      this.AddColumnToStructure(strEqDesc,"String",false);
+        this.AddColumnToStructure(strEqTypeID,"String",true);
+//        this.AddColumnToStructure(ynCurrent,"String",false);
+//        this.AddColumnToStructure(facility_id,"String",false);
 
     }
 

@@ -1,6 +1,5 @@
 package com.honeywell.stevents;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -39,7 +38,6 @@ import com.honeywell.aidc.ScannerUnavailableException;
 import com.honeywell.aidc.TriggerStateChangeEvent;
 import com.honeywell.aidc.UnsupportedPropertyException;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -49,9 +47,10 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public class Activity_GeneralEq_Input extends AppCompatActivity implements BarcodeReader.BarcodeListener,
+public class Activity_PH_Input extends AppCompatActivity implements BarcodeReader.BarcodeListener,
         BarcodeReader.TriggerListener {
     private Context mContext;
+
     private BarcodeReader barcodeReader;
     private ListView barcodeList;
 
@@ -77,11 +76,12 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
     Cursor Cursor_SE_code = null;
     ArrayList<String[]> array_SE_code = null;
     private String current_se = "";
+    private String prior_current_se = "";
 
     Cursor Cursor_Users = null;
     ArrayList<String[]> array_Users = null;
-    String curent_username = "";
-    String curent_username_db = "";
+    String current_username = "";
+    String prior_current_username = "";
 
     Cursor Cursor_Eq = null;
     ArrayList<String[]> array_Eq = null;
@@ -93,6 +93,8 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
     boolean current_yn_resolve = true;
 
     String current_comment = "";
+
+    
     String current_reading = "";
     String current_unit = "";
     Boolean bBarcodeEquip = false;
@@ -124,28 +126,27 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_input_general_eq);
+        setContentView(R.layout.activity_input_ph);
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
         mContext = this;
 
         default_site_event_reading = SiteEvents.GetDefaultReading();
         current_site_event_reading = SiteEvents.GetDefaultReading();
-
-
+        
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             System.out.println("we have default reading");
             default_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
             se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
-            curent_username = (String) getIntent().getSerializableExtra("USER");
+            current_username = (String) getIntent().getSerializableExtra("USER");
             if (se_table == null)
                 se_table = new DataTable_SiteEvent();
         } else {
             System.out.println("no default reading");
             default_site_event_reading = SiteEvents.GetDefaultReading();
             se_table = new DataTable_SiteEvent();
-            curent_username = default_site_event_reading.getStrUserName();
+            current_username = default_site_event_reading.getStrUserName();
         }
 
         try {
@@ -161,15 +162,16 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         current_comment = default_site_event_reading.getStrComment();
         current_SEDateTime = default_site_event_reading.getDatSE_Date();
         current_ResDateTime = default_site_event_reading.getDatResDate();
+
+        prior_current_username = current_username;
+        prior_current_se = current_se;
+
         if (default_site_event_reading.getYnResolved().toLowerCase() == "true")
             current_yn_resolve = true;
         else current_yn_resolve = false;
 
+        Log.i("------------onCreate ph", "ph 10");
 
-
-        Log.i("------------onCreate Activity_Main_Input", "10");
-        //super.onCreate(savedInstanceState);
-        Log.i("------------onCreate Activity_Main_Input", "1");
 
         AppDataTables tables = new AppDataTables();
         tables.SetSiteEventsTablesStructure();
@@ -193,42 +195,62 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         rbTrue = (RadioButton) findViewById(R.id.radio_true);
         rbFalse = (RadioButton) findViewById(R.id.radio_false);
         rbResloved = (RadioGroup) findViewById(R.id.radio_group);
+
+        //define all controls first
+        text_event_time = (TextView) findViewById(R.id.text_event_time);
+        text_event_date = (TextView) findViewById(R.id.text_event_date);
+        text_resolve_time = (TextView) findViewById(R.id.text_resolve_time);
+        text_resolve_date = (TextView) findViewById(R.id.text_resolve_date);
+        txt_comment = (EditText) findViewById(R.id.txt_comment);
+
         rbResloved.clearCheck();
+
+        rbResloved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton rb = (RadioButton) findViewById(checkedId);
+
+                if (rb == rbTrue) {
+                    txt_comment.setEnabled(true);
+                    text_resolve_date.setEnabled(true);
+                    text_resolve_time.setEnabled(true);
+                    text_resolve_date.setText(text_event_date.getText());
+                    text_resolve_time.setText(text_resolve_time.getText());
+                    if (!current_equipment.equals("NA")) {
+                        String desc = dbHelper.GetEqDescDB(db,current_equipment);
+                        if(desc == null || (!desc.equals("")))
+                            desc =current_equipment + " pH Analysis Element";
+                        txt_comment.setText("Calibration of " + desc);
+                    }
+                } else {
+                    txt_comment.setEnabled(false);
+                    text_resolve_date.setEnabled(false);
+                    text_resolve_time.setEnabled(false);
+                }
+
+            }
+
+        });
         if (current_yn_resolve)
             rbResloved.check(R.id.radio_true);
         else
             rbResloved.check(R.id.radio_false);
-        rbResloved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                RadioButton rb=(RadioButton)findViewById(checkedId);
-               // textViewChoice.setText("You Selected " + rb.getText());
-
-            }
-        });
-
 
         //text_event_time
-        text_event_time = (TextView) findViewById(R.id.text_event_time);
         text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
         text_event_time_picker();
         //text_event_date
-        text_event_date = (TextView) findViewById(R.id.text_event_date);
         text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
         text_event_date_picker();
 
         //////////////////////
         //resolve date
-        text_resolve_date = (TextView) findViewById(R.id.text_resolve_date);
-        text_resolve_date.setEnabled(false);
-//        text_resolve_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_ResDateTime, ""));
-//        text_resolve_date_picker();
+
+        text_resolve_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_ResDateTime, ""));
+        text_resolve_date_picker();
         //text_resolve_time
-        text_resolve_time = (TextView) findViewById(R.id.text_resolve_time);
-        text_resolve_time.setEnabled(false);
-//        text_resolve_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_ResDateTime, ""));
-//        text_resolve_time_picker();
+        text_resolve_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_ResDateTime, ""));
+        text_resolve_time_picker();
 
 
         // needed for spinner
@@ -249,7 +271,8 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 //CUSTOM METHOD
                 spin_Equip_Code_Listener(parent, pos);
-                isLastRecordSavedToTable = false;
+                if (!current_equipment.equals("NA"))
+                    isLastRecordSavedToTable = false;
             }
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -266,10 +289,13 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                         Cursor_Users, from_Users, toL, 0);
         adapter_users.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_User_name.setAdapter(adapter_users);
-        SetSpinnerValue(spin_User_name, array_Users, curent_username);
+        SetSpinnerValue(spin_User_name, array_Users, current_username);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                isLastRecordSavedToTable = false;
+                current_username = GetSpinnerValue(spin_User_name);
+                if ((!current_username.equals("NA"))
+                        && (!current_username.equals(prior_current_username)))
+                    isLastRecordSavedToTable = false;
 
             }
 
@@ -291,13 +317,16 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         SetSpinnerValue(spin_SE_Code, array_SE_code, current_se);
         spin_SE_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                isLastRecordSavedToTable = false;
+                current_se = GetSpinnerValue(spin_SE_Code);
+                if ((!current_se.equals("NA") &&
+                        (!current_se.equals(prior_current_se))))
+                    isLastRecordSavedToTable = false;
             }
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
 
-        txt_comment = (EditText) findViewById(R.id.txt_comment);
+
         txt_comment.setText(current_comment);
         txt_comment.addTextChangedListener(new TextWatcher() {
 
@@ -311,11 +340,12 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
             public void afterTextChanged(Editable s) {
                 Log.i("isLastRecordSavedToTable", "txtComment.addTextChangedListener " + isLastRecordSavedToTable.toString());
+                current_comment = txt_comment.getText().toString();
+                if (!current_comment .equals(""))
+                    isLastRecordSavedToTable = false;
 
-                isLastRecordSavedToTable = false;
             }
         });
-
 
         btnClear = (Button) findViewById(R.id.btn_clear);
 
@@ -345,6 +375,9 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                 System.out.println(bAcceptWarningValid);
                 System.out.println(bAcceptWarningDuplicate);
                 System.out.println(iChecked);
+                prior_current_username = current_username;
+                prior_current_equipment = current_equipment;
+                prior_current_se = current_se;
 
                 isRecordsSavedToDB = false;
 
@@ -374,12 +407,15 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                 }
                 Log.i("isLastRecordSavedToTable", "btnDone.setOnClickListener ,isLastRecordSavedToTable " + isLastRecordSavedToTable.toString());
 
-                onBackPressed();
+                Intent intent = new Intent(ct, Activity_Main.class);
+                startActivity(intent);
+                finish();
+                //onBackPressed();
 
             }
         });
 
-   // ADD BARCODE
+        //ADD BARCODE
 // get bar code instance from MainActivity
         barcodeReader = Activity_Main.getBarcodeObject();
 
@@ -427,6 +463,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         // get initial list
         barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
         Log.i("barcodeList", barcodeList.toString());
+        Log.i("onCreate", "4");
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
     }
@@ -436,6 +473,9 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         current_equipment_type = ((String[]) array_Eq.get(pos))[2];
         prior_current_equipment=current_equipment;
         current_equipment = ((String[]) array_Eq.get(pos))[1];
+        current_SEDateTime = DateTimeHelper.GetDateTimeNow();
+        text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
+        text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime,""));
 
         if (!bBarcodeEquip) {
             //strDataModComment = "Manual";
@@ -445,17 +485,17 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             bBarcodeEquip = false;
         }
 
-        if(!current_equipment.startsWith("NA")&& prior_current_equipment != current_equipment ) {
+        if(!current_equipment.startsWith("NA")&& !Objects.equals(prior_current_equipment, current_equipment)) {
 //collect dataIntent seintent
             Intent seintent = null;
             SaveReadingsToSiteEventRecord();
 
             MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
             if (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
-                //seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
+                seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
             if (type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
-                seintent = new Intent("android.intent.action.INPUT_PH_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
+                //seintent = new Intent("android.intent.action.INPUT_PH_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
             if (type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
                 seintent = new Intent("android.intent.action.INPUT_NOISE_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
@@ -466,13 +506,15 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             if (type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
                 seintent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
+            SaveReadingsToSiteEventRecord();
             if (seintent != null)
                 SetAndStartIntent(seintent);
         }
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
 
-        if (!Objects.equals(current_equipment, "NA"))
+        if (!Objects.equals(current_equipment, "NA")
+                && current_equipment != prior_current_equipment)
             isLastRecordSavedToTable = false;
 
         Log.i("isLastRecordSavedToTable", "spin_Equip_Code.listener isLastRecordSavedToTable:" + isLastRecordSavedToTable.toString());
@@ -506,14 +548,30 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         Log.i("SetAndStartIntent", "SetAndStartIntent - general eq");
 
         seintent.putExtra("SE", current_site_event_reading);
-        seintent.putExtra("SE_TABLE", se_table );
-        seintent.putExtra("USER", curent_username );
+        seintent.putExtra("SE_TABLE", se_table);
+        seintent.putExtra("USER", current_username);
         if (!isLastRecordSavedToTable) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
         } else
             startActivity(seintent);
     }
+
+
+    public ArrayList<String[]> transferCursorToArrayList(Cursor cursor) {
+        ArrayList<String[]> arrayList = new ArrayList<String[]>();
+        int nCol = cursor.getColumnCount();
+        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+            // The Cursor is now set to the right position
+            String[] strs = new String[nCol];
+            for (int i = 0; i < nCol; i++) {
+                strs[i] = (String) cursor.getString(i);
+            }
+            arrayList.add(strs);
+        }
+        return arrayList;
+    }
+
 
     @Override
     public void onBarcodeEvent(final BarcodeReadEvent event) {
@@ -525,7 +583,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                 List<String> list = new ArrayList<>();
                 String tempcurrent = event.getBarcodeData();
                 Log.i("onBarcodeEvent", "onBarcodeEvent!!!! +"+tempcurrent);
-                //current_SEDateTime = DateTimeHelper.Calendar.getInstance().getTime(); //
+                //currentDateTime = Calendar.getInstance().getTime(); //
                 if (tempcurrent != null || tempcurrent != "")
                     current_equipment = tempcurrent;
                 //current_se = event.getBarcodeData();
@@ -554,6 +612,110 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                 Log.i("isLastRecordSavedToTable", "on barcode event isRecordsSavedToDB " + isRecordsSavedToDB.toString());
             }
         });
+    }
+
+    private int getIndex(Spinner spinner, String myString) {
+        System.out.println("getIndex spinner " + spinner.toString());
+        System.out.println("getIndex myString " + myString);
+        int n = spinner.getCount();
+
+        SimpleCursorAdapter adapt = (SimpleCursorAdapter) spinner.getAdapter();
+
+        for (int i = 0; i < n; i++) {
+            String sValue = spinner.getItemAtPosition(i).toString();
+            String sValue1 = adapt.getItem(i).toString();
+            System.out.println("getIndex sValue " + sValue + "--" + sValue1);
+            if (sValue.equalsIgnoreCase(myString)) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+
+    // When using Automatic Trigger control do not need to implement the
+    // onTriggerEvent function
+//    @Override
+//    public void onTriggerEvent(TriggerStateChangeEvent event) {
+//        try {
+//            // only handle trigger presses
+//            // turn on/off aimer, illumination and decoding
+//            Log.i("onTriggerEvent", "no Data");
+//            /*
+//            To get the "CR" in the barcode to be processed two settings needs to be changed:
+//"Settings - Honeywell Settings - Scanning - Internal Scanner - Default profile - Data Processing Settings. Set:
+//Wedge Method" to 'keyboard'
+//Wedge as keys to empty
+//             */
+//            barcodeReader.aim(event.getState());
+//            barcodeReader.light(event.getState());
+//            barcodeReader.decode(event.getState());
+//
+//        } catch (ScannerNotClaimedException e) {
+//            e.printStackTrace();
+//            Toast.makeText(this, "Scanner is not claimed", Toast.LENGTH_SHORT).show();
+//        } catch (ScannerUnavailableException e) {
+//            e.printStackTrace();
+//            Toast.makeText(this, "Scanner unavailable", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+    public String GetSpinnerValue(Spinner spinner) {
+        TextView textView = (TextView)spinner.getSelectedView();
+        String text = textView.getText().toString();
+
+        return text;
+
+    }
+    private void SaveReadingsToSiteEventRecord() {
+        //note that dates and times saved in the events
+        current_comment = (String) txt_comment.getText().toString();
+        current_username = GetSpinnerValue(spin_User_name);
+        current_se = GetSpinnerValue(spin_SE_Code);
+
+        current_site_event_reading.setStrComment(current_comment);
+        current_site_event_reading.setStrUserName(current_username);
+        current_site_event_reading.setStrEq_ID(current_equipment);
+        current_site_event_reading.setStrSE_ID(current_se);
+
+        if (rbTrue.isChecked()) {
+            current_yn_resolve = true;
+            current_site_event_reading.setYnResolved("true");
+        } else {
+            current_yn_resolve = false;
+            current_site_event_reading.setYnResolved("false");
+        }
+
+    }
+
+
+
+
+    // When using Automatic Trigger control do not need to implement the
+    // onTriggerEvent function
+    @Override
+    public void onTriggerEvent(TriggerStateChangeEvent event) {
+        try {
+            // only handle trigger presses
+            // turn on/off aimer, illumination and decoding
+            Log.i("onTriggerEvent", "no Data");
+            /*
+            To get the "CR" in the barcode to be processed two settings needs to be changed:
+"Settings - Honeywell Settings - Scanning - Internal Scanner - Default profile - Data Processing Settings. Set:
+Wedge Method" to 'keyboard'
+Wedge as keys to empty
+             */
+            barcodeReader.aim(event.getState());
+            barcodeReader.light(event.getState());
+            barcodeReader.decode(event.getState());
+
+        } catch (ScannerNotClaimedException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Scanner is not claimed", Toast.LENGTH_SHORT).show();
+        } catch (ScannerUnavailableException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Scanner unavailable", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -585,35 +747,6 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         });
     }
 
-
-    // When using Automatic Trigger control do not need to implement the
-    // onTriggerEvent function
-    @Override
-    public void onTriggerEvent(TriggerStateChangeEvent event) {
-        try {
-            // only handle trigger presses
-            // turn on/off aimer, illumination and decoding
-            Log.i("onTriggerEvent", "no Data");
-            /*
-            To get the "CR" in the barcode to be processed two settings needs to be changed:
-"Settings - Honeywell Settings - Scanning - Internal Scanner - Default profile - Data Processing Settings. Set:
-Wedge Method" to 'keyboard'
-Wedge as keys to empty
-             */
-            barcodeReader.aim(event.getState());
-            barcodeReader.light(event.getState());
-            barcodeReader.decode(event.getState());
-
-        } catch (ScannerNotClaimedException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Scanner is not claimed", Toast.LENGTH_SHORT).show();
-        } catch (ScannerUnavailableException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Scanner unavailable", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
     @Override
     public void onResume() {
         super.onResume();
@@ -627,20 +760,28 @@ Wedge as keys to empty
         }
     }
 
-    public ArrayList<String[]> transferCursorToArrayList(Cursor cursor) {
-        ArrayList<String[]> arrayList = new ArrayList<String[]>();
-        int nCol = cursor.getColumnCount();
-        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-            // The Cursor is now set to the right position
-            String[] strs = new String[nCol];
-            for (int i = 0; i < nCol; i++) {
-                strs[i] = (String) cursor.getString(i);
-            }
-            arrayList.add(strs);
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (barcodeReader != null) {
+            // release the scanner claim so we don't get any scanner
+            // notifications while paused.
+            barcodeReader.release();
         }
-        return arrayList;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (barcodeReader != null) {
+            // unregister barcode event listener
+            barcodeReader.removeBarcodeListener(this);
+
+            // unregister trigger state change listener
+            barcodeReader.removeTriggerListener(this);
+            db.close();
+        }
+    }
     private int getIndexFromArraylist(ArrayList<String[]> list, String myString, Integer column) {
 
         int n = list.size();
@@ -659,24 +800,21 @@ Wedge as keys to empty
         return 0;
     }
 
-    public String getCurrent_loc() {
-        return current_se;
-    }
-
-    public void setCurrent_loc(String current_loc) {
-        this.current_se = current_loc;
-    }
 
     public void clearForms() {
 
         txt_comment.setText("");
-
-        int id = 0;
-
+        int id = GetIndexFromArraylist(array_Eq, "NA", 1);
+        spin_Equip_Code.setSelection(id);
+        id = GetIndexFromArraylist(array_SE_code, "Maintain", 1);
+        spin_SE_Code.setSelection(id);
+        rbFalse.setChecked(true);
+        bBarcodeEquip = false;
         isLastRecordSavedToTable = true;
         Log.i("isLastRecordSavedToTable", " clear forms " + isLastRecordSavedToTable.toString());
 
-        //txt_Reading.requestFocus();
+        spin_Equip_Code.requestFocus();
+
     }
 
     public Validation saveForms(boolean bAcceptWarning, boolean bAcceptWarningDuplicate) {
@@ -912,32 +1050,5 @@ Wedge as keys to empty
         Log.i("isLastRecordSavedToTable ", " onBackPressed isRecordsSavedToDB AFTER " + isRecordsSavedToDB.toString());
     }
 
-    private void SaveReadingsToSiteEventRecord() {
-        //note that dates and times saved in the events
-        current_comment = (String) txt_comment.getText().toString();
-        curent_username = GetSpinnerValue(spin_User_name);
-        current_se = GetSpinnerValue(spin_SE_Code);
-
-        current_site_event_reading.setStrComment(current_comment);
-        current_site_event_reading.setStrUserName(curent_username);
-        current_site_event_reading.setStrEq_ID(current_equipment);
-        current_site_event_reading.setStrSE_ID(current_se);
-
-        if (rbTrue.isChecked()) {
-            current_yn_resolve = true;
-            current_site_event_reading.setYnResolved("true");
-        } else {
-            current_yn_resolve = false;
-            current_site_event_reading.setYnResolved("false");
-        }
-
-    }
-    public String GetSpinnerValue(Spinner spinner) {
-        TextView textView = (TextView)spinner.getSelectedView();
-        String text = textView.getText().toString();
-
-        return text;
-
-    }
 
 }

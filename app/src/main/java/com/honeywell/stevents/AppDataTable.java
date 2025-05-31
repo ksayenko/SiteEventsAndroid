@@ -229,6 +229,8 @@ public class AppDataTable implements Serializable {
                     sValue = dataTable.get(element).get(i);
                     type = getColumnTypes().get(i);
                     sValue = getConvertedValue(type, sValue);
+
+
                     sInsert2 += sValue;
 
                     if (i < nColumns - 1) {
@@ -284,8 +286,11 @@ public class AppDataTable implements Serializable {
             sValue = "NULL";
             bNull = true;
         }
-        if (!bNull && (type.equalsIgnoreCase("string") || type.equalsIgnoreCase("datetime")))
+        if (!bNull && (type.equalsIgnoreCase("string") || type.equalsIgnoreCase("datetime"))) {
+            sValue = sValue.replace("'","''");
             sValue = "'" + sValue + "'";
+
+        }
         else if (type.equalsIgnoreCase("Boolean") && (sValue.equalsIgnoreCase("true")))
             sValue = "1";
         else if (type.equalsIgnoreCase("Boolean") && (sValue.equalsIgnoreCase("false")))

@@ -284,6 +284,7 @@ public class DataTable_SiteEvent extends AppDataTable {
         Date dt = null;
         String timeStamp = "";
         try {
+            formatFrom = DateTimeHelper.DefaultFormat;
             sdf = new SimpleDateFormat(formatFrom, Locale.US);
 
             dt = sdf.parse(sDateTime);

@@ -164,6 +164,7 @@ public class ParseXMLAndUploadToDBThread{
 
         if (!directoryApp.exists())
             directoryApp.mkdir();
+        boolean bConnection = true;
 
         System.out.println("KS:: Starting doInBackground : DOWNLOADING DATE FROM WEBSERVICES");
         StdetFiles f = new StdetFiles(directoryApp);
@@ -180,7 +181,8 @@ public class ParseXMLAndUploadToDBThread{
                 //CHECK CONNECTION
                 CallSoapWS ws1 = new CallSoapWS(null);
                 String response = ws1.CheckConnection();
-                boolean bConnection = true;
+                bConnection= true;
+
                 if (response.startsWith("ERROR")) {
                     //can't toast have an exception: java.lang.NullPointerException: Can't toast on a thread that has not called Looper.prepare()
                     //Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
@@ -213,18 +215,38 @@ public class ParseXMLAndUploadToDBThread{
             dbHelper = new HandHeld_SQLiteOpenHelper(context, new AppDataTables());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             tables = new AppDataTables();//f.ReadXMLToSTDETables();
-
+            boolean bTableRead = true;
             try {
 
                 tables.AddStdetDataTable(new DataTable_SiteEvent());
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml"));
-                publishProgressTextView(" Table  " + HandHeld_SQLiteOpenHelper.USERS + " is reading to memory ");
+                AppDataTable dtUsers =f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml");
+                if(dtUsers!=null) {
+                    tables.AddStdetDataTable(dtUsers);
+                    publishProgressTextView(" Table  " + HandHeld_SQLiteOpenHelper.USERS + " is reading to memory ");
+                }
+                else
+                {
+                    publishProgressTextView("!!! Table  " + HandHeld_SQLiteOpenHelper.USERS + " is NOT populating ");
+                }
                 publishProgressBar(1);
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml"));
-                publishProgressTextView("   Table  " + HandHeld_SQLiteOpenHelper.EQUIP_IDENT + " is reading to memory ");
+
+                AppDataTable dtEqIdent =f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml");
+                if(dtEqIdent!=null) {
+                    tables.AddStdetDataTable(dtEqIdent);
+                    publishProgressTextView("   Table  " + HandHeld_SQLiteOpenHelper.EQUIP_IDENT + " is reading to memory ");
+                }
+                else
+                    publishProgressTextView("!!! Table  " + HandHeld_SQLiteOpenHelper.EQUIP_IDENT + " is NOT populating ");
+
                 publishProgressBar(2);
-                tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + ".xml"));
+
+                AppDataTable dtSiteEventDef =f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + ".xml");
+                if(dtSiteEventDef!=null){
+                    tables.AddStdetDataTable(dtSiteEventDef);
                 publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + " is reading to memory ");
+                }
+                else
+                    publishProgressTextView("!!! Table  " + HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + " is NOT populating ");
                 publishProgressBar(3);
 
 
