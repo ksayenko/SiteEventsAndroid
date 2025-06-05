@@ -51,10 +51,9 @@ import java.util.Objects;
 public class Activity_VOC_Input extends AppCompatActivity implements BarcodeReader.BarcodeListener,
         BarcodeReader.TriggerListener {
 
+    MeasurementTypes.MEASUREMENT_TYPES current_type = MeasurementTypes.MEASUREMENT_TYPES.VOC;
     private BarcodeReader barcodeReader;
     private ListView barcodeList;
-
-    private Context mContext;
 
     private String current_SEDateTime;
     private String current_ResDateTime;
@@ -74,8 +73,8 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
     private TextView txt_comment;
 
     private RadioGroup rbResloved;
-    private RadioButton rbTrue;
-    private RadioButton rbFalse;
+    private RadioButton rbND;
+    private RadioButton rbDetected;
 
 
     Cursor Cursor_SE_code = null;
@@ -133,7 +132,9 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
-        mContext = this;
+        prior_current_equipment ="NA";
+
+       // Toast.makeText(ct, ct.getClass().getName(), Toast.LENGTH_SHORT).show();
 
         default_site_event_reading = SiteEvents.GetDefaultReading();
         current_site_event_reading = SiteEvents.GetDefaultReading();
@@ -173,8 +174,9 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         else current_yn_resolve = false;
         current_reading = default_site_event_reading.getValue();
         prior_current_username = current_username;
-        prior_current_equipment = current_equipment;
+       // prior_current_equipment = current_equipment;
         prior_current_se = current_se;
+        current_site_event_reading.setMeasurementType(current_type);
 
 
         Log.i("------------onCreate VOC", "10");
@@ -199,8 +201,8 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         spin_Equip_Code = (Spinner) findViewById(R.id.txt_equip_id);
         spin_User_name = (Spinner) findViewById(R.id.txt_User_name);
 
-        rbTrue = (RadioButton) findViewById(R.id.radio_true);
-        rbFalse = (RadioButton) findViewById(R.id.radio_false);
+        rbND = (RadioButton) findViewById(R.id.radio_true);
+        rbDetected = (RadioButton) findViewById(R.id.radio_false);
         rbResloved = (RadioGroup) findViewById(R.id.radio_group);
 
         //define all controls first
@@ -218,7 +220,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
 
-                if (rb == rbTrue) {
+                if (rb == rbDetected) {
                     txt_comment.setEnabled(true);
                     text_Value.setEnabled(true);
                     text_Unit.setEnabled(true);
@@ -228,22 +230,28 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 
                     text_resolve_time.setText(   DateTimeHelper.GetStringTimeFromDateTime(current_ResDateTime, ""));
 
-                    if (!current_equipment.equals("NA")) {
-                        txt_comment.setText("VOC Monitoring - " + current_reading + " " + current_unit);
-                    }
+                    if (!current_equipment.equals("NA") && current_reading!="")
+                        txt_comment.setText("VOC Monitoring - "
+                                + current_reading
+                                + " " + current_unit);
+                        else
+                        txt_comment.setText("");
+
+
                 } else {
                     txt_comment.setEnabled(false);
                     text_Value.setEnabled(false);
                     text_Unit.setEnabled(false);
+                    txt_comment.setText("");
                 }
 
             }
 
         });
         if (current_yn_resolve)
-            rbResloved.check(R.id.radio_true);
-        else
             rbResloved.check(R.id.radio_false);
+        else
+            rbResloved.check(R.id.radio_true);
 
 
         text_Value.setText(current_reading);
@@ -262,7 +270,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
                 Log.i("isLastRecordSavedToTable", "txt_value.addTextChangedListener " + isLastRecordSavedToTable.toString());
                 current_reading = text_Value.getText().toString();
                 current_unit = text_Unit.getText().toString();
-                if (rbTrue.isChecked() && (!current_reading.equals(""))) {
+                if (rbDetected.isChecked() && (!current_reading.equals(""))) {
                     current_comment = "VOC Monitoring - " + current_reading + " " + current_unit;
                     txt_comment.setText(current_comment);
                     isLastRecordSavedToTable = false;
@@ -335,15 +343,14 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
                 new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item,
                         Cursor_Eq, from_Eq, toL, 0);
         adapter_Eq.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        prior_current_equipment = current_equipment;
+        //prior_current_equipment = current_equipment;
         spin_Equip_Code.setAdapter(adapter_Eq);
         SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment);
         spin_Equip_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 //CUSTOM METHOD
                 spin_Equip_Code_Listener(parent, pos);
-                if (!current_equipment.equals("NA"))
-                    isLastRecordSavedToTable = false;
+
             }
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -410,8 +417,8 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 
             public void afterTextChanged(Editable s) {
                 Log.i("isLastRecordSavedToTable", "txtComment.addTextChangedListener " + isLastRecordSavedToTable.toString());
-
-                isLastRecordSavedToTable = false;
+                if (!txt_comment.getText().toString().equals(""))
+                    isLastRecordSavedToTable = false;
             }
         });
 
@@ -447,6 +454,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
                 prior_current_username = current_username;
                 prior_current_equipment = current_equipment;
                 prior_current_se = current_se;
+
 
                 isRecordsSavedToDB = false;
 
@@ -539,24 +547,29 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         Object item = parent.getItemAtPosition(pos);
 
         current_equipment_type = ((String[]) array_Eq.get(pos))[2];
-        prior_current_equipment=current_equipment;
+        //prior_current_equipment=current_equipment;
         current_equipment = ((String[]) array_Eq.get(pos))[1];
 
-        if (!bBarcodeEquip) {
-            //strDataModComment = "Manual";
-            bBarcodeEquip = false;
-        } else {
-            //strDataModComment = "";
-            bBarcodeEquip = false;
-        }
+        current_SEDateTime = DateTimeHelper.GetDateTimeNow();
+        text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
+        text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime,""));
 
+
+//        if (!bBarcodeEquip) {
+//            //strDataModComment = "Manual";
+//            bBarcodeEquip = false;
+//        } else {
+//            //strDataModComment = "";
+//            bBarcodeEquip = false;
+//        }
+        MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+        System.out.println("in spin eq list "+current_equipment + current_equipment_type+ prior_current_equipment);
         if(!current_equipment.startsWith("NA") &&
                 !Objects.equals(prior_current_equipment, current_equipment)) {
+
 //collect dataIntent seintent
             Intent seintent = null;
             SaveReadingsToSiteEventRecord();
-
-            MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
 
             if (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
                 seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
@@ -566,8 +579,11 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
             }
             if (type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
                 seintent = new Intent("android.intent.action.INPUT_NOISE_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
-            }
+              }
             if (type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
+                text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
+                text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
+
                 //seintent = new Intent("android.intent.action.INPUT_VOC_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
             if (type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
@@ -580,7 +596,8 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         bAcceptWarningDuplicate = false;
 
         if (!Objects.equals(current_equipment, "NA")
-                && !Objects.equals(current_equipment, prior_current_equipment))
+                && !Objects.equals(current_equipment, prior_current_equipment) && type == current_type)
+                isLastRecordSavedToTable = false;
 
         Log.i("isLastRecordSavedToTable", "spin_Equip_Code.listener isLastRecordSavedToTable:" + isLastRecordSavedToTable.toString());
         Log.i("isLastRecordSavedToTable", "spin_Equip_Code.listener isRecordsSavedToDB:" + isRecordsSavedToDB.toString());
@@ -616,7 +633,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
                 //current_se = event.getBarcodeData();
                 Log.i("onBarcodeEvent", "onBarcodeEvent :" +current_equipment);
 
-                isLastRecordSavedToTable = false;
+                //isLastRecordSavedToTable = false;
 
                 final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(
                         ct, android.R.layout.simple_list_item_1, list);
@@ -754,15 +771,26 @@ Wedge as keys to empty
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
         current_comment = (String) txt_comment.getText().toString();
+        current_reading = text_Value.getText().toString()  ;
+        current_site_event_reading.setValue(current_reading);
+        current_site_event_reading.setUnit(text_Unit.getText().toString());
+
+        String userupload = dbHelper.GetUserUploadName(db,current_username);
+        if(userupload == null || (!userupload.equals("")))
+            current_site_event_reading.setStrUserUploadName(userupload);
+
         current_username =GetSpinnerValue(spin_User_name);
         current_se =GetSpinnerValue(spin_SE_Code);
+        String desc = dbHelper.GetEqDescDB(db,current_equipment);
+        if(desc == null || (!desc.equals("")))
+            current_site_event_reading.setStrEqDesc(desc);
 
         current_site_event_reading.setStrComment(current_comment);
         current_site_event_reading.setStrUserName(current_username);
         current_site_event_reading.setStrEq_ID(current_equipment);
         current_site_event_reading.setStrSE_ID(current_se);
 
-        if (rbTrue.isChecked()) {
+        if (rbDetected.isChecked()) {
             current_yn_resolve = true;
             current_site_event_reading.setYnResolved("true");
         } else {
@@ -797,9 +825,11 @@ Wedge as keys to empty
         spin_Equip_Code.setSelection(id);
         id = GetIndexFromArraylist(array_SE_code, "Monitor", 1);
         spin_SE_Code.setSelection(id);
-        rbFalse.setChecked(true);
-        text_Value.setText("0");
+        //rbDetected.setChecked(false);
+        //rbND.setChecked(true);
+        text_Value.setText("");
         text_Unit.setText("ppm");
+        txt_comment.setText("");
 
         bBarcodeEquip = false;
         isLastRecordSavedToTable = true;
@@ -962,7 +992,7 @@ Wedge as keys to empty
 
 
                 DatePickerDialog mDatePicker;
-                mDatePicker = new DatePickerDialog(mContext, R.style.SpinnerDatePickerDialog,
+                mDatePicker = new DatePickerDialog(ct, R.style.SpinnerDatePickerDialog,
                         new DatePickerDialog.OnDateSetListener() {
 
                             @Override
@@ -998,7 +1028,7 @@ Wedge as keys to empty
 
 
                 DatePickerDialog mDatePicker;
-                mDatePicker = new DatePickerDialog(mContext, R.style.SpinnerDatePickerDialog,
+                mDatePicker = new DatePickerDialog(ct, R.style.SpinnerDatePickerDialog,
                         new DatePickerDialog.OnDateSetListener() {
 
                             @Override

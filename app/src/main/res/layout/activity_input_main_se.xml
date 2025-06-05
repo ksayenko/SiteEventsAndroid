@@ -87,7 +87,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:scrollbarThumbVertical="@drawable/scrollbar_style"
-                android:verticalScrollbarPosition="left"
+                android:background="@drawable/custom_spinner_background"
                 android:spinnerMode="dialog"
                 tools:ignore="TouchTargetSizeCheck" />
 
@@ -352,14 +352,7 @@
                 android:textStyle="bold" />
 
 
-            <Button
-                android:id="@+id/btn_delete"
-                style="@style/Widget.AppCompat.Button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="@string/delete"
-                android:textStyle="bold" />
+
 
             <Button
                 android:id="@+id/btn_done"

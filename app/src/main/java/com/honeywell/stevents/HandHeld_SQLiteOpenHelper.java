@@ -47,12 +47,9 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 
 
     // filename prefix for the Readings dataset xml file
-    public static final String FILEPREFIX = "CEPDB2_"; // Instrument Reading, Second File Mask, version 2
+    public static final String FILEPREFIX = "STE.SFDBSQL"; // Instrument Reading, Second File Mask, version 2
     // filename prefix for converted csv files
-    public static final String CSVPREFIX_INR = "INR_";  // instrument readings, First File Mask, no version
-    //        public const string CSVPREFIX_EQI = "EQI2_";  // equipment identification, version 2
-    //        public const string CSVPREFIX_EQC = "EQC2_";  // equipment characteristics, version 2
-    // filename for the xsd schema definition files
+
 
     public HandHeld_SQLiteOpenHelper(Context context, AppDataTables tbls) {
 
@@ -185,7 +182,8 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
                 DataTable_SiteEvent.datResDate + ", " +
                 DataTable_SiteEvent.ynResolved + ", " +
                 DataTable_SiteEvent.Value + ", " +
-                DataTable_SiteEvent.Unit + " " +
+                DataTable_SiteEvent.Unit + ", " +
+                DataTable_SiteEvent.Measurement_Type + " " +
                 " FROM " +
                 HandHeld_SQLiteOpenHelper.SITE_EVENT + " Where " +
                 DataTable_SiteEvent.lngID + " = " + lngId;
@@ -246,6 +244,12 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         index++;
             if (!c.isNull(index))
                 r.setUnit(c.getString(index));
+            index++;
+            //Measurement_Type
+            if (!c.isNull(index)) {
+                Integer n = c.getInt(index);
+                r.setMeasurementType(MeasurementTypes.GetTypeFromNumber(n));
+            }
 
         }
         c.close();
@@ -460,18 +464,20 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     public int getUpdateSiteEvent(SQLiteDatabase db, SiteEvents r) {
         String temp;
         ContentValues values = new ContentValues();
-//        values.put(DataTable_SiteEvent.dblIR_Value, r.getDblIR_Value());
-//        values.put(DataTable_SiteEvent.elev_code, r.getElev_code());
-//
-//        temp = r.getStrComment();
-//        if (Objects.equals(temp, ""))
-//            values.putNull(DataTable_SiteEvent.strComment);
-//        else
-//            values.put(DataTable_SiteEvent.strComment, temp);
-//
-//        values.put(DataTable_SiteEvent.strFO_StatusID, r.getStrFO_StatusID());
-//        values.put(DataTable_SiteEvent.strEqO_StatusID, r.getStrEqO_StatusID());
-//        values.put(DataTable_SiteEvent.strIR_Units, r.getStrIR_Units());
+        values.put(DataTable_SiteEvent.Value, r.getValue());
+       values.put(DataTable_SiteEvent.Unit, r.getUnit());
+
+       temp = r.getStrComment();
+       if (Objects.equals(temp, ""))
+            values.putNull(DataTable_SiteEvent.strComment);
+       else
+            values.put(DataTable_SiteEvent.strComment, temp);
+
+        values.put(DataTable_SiteEvent.datSE_Date, r.getDatSE_Date());
+        values.put(DataTable_SiteEvent.datSE_Time, r.getDatSE_Time());
+        values.put(DataTable_SiteEvent.datResDate, r.getDatResDate());
+        values.put(DataTable_SiteEvent.strUserName, r.getStrUserName());
+        values.put(DataTable_SiteEvent.strUserUploadName, r.getStrUserUploadName());
 
         int rowsUpdated = db.update(HandHeld_SQLiteOpenHelper.SITE_EVENT, values, DataTable_SiteEvent.lngID + "=" + r.getLngID(), null);
 
@@ -553,20 +559,20 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 //        return db.rawQuery(qry, null);
 //    }
 
-    public Cursor getIRRecordsShortList(SQLiteDatabase db) {
-        return getIRRecordsShortList(db, "order by " +
+    public Cursor getSE_ShortList(SQLiteDatabase db) {
+        return getSE_ShortList(db, "order by " +
                 DataTable_SiteEvent.default_datetimeformat + " desc , "
                 + DataTable_SiteEvent.datSE_Time + " DESC");
 
 
     }
 
-    public Cursor getIRRecordsShortList(SQLiteDatabase db, String orderby) {
+    public Cursor getSE_ShortList(SQLiteDatabase db, String orderby) {
         String qry = "select  rowid as _id, " +
-                DataTable_SiteEvent.strSE_ID + ", " +
                 DataTable_SiteEvent.strEq_ID + ", " +
-                DataTable_SiteEvent.datSE_Time + ", " +
-                DataTable_SiteEvent.lngID + " from " +
+                DataTable_SiteEvent.datSE_Time + ", " + "'Saved', " +
+                DataTable_SiteEvent.lngID +", "+
+                DataTable_SiteEvent.Measurement_Type + " from " +
                 HandHeld_SQLiteOpenHelper.SITE_EVENT +
                 " where (uploaded is null or uploaded =0) and (" + DataTable_SiteEvent.recordToUpload + " = 1 or " + DataTable_SiteEvent.recordToUpload + " is null) " + orderby;
         System.out.println(qry);
@@ -586,7 +592,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 
     public Cursor getSiteEventRecords(SQLiteDatabase db, String orderby) {
         String qry = "select  rowid as _id, " + DataTable_SiteEvent.strD_Loc_ID + ", " +
-                DataTable_SiteEvent.strUserName + ", " +
+                DataTable_SiteEvent.strUserUploadName + ", " +
                 DataTable_SiteEvent.datSE_Date + ", " +
                 DataTable_SiteEvent.datSE_Time + ", " +
                 DataTable_SiteEvent.strS_Loc_ID + ", " +
@@ -721,7 +727,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         return arrayList;
     }
 
-    public String GetUserNametoDB(SQLiteDatabase db, String spinUserName)
+    public String GetUserUploadName(SQLiteDatabase db, String spinUserName)
     {
         String sql = "Select "+ DataTable_Users.strUserName + " from " + USERS
                 + "  where "+ DataTable_Users.strName + " = '" + spinUserName+"'";
@@ -1015,8 +1021,8 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             ssec = "0" + ssec;
 
         String dattime_addon = sy + sm + sd + "_" + sh + smm + ssec;
-        String filename = HandHeld_SQLiteOpenHelper.CSVPREFIX_INR +
-                HandHeld_SQLiteOpenHelper.FILEPREFIX + "_" + dattime_addon + ".csv";
+        String filename =
+                HandHeld_SQLiteOpenHelper.FILEPREFIX + "" + dattime_addon + ".csv";
         newCSV = new File(directoryApp + "/" + filename);
         FileOutputStream fos;
         String fullfilename = newCSV.getAbsolutePath();
@@ -1037,78 +1043,79 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             message1 = records.toString() + "  records getting ready to upload";
             Toast.makeText(context, message1, Toast.LENGTH_SHORT).show();
 
-            String s_facility_id;
-            String s_datIR_Date;
-            String s_datIR_Time;
-            String s_strD_Col_ID;
             String s_strD_Loc_ID;
-            String s_strFO_StatusID;
+            String s_strUserName;
+            String s_datSE_Date;
+            String s_datSE_Time;
+            String s_strS_Loc_ID;
+            String s_strSE_ID;
+            String s_strTOFO_id;
             String s_strEqID;
-            String s_dblIR_Value;
-            String s_strIR_Units;
+            String s_strEqDesc;
             String s_strComment;
-            String s_strEqO_StatusID;
-            String s_fSuspect = "";
-            String s_strDataModComment;
-            //String s_uf_strWL_D_Loc_ID ;
-            //String s_wl_meas_point = "";
-            String s_elev_code = "";
+            String s_strM_Per_ID;
+            String s_datResDate;
+            String s_ynResolved;
             String s_device_name = "";
 
-            Integer i_facility_id = records.getColumnIndex(DataTable_SiteEvent.facility_id);
-            if (i_facility_id < 0)
-                i_facility_id = 0;
-            Integer i_datIR_Date = records.getColumnIndex(DataTable_SiteEvent.datSE_Date);
-            if (i_datIR_Date < 0)
-                i_datIR_Date = 0;
-            Integer i_datIR_Time = records.getColumnIndex(DataTable_SiteEvent.datSE_Time);
-//            if (i_datIR_Time < 0)
-//                i_datIR_Time = 0;
-//            Integer i_strD_Col_ID = records.getColumnIndex(DataTable_SiteEvent.strD_Col_ID);
-//            if (i_strD_Col_ID < 0)
-//                i_strD_Col_ID = 0;
-//            Integer i_strD_Loc_ID = records.getColumnIndex(DataTable_SiteEvent.strD_Loc_ID);
-//            if (i_strD_Loc_ID < 0)
-//                i_strD_Loc_ID = 0;
-//            Integer i_strFO_StatusID = records.getColumnIndex(DataTable_SiteEvent.strFO_StatusID);
-//            if (i_strFO_StatusID < 0)
-//                i_strFO_StatusID = 0;
-//            Integer i_strEqID = records.getColumnIndex(DataTable_SiteEvent.strEqID);
-//            if (i_strEqID < 0)
-//                i_strEqID = 0;
-//            Integer i_dblIR_Value = records.getColumnIndex(DataTable_SiteEvent.dblIR_Value);
-//            if (i_dblIR_Value < 0)
-//                i_dblIR_Value = 0;
-//            Integer i_strIR_Units = records.getColumnIndex(DataTable_SiteEvent.strIR_Units);
-//            if (i_strIR_Units < 0)
-//                i_strIR_Units = 0;
-//            Integer i_strComment = records.getColumnIndex(DataTable_SiteEvent.strComment);
-//            if (i_strComment < 0)
-//                i_strComment = 0;
-//            Integer i_strEqO_StatusID = records.getColumnIndex(DataTable_SiteEvent.strEqO_StatusID);
-//            if (i_strEqO_StatusID < 0)
-//                i_strEqO_StatusID = 0;
-//            Integer i_fSuspect = records.getColumnIndex(DataTable_SiteEvent.fSuspect);
-//            if (i_fSuspect < 0)
-//                i_fSuspect = 0;
-//            Integer i_strDataModComment = records.getColumnIndex(DataTable_SiteEvent.strDataModComment);
-//            if (i_strDataModComment < 0)
-//                i_strDataModComment = 0;
-//            int i_uf_strWL_D_Loc_ID = records.getColumnIndex(DataTable_SiteEvent.uf_strWL_D_Loc_ID);
-//            if (i_uf_strWL_D_Loc_ID < 0)
-//                i_uf_strWL_D_Loc_ID = 0;
-//            int i_wl_meas_point = records.getColumnIndex(DataTable_SiteEvent.wl_meas_point);
-//            if (i_wl_meas_point < 0)
-//                i_wl_meas_point = 0;
-//            Integer i_elev_code = records.getColumnIndex(DataTable_SiteEvent.elev_code);
-//            if (i_elev_code < 0)
-//                i_elev_code = 0;
-//            int i_elev_code_desc = records.getColumnIndex(DataTable_SiteEvent.elev_code_desc);
-//            if (i_elev_code_desc < 0)
-//                i_elev_code_desc = 0;
-//            int i_device_name = records.getColumnIndex(DataTable_SiteEvent.device_name);
-//            if (i_device_name < 0)
-//                i_device_name = 0;
+//#strd_loc_id
+// #strusername
+// #datse_date
+// #datse_time
+// #strs_loc_id
+// #strse_id
+// #strtofo_id
+// #streqid
+// #streqdesc
+// #strcomment
+// #strm_per_id
+// #datresdate
+// #ynresolved
+
+            Integer i_strD_Loc_ID = records.getColumnIndex(DataTable_SiteEvent.strD_Loc_ID);
+            if (i_strD_Loc_ID < 0)
+                i_strD_Loc_ID = 0;
+            Integer i_strUserName = records.getColumnIndex(DataTable_SiteEvent.strUserUploadName);
+            if (i_strUserName < 0)
+                i_strUserName = 0;
+            Integer i_datSE_Date = records.getColumnIndex(DataTable_SiteEvent.datSE_Date);
+            if (i_datSE_Date < 0)
+                i_datSE_Date = 0;
+            Integer i_datSE_Time = records.getColumnIndex(DataTable_SiteEvent.datSE_Time);
+            if (i_datSE_Time < 0)
+                i_datSE_Time = 0;
+            Integer i_strS_Loc_ID = records.getColumnIndex(DataTable_SiteEvent.strS_Loc_ID);
+            if (i_strS_Loc_ID < 0)
+                i_strS_Loc_ID = 0;
+            Integer i_strSE_ID = records.getColumnIndex(DataTable_SiteEvent.strSE_ID);
+            if (i_strSE_ID < 0)
+                i_strSE_ID = 0;
+            Integer i_strTOFO_id = records.getColumnIndex(DataTable_SiteEvent.strTOFO_id);
+            if (i_strTOFO_id < 0)
+                i_strTOFO_id = 0;
+            Integer i_strEqID = records.getColumnIndex(DataTable_SiteEvent.strEq_ID);
+            if (i_strEqID < 0)
+                i_strEqID = 0;
+            Integer i_strEqDesc = records.getColumnIndex(DataTable_SiteEvent.strEqDesc);
+            if (i_strEqDesc < 0)
+                i_strEqDesc = 0;
+
+            Integer i_strComment = records.getColumnIndex(DataTable_SiteEvent.strComment);
+            if (i_strComment < 0)
+                i_strComment = 0;
+            Integer i_strM_Per_ID = records.getColumnIndex(DataTable_SiteEvent.strM_Per_ID);
+            if (i_strM_Per_ID < 0)
+                i_strM_Per_ID = 0;
+            Integer i_datResDate = records.getColumnIndex(DataTable_SiteEvent.datResDate);
+            if (i_datResDate < 0)
+                i_datResDate = 0;
+            Integer i_ynResolved = records.getColumnIndex(DataTable_SiteEvent.ynResolved);
+            if (i_ynResolved < 0)
+                i_ynResolved = 0;
+
+            int i_device_name = records.getColumnIndex(DataTable_SiteEvent.device_name);
+            if (i_device_name < 0)
+                i_device_name = 0;
 
             String header = DataTable_SiteEvent.CSVHeader();
 
@@ -1119,41 +1126,37 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             for (records.moveToFirst(); !records.isAfterLast(); records.moveToNext()) {
                 // The Cursor is now set to the right position
                 String row = "";
+                s_strD_Loc_ID = getStringQuotedValue(records, i_strD_Loc_ID);
 
 
-                s_facility_id = getStringQuotedValue(records, i_facility_id);
-                s_datIR_Date = getStringQuotedValueAndRemoveSecondsFromDatetime(records, i_datIR_Date);
-                s_datIR_Time = getStringQuotedValueAndRemoveSecondsFromDatetime(records, i_datIR_Time);
-//                s_dblIR_Value = getStringQuotedValueFromDouble(records, i_dblIR_Value, null);
-//                s_strD_Loc_ID = getStringQuotedValue(records, i_strD_Loc_ID);
-//                s_strEqO_StatusID = getStringQuotedValue(records, i_strEqO_StatusID);
-//                s_strComment = getStringQuotedValue(records, i_strComment);
-//                s_strDataModComment = getStringQuotedValue(records, i_strDataModComment);
-//                //s_uf_strWL_D_Loc_ID = getStringQuotedValue(records,i_uf_strWL_D_Loc_ID);
-//                //s_wl_meas_point = getStringQuotedValue(records,i_wl_meas_point) ;
-//                s_elev_code = getStringQuotedValue(records, i_elev_code);
-//                //s_elev_code_desc =getStringQuotedValue(records,i_elev_code_desc) ;
-//                s_strFO_StatusID = getStringQuotedValue(records, i_strFO_StatusID);
-//                s_strD_Col_ID = getStringQuotedValue(records, i_strD_Col_ID);
-//                s_strEqID = getStringQuotedValue(records, i_strEqID);
-//                s_strIR_Units = getStringQuotedValue(records, i_strIR_Units);
-//                s_fSuspect = getStringQuotedValueFromBooleanYesNo(records, i_fSuspect);
-//                s_device_name = getStringQuotedValue(records, i_device_name);
+                s_strUserName = getStringQuotedValue(records, i_strUserName);
+                s_datSE_Date = getStringQuotedValue(records, i_datSE_Date);
+                s_datSE_Time = getStringQuotedValue(records, i_datSE_Time);
+                s_strS_Loc_ID = getStringQuotedValue(records, i_strS_Loc_ID);
+                s_strSE_ID = getStringQuotedValue(records, i_strSE_ID);
+                s_strTOFO_id = getStringQuotedValue(records, i_strTOFO_id);
+                s_strEqID = getStringQuotedValue(records, i_strEqID);
+                s_strEqDesc = getStringQuotedValue(records, i_strEqDesc);
+                s_strComment = getStringQuotedValue(records, i_strComment);
+                s_strM_Per_ID = getStringQuotedValue(records, i_strM_Per_ID);
+                s_datResDate = getStringQuotedValue(records, i_datResDate);
+                s_ynResolved = getStringQuotedValue(records, i_ynResolved);
+                s_device_name = getStringQuotedValue(records, i_device_name);
 
-                row = s_facility_id + "," +
- //                       s_strEqID + "," +
-//                        s_strD_Col_ID + "," +
-//                        s_datIR_Date + "," +
-//                        s_datIR_Time + "," +
-//                        s_strD_Loc_ID + "," +
-//                        s_dblIR_Value + "," +
-//                        s_strIR_Units + "," +
-//                        s_strFO_StatusID + "," +
-//                        s_strEqO_StatusID + "," +
-//                        s_fSuspect + "," +
-//                        s_strComment + "," +
-//                        s_strDataModComment + "," +
-//                        s_elev_code + "," +
+
+                row = s_strD_Loc_ID + "," +
+                        s_strUserName + "," +
+                        s_datSE_Date + "," +
+                        s_datSE_Time + "," +
+                        s_strS_Loc_ID + "," +
+                        s_strSE_ID + "," +
+                        s_strTOFO_id + "," +
+                        s_strEqID + "," +
+                        s_strEqDesc + "," +
+                        s_strComment + "," +
+                        s_strM_Per_ID + "," +
+                        s_datResDate + "," +
+                        s_ynResolved + "," +
                         s_device_name;
 
                 System.out.println(row);

@@ -15,6 +15,16 @@ public class SiteEvents implements Serializable, Cloneable {
     private String strD_Loc_ID = null;
     private String strSE_ID = "";
     private String strUserName = "";
+
+    public String getStrUserUploadName() {
+        return strUserUploadName;
+    }
+
+    public void setStrUserUploadName(String strUserUploadName) {
+        this.strUserUploadName = strUserUploadName;
+    }
+
+    public  String strUserUploadName="";
     private String datSE_Date = "01/01/2000";
     private String strS_Loc_ID = "99";
     private String strTOFO_ID = null;
@@ -29,6 +39,7 @@ public class SiteEvents implements Serializable, Cloneable {
     private String datetimedefault = "2000-01-01";
     private String Value = null;
     private String Unit = null;
+
 
     public MeasurementTypes.MEASUREMENT_TYPES getMeasurementType() {
         return measurementType;
@@ -194,43 +205,43 @@ public class SiteEvents implements Serializable, Cloneable {
         return r;
     }
 
-    public SiteEvents(Integer lngID,
-                      String strD_Loc_ID,
-                      String strUserName,
-                      String datSE_Date,
-                      String strS_Loc_ID,
-                      String strSE_ID,
-                      String strEq_ID,
-                      String strEqDesc,
-                      String strTOFO_ID,
-                      String strComment,
-                      String strm_Per_ID,
-                      String datRes_Date,
-                      String ynResolved,
-                      String Value, String Unit
-    ) {
-        this.lngID = lngID;
-        this.facility_id = 1;
-
-        this.strD_Loc_ID = strD_Loc_ID;
-        this.strUserName = strUserName;
-        this.datSE_Date = datSE_Date;
-        this.datSE_Time = datSE_Date;
-        this.strS_Loc_ID = strS_Loc_ID;
-
-        this.strSE_ID = strSE_ID;
-        this.strTOFO_ID = strTOFO_ID;
-        this.strEq_ID = strEq_ID;
-        this.strEqDesc = strEqDesc;
-        this.strComment = strComment;
-        this.strm_Per_ID = strm_Per_ID;
-        this.datResDate = datRes_Date;
-        this.ynResolved = ynResolved;
-
-        this.Value = Value;
-        this.Unit = Unit;
-
-    }
+//    public SiteEvents(Integer lngID,
+//                      String strD_Loc_ID,
+//                      String strUserName,
+//                      String datSE_Date,
+//                      String strS_Loc_ID,
+//                      String strSE_ID,
+//                      String strEq_ID,
+//                      String strEqDesc,
+//                      String strTOFO_ID,
+//                      String strComment,
+//                      String strm_Per_ID,
+//                      String datRes_Date,
+//                      String ynResolved,
+//                      String Value, String Unit
+//    ) {
+//        this.lngID = lngID;
+//        this.facility_id = 1;
+//
+//        this.strD_Loc_ID = strD_Loc_ID;
+//        this.strUserName = strUserName;
+//        this.datSE_Date = datSE_Date;
+//        this.datSE_Time = datSE_Date;
+//        this.strS_Loc_ID = strS_Loc_ID;
+//
+//        this.strSE_ID = strSE_ID;
+//        this.strTOFO_ID = strTOFO_ID;
+//        this.strEq_ID = strEq_ID;
+//        this.strEqDesc = strEqDesc;
+//        this.strComment = strComment;
+//        this.strm_Per_ID = strm_Per_ID;
+//        this.datResDate = datRes_Date;
+//        this.ynResolved = ynResolved;
+//
+//        this.Value = Value;
+//        this.Unit = Unit;
+//
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -241,6 +252,7 @@ public class SiteEvents implements Serializable, Cloneable {
                 facility_id.equals(reading.facility_id) &&
 
                         strUserName.equals(reading.strUserName) &&
+                        strUserUploadName.equals(reading.strUserUploadName) &&
                         datSE_Date.equals(reading.datSE_Date) &&
                         strSE_ID.equals(reading.strSE_ID) &&
                         strEq_ID.equals(reading.strEq_ID) &&
@@ -311,8 +323,10 @@ public class SiteEvents implements Serializable, Cloneable {
             isValid.setValidation(Validation.VALIDATION.ERROR);
 
         } else if (dValue == 0.0 && (measurementType == MeasurementTypes.MEASUREMENT_TYPES.NOISE
-                || measurementType == MeasurementTypes.MEASUREMENT_TYPES.VOC)) {
+                || measurementType == MeasurementTypes.MEASUREMENT_TYPES.VOC) &&
+        ynResolved == "true") {
             message += "A Reading value of 0 is detected!";
+            System.out.println(message);
             isValid.setValidation(Validation.VALIDATION.WARNING);
             isValid.setFocus(Validation.FOCUS.READING);
         }

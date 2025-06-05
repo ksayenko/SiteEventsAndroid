@@ -47,11 +47,9 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public class Activity_PH_Input extends AppCompatActivity implements BarcodeReader.BarcodeListener,
-        BarcodeReader.TriggerListener {
+public class Activity_PH_Edit extends AppCompatActivity {
 
-    private BarcodeReader barcodeReader;
-    private ListView barcodeList;
+
 
     MeasurementTypes.MEASUREMENT_TYPES current_type = MeasurementTypes.MEASUREMENT_TYPES.PH;
     private String current_SEDateTime;
@@ -76,20 +74,16 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
     Cursor Cursor_SE_code = null;
     ArrayList<String[]> array_SE_code = null;
     private String current_se = "";
-    private String prior_current_se = "";
+
 
     Cursor Cursor_Users = null;
     ArrayList<String[]> array_Users = null;
     String current_username = "";
-    String prior_current_username = "";
+
 
     Cursor Cursor_Eq = null;
     ArrayList<String[]> array_Eq = null;
     String current_equipment = "";
-    String prior_current_equipment = "";
-    String current_equipment_type = "";
-
-
     boolean current_yn_resolve = true;
 
     String current_comment = "";
@@ -104,7 +98,6 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
     public SQLiteDatabase db;
     Button btnSave;
     Button btnClear;
-    Button btnDelete;
     Button btnDone;
 
     Context ct = this;
@@ -113,9 +106,8 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
     Boolean bAcceptWarningDuplicate = false;
 
 
-    private SiteEvents default_site_event_reading;
+    private SiteEvents current_site_event_reading_copy;
     private SiteEvents current_site_event_reading;
-    private DataTable_SiteEvent se_table = new DataTable_SiteEvent();
 
     Boolean[] bDialogChoice = {false};
 
@@ -132,46 +124,30 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         ct = this;
         //Toast.makeText(ct, ct.getClass().getName(), Toast.LENGTH_SHORT).show();
 
-        default_site_event_reading = SiteEvents.GetDefaultReading();
-        current_site_event_reading = SiteEvents.GetDefaultReading();
-        
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             System.out.println("we have default reading");
-            default_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
-            se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
-            current_username = (String) getIntent().getSerializableExtra("USER");
-            if (se_table == null)
-                se_table = new DataTable_SiteEvent();
-        } else {
-            System.out.println("no default reading");
-            default_site_event_reading = SiteEvents.GetDefaultReading();
-            se_table = new DataTable_SiteEvent();
-            current_username = default_site_event_reading.getStrUserName();
+            current_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
+
         }
 
         try {
-            current_site_event_reading = (SiteEvents) default_site_event_reading.clone();
+            current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
 
-        //current_se = default_site_event_reading.getStrSE_ID();
-        current_se = "Maintain";
-        current_equipment = default_site_event_reading.getStrEq_ID();
-
-        current_comment = default_site_event_reading.getStrComment();
-        current_SEDateTime = default_site_event_reading.getDatSE_Date();
-        current_ResDateTime = default_site_event_reading.getDatResDate();
-
-        prior_current_username = current_username;
-        prior_current_se = current_se;
-        prior_current_equipment = current_equipment;
-        current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.PH);
-
-        if (default_site_event_reading.getYnResolved().toLowerCase() == "true")
-            current_yn_resolve = true;
-        else current_yn_resolve = false;
+        current_se = current_site_event_reading.getStrSE_ID();
+        current_equipment = current_site_event_reading.getStrEq_ID();
+        current_username = current_site_event_reading.getStrUserName();
+        current_comment = current_site_event_reading.getStrComment();
+        current_SEDateTime = current_site_event_reading.getDatSE_Date();
+        current_ResDateTime = current_site_event_reading.getDatResDate();
+        current_se = current_site_event_reading.getStrSE_ID();
+        current_reading = current_site_event_reading.getValue();
+        current_unit = current_site_event_reading.getUnit();
+        current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true");
 
         Log.i("------------onCreate ph", "ph 10");
 
@@ -193,6 +169,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         ///Log.i("------------onCreate", Locs.getColumnName(1));
         spin_SE_Code = (Spinner) findViewById(R.id.txt_Site_Event_Code);
         spin_Equip_Code = (Spinner) findViewById(R.id.txt_equip_id);
+        spin_Equip_Code.setEnabled(false);
         spin_User_name = (Spinner) findViewById(R.id.txt_User_name);
 
         rbTrue = (RadioButton) findViewById(R.id.radio_true);
@@ -207,6 +184,10 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         txt_comment = (EditText) findViewById(R.id.txt_comment);
 
         rbResolved.clearCheck();
+        if (current_yn_resolve)
+            rbTrue.setChecked(true);
+        else
+            rbFalse.setChecked(true);
 
         rbResolved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -268,18 +249,9 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
                 new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item,
                         Cursor_Eq, from_Eq, toL, 0);
         adapter_Eq.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        prior_current_equipment = current_equipment;
+
         spin_Equip_Code.setAdapter(adapter_Eq);
         SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment);
-        spin_Equip_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                //CUSTOM METHOD
-                spin_Equip_Code_Listener(parent, pos);
-
-            }
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
 
         //USERS
         Cursor_Users = dbHelper.GetCursorUsers(db);
@@ -295,9 +267,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         SetSpinnerValue(spin_User_name, array_Users, current_username);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                current_username = GetSpinnerValue(spin_User_name);
-                if ((!current_username.equals("NA"))
-                        && (!current_username.equals(prior_current_username)))
+
                     isLastRecordSavedToTable = false;
 
             }
@@ -320,9 +290,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         SetSpinnerValue(spin_SE_Code, array_SE_code, current_se);
         spin_SE_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                current_se = GetSpinnerValue(spin_SE_Code);
-                if ((!current_se.equals("NA") &&
-                        (!current_se.equals(prior_current_se))))
+
                     isLastRecordSavedToTable = false;
             }
             public void onNothingSelected(AdapterView<?> parent) {
@@ -351,66 +319,75 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         });
 
         btnClear = (Button) findViewById(R.id.btn_clear);
-
+        btnClear.setText("Delete");
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                clearForms();
+                AlertDialog.Builder alert = new AlertDialog.Builder(ct);
+                alert.setTitle("Delete entry");
+                alert.setMessage("Are you sure you want to delete this record ? ");
+                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                        dbHelper.deleteRecords(db, current_site_event_reading.getLngID().toString());
+
+                        Intent intent = new Intent(ct, Activity_EditListSE.class);
+                        startActivity(intent);
+                        finish();
+
+                    }
+                });
+                alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // close dialog
+                        dialog.cancel();
+                    }
+                });
+                alert.show();
             }
+
+
         });
 
         btnSave = (Button) findViewById(R.id.btn_save);
+        btnSave.setText("Update");
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SaveReadingsToSiteEventRecord();
                 System.out.println(bAcceptWarningValid);
-
+                SaveReadingsToSiteEventRecord();
                 Validation iChecked = saveForms(bAcceptWarningValid, bAcceptWarningDuplicate);
                 if (iChecked.isValid() ||
-                        (iChecked.isWarning() && bAcceptWarningValid) || (iChecked.isWarningDuplicate() && bAcceptWarningDuplicate))
-                    isLastRecordSavedToTable = true;
+                        (iChecked.isWarning() && bAcceptWarningValid)
+                        || (iChecked.isWarningDuplicate() && bAcceptWarningDuplicate))
+                {
+                    dbHelper.getUpdateSiteEvent(db, current_site_event_reading);
 
-                if (iChecked.isWarning())
-                    bAcceptWarningValid = true;
-                if (iChecked.isWarningDuplicate())
-                    bAcceptWarningDuplicate = true;
+                    AlertDialog.Builder alert = new AlertDialog.Builder(ct);
+                    alert.setTitle("Success!");
+                    alert.setMessage("The Record got Updated for Equipment " + current_site_event_reading.getStrEq_ID());
+                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    });
+                    alert.show();
+                }
+
                 System.out.println(bAcceptWarningValid);
-                System.out.println(bAcceptWarningDuplicate);
                 System.out.println(iChecked);
-                prior_current_username = current_username;
-                prior_current_equipment = current_equipment;
-                prior_current_se = current_se;
-
-                isRecordsSavedToDB = false;
-
             }
         });
 
+
         btnDone = (Button) findViewById(R.id.btn_done);
+        btnDone.setText("Cancel");
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                if (isLastRecordSavedToTable) {
-                    isRecordsSavedToDB = dbHelper.getInsertTable(db, se_table);
-                    int records = se_table.GetNumberOfRecords();
-
-                    if (isRecordsSavedToDB) {
-                        String message = "The data (" + String.valueOf(records) + " records) is saved and ready to be uplaoded.";
-                        Toast.makeText(ct, message, Toast.LENGTH_SHORT).show();
-                        se_table = new DataTable_SiteEvent();
-                    }
-                } else
-                    isRecordsSavedToDB = false;
-
-                Log.i("isLastRecordSavedToTable", "btnDone.setOnClickListener ,isLastRecordSavedToTable " + isLastRecordSavedToTable.toString());
-                if (isLastRecordSavedToTable && isRecordsSavedToDB) {
-                    clearForms();
-                }
-                Log.i("isLastRecordSavedToTable", "btnDone.setOnClickListener ,isLastRecordSavedToTable " + isLastRecordSavedToTable.toString());
-
-                Intent intent = new Intent(ct, Activity_Main.class);
+                Intent intent = new Intent(ct, Activity_EditListSE.class);
                 startActivity(intent);
                 finish();
                 //onBackPressed();
@@ -418,115 +395,11 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             }
         });
 
-        //ADD BARCODE
-// get bar code instance from MainActivity
-        barcodeReader = Activity_Main.getBarcodeObject();
 
-        if (barcodeReader != null) {
-
-            // register bar code event listener
-            barcodeReader.addBarcodeListener(this);
-            Log.i("onCreate", "barcodeReader !=null");
-
-            // set the trigger mode to client control
-            try {
-                barcodeReader.setProperty(BarcodeReader.PROPERTY_TRIGGER_CONTROL_MODE,
-                        BarcodeReader.TRIGGER_CONTROL_MODE_CLIENT_CONTROL);
-            } catch (UnsupportedPropertyException e) {
-                Toast.makeText(this, "Failed to apply properties", Toast.LENGTH_SHORT).show();
-            }
-            // register trigger state change listener
-            barcodeReader.addTriggerListener(this);
-
-            Map<String, Object> properties = new HashMap<>();
-            // Set Symbologies On/Off
-            properties.put(BarcodeReader.PROPERTY_CODE_128_ENABLED, true);
-            //properties.put(BarcodeReader.PROPERTY_CODE_128_ENABLED, true);
-            properties.put(BarcodeReader.PROPERTY_GS1_128_ENABLED, true);
-            properties.put(BarcodeReader.PROPERTY_QR_CODE_ENABLED, true);
-            properties.put(BarcodeReader.PROPERTY_CODE_39_ENABLED, true);
-            properties.put(BarcodeReader.PROPERTY_DATAMATRIX_ENABLED, true);
-            properties.put(BarcodeReader.PROPERTY_UPC_A_ENABLE, true);
-            properties.put(BarcodeReader.PROPERTY_EAN_13_ENABLED, false);
-            properties.put(BarcodeReader.PROPERTY_AZTEC_ENABLED, false);
-            properties.put(BarcodeReader.PROPERTY_CODABAR_ENABLED, false);
-            properties.put(BarcodeReader.PROPERTY_INTERLEAVED_25_ENABLED, false);
-            properties.put(BarcodeReader.PROPERTY_PDF_417_ENABLED, true);
-            // Set Max Code 39 barcode length
-            properties.put(BarcodeReader.PROPERTY_CODE_39_MAXIMUM_LENGTH, 10);
-            // Turn on center decoding
-            properties.put(BarcodeReader.PROPERTY_CENTER_DECODE, true);
-            // Disable bad read response, handle in onFailureEvent
-            properties.put(BarcodeReader.PROPERTY_NOTIFICATION_BAD_READ_ENABLED, false);
-            // Apply the settings
-            barcodeReader.setProperties(properties);
-        }
-
-
-        // get initial list
-        barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
-        Log.i("barcodeList", barcodeList.toString());
-        Log.i("onCreate", "4");
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
     }
-    private void spin_Equip_Code_Listener(AdapterView<?> parent, int pos) {
-        Object item = parent.getItemAtPosition(pos);
 
-        current_equipment_type = ((String[]) array_Eq.get(pos))[2];
-        //prior_current_equipment=current_equipment;
-        current_equipment = ((String[]) array_Eq.get(pos))[1];
-
-        current_SEDateTime = DateTimeHelper.GetDateTimeNow();
-        text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
-        text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime,""));
-
-        if (!bBarcodeEquip) {
-            //strDataModComment = "Manual";
-            bBarcodeEquip = false;
-        } else {
-            //strDataModComment = "";
-            bBarcodeEquip = false;
-        }
-        MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
-
-        if (!Objects.equals(current_equipment, "NA")
-                && !Objects.equals(current_equipment, prior_current_equipment) && type == current_type)
-            isLastRecordSavedToTable = false;
-
-        if(!current_equipment.startsWith("NA")&& !Objects.equals(prior_current_equipment, current_equipment)) {
-//collect dataIntent seintent
-            Intent seintent = null;
-            SaveReadingsToSiteEventRecord();
-
-
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
-                seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
-            }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
-                //seintent = new Intent("android.intent.action.INPUT_PH_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
-            }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
-                seintent = new Intent("android.intent.action.INPUT_NOISE_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
-            }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
-                seintent = new Intent("android.intent.action.INPUT_VOC_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
-            }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
-                seintent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
-            }
-            SaveReadingsToSiteEventRecord();
-            if (seintent != null)
-                SetAndStartIntent(seintent);
-        }
-        bAcceptWarningValid = false;
-        bAcceptWarningDuplicate = false;
-
-
-        Log.i("isLastRecordSavedToTable", "spin_Equip_Code.listener isLastRecordSavedToTable:" + isLastRecordSavedToTable.toString());
-        Log.i("isLastRecordSavedToTable", "spin_Equip_Code.listener isRecordsSavedToDB:" + isRecordsSavedToDB.toString());
-        Log.i("current_equipment", "spin_Equip_Code.listener current_equipment" + current_equipment);
-    }
 
     public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue) {
         int index = GetIndexFromArraylist(strValues, strValue, 1);
@@ -550,18 +423,18 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         return 0;
     }
 
-    private void SetAndStartIntent(Intent seintent) {
-        Log.i("SetAndStartIntent", "SetAndStartIntent - general eq");
-
-        seintent.putExtra("SE", current_site_event_reading);
-        seintent.putExtra("SE_TABLE", se_table);
-        seintent.putExtra("USER", current_username);
-        if (!isLastRecordSavedToTable) {
-            isLastRecordSavedToTable = true;
-            AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
-        } else
-            startActivity(seintent);
-    }
+//    private void SetAndStartIntent(Intent seintent) {
+//        Log.i("SetAndStartIntent", "SetAndStartIntent - general eq");
+//
+//        seintent.putExtra("SE", current_site_event_reading);
+//        seintent.putExtra("SE_TABLE", se_table);
+//        seintent.putExtra("USER", current_username);
+//        if (!isLastRecordSavedToTable) {
+//            isLastRecordSavedToTable = true;
+//            AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
+//        } else
+//            startActivity(seintent);
+//    }
 
 
     public ArrayList<String[]> transferCursorToArrayList(Cursor cursor) {
@@ -578,46 +451,6 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         return arrayList;
     }
 
-
-    @Override
-    public void onBarcodeEvent(final BarcodeReadEvent event) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // update UI to reflect the data
-                Log.i("onBarcodeEvent", "onBarcodeEvent!!!!");
-                List<String> list = new ArrayList<>();
-                String tempcurrent = event.getBarcodeData();
-                Log.i("onBarcodeEvent", "onBarcodeEvent!!!! +"+tempcurrent);
-                //currentDateTime = Calendar.getInstance().getTime(); //
-                if (tempcurrent != null || tempcurrent != "")
-                    current_equipment = tempcurrent;
-                //current_se = event.getBarcodeData();
-                Log.i("onBarcodeEvent", "onBarcodeEvent :" +current_equipment);
-
-
-                final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(
-                        ct, android.R.layout.simple_list_item_1, list);
-
-                int id = getIndexFromArraylist(array_Eq, current_equipment, 1);
-
-                Log.i("onBarcodeEvent", "onBarcodeEvent id: " + Integer.toString(id));
-                if (id > 0) {
-                    bBarcodeEquip = true;
-                }
-                if(id >-1) {
-                    spin_Equip_Code.setSelection(id);
-                    //barcodeList.setAdapter(dataAdapter);
-                    //isRecordsSavedToDB = false;
-                    bAcceptWarningDuplicate = false;
-                    bAcceptWarningValid = false;
-                }
-
-                Log.i("isLastRecordSavedToTable", "on barcode event isLastRecordSavedToTable " + isLastRecordSavedToTable.toString());
-                Log.i("isLastRecordSavedToTable", "on barcode event isRecordsSavedToDB " + isRecordsSavedToDB.toString());
-            }
-        });
-    }
 
     private int getIndex(Spinner spinner, String myString) {
         System.out.println("getIndex spinner " + spinner.toString());
@@ -698,103 +531,12 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             current_yn_resolve = false;
             current_site_event_reading.setYnResolved("false");
         }
+        isLastRecordSavedToTable = current_site_event_reading.equals(current_site_event_reading_copy);
 
     }
 
 
 
-
-    // When using Automatic Trigger control do not need to implement the
-    // onTriggerEvent function
-    @Override
-    public void onTriggerEvent(TriggerStateChangeEvent event) {
-        try {
-            // only handle trigger presses
-            // turn on/off aimer, illumination and decoding
-            Log.i("onTriggerEvent", "no Data");
-            /*
-            To get the "CR" in the barcode to be processed two settings needs to be changed:
-"Settings - Honeywell Settings - Scanning - Internal Scanner - Default profile - Data Processing Settings. Set:
-Wedge Method" to 'keyboard'
-Wedge as keys to empty
-             */
-            barcodeReader.aim(event.getState());
-            barcodeReader.light(event.getState());
-            barcodeReader.decode(event.getState());
-
-        } catch (ScannerNotClaimedException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Scanner is not claimed", Toast.LENGTH_SHORT).show();
-        } catch (ScannerUnavailableException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Scanner unavailable", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onFailureEvent(BarcodeFailureEvent arg0) {
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                //List<String> list = new ArrayList<String>();
-                //final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(
-                //         StDetInputActivity.this, android.R.layout.simple_list_item_1, list);
-                if (Objects.equals(current_equipment, "NA")) {
-                    int id = getIndexFromArraylist(array_Eq, "NA", 1);
-
-                    Log.i("onFailureEvent", " onFailureEvent Id = " + Integer.toString(id));
-
-                    bBarcodeEquip = false;
-                    //spin_Loc_id.setSelection(id);
-                    //barcodeList.setAdapter(dataAdapter);
-                    Toast.makeText(ct, "onFailureEvent No data yet", Toast.LENGTH_SHORT).show();
-
-                } else {
-                    Toast.makeText(ct, current_equipment, Toast.LENGTH_SHORT).show();
-
-                }
-
-
-            }
-        });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (barcodeReader != null) {
-            try {
-                barcodeReader.claim();
-            } catch (ScannerUnavailableException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Scanner unavailable", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (barcodeReader != null) {
-            // release the scanner claim so we don't get any scanner
-            // notifications while paused.
-            barcodeReader.release();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (barcodeReader != null) {
-            // unregister barcode event listener
-            barcodeReader.removeBarcodeListener(this);
-
-            // unregister trigger state change listener
-            barcodeReader.removeTriggerListener(this);
-            db.close();
-        }
-    }
     private int getIndexFromArraylist(ArrayList<String[]> list, String myString, Integer column) {
 
         int n = list.size();
@@ -838,26 +580,27 @@ Wedge as keys to empty
           Validation isTheRecordValid = Activity_Main_Input.IsRecordValid(current_site_event_reading,
                 spin_Equip_Code,
                 spin_SE_Code, spin_User_name, null);
-        Validation isTheRecordDup = Activity_Main_Input.IsRecordDup(db, dbHelper,current_site_event_reading, se_table);
-
-        boolean bAcceptDup = isTheRecordDup.isValid() || (isTheRecordDup.isWarningDuplicate() && bAcceptWarningDuplicate);
+//        Validation isTheRecordDup = Activity_Main_Input.IsRecordDup(db, dbHelper,current_site_event_reading, se_table);
+//
+//        boolean bAcceptDup = isTheRecordDup.isValid() || (isTheRecordDup.isWarningDuplicate() && bAcceptWarningDuplicate);
         boolean bAcceptRecord = isTheRecordValid.isValid() || (isTheRecordValid.isWarning() && bAcceptWarning);
 
         if (isTheRecordValid.isError()) {
             AlertDialogShowError(isTheRecordValid.getValidationMessage(), "ERROR");
         } else if (isTheRecordValid.isWarning() && !bAcceptWarning) {
             AlertDialogShow("Please check\n" + isTheRecordValid.getValidationMessage() + "\nPress 'Save' one more time to confirm the data as VALID or update the input data.", "Warning");
-        } else if (isTheRecordDup.isWarningDuplicate() && !bAcceptWarningDuplicate) {
-            AlertDialogHighWarning("Please check\n" + isTheRecordDup.getValidationMessage() + "\nPress 'Save' one more time to confirm the data as VALID or update the input data.", "Warning");
-            return isTheRecordDup;
-        } else if ((bAcceptRecord) && (bAcceptDup)) {
-            System.out.println(isTheRecordValid.getValidationMessageWarning() + isTheRecordValid.getValidationMessageError());
-            maxId = se_table.AddToTable(current_site_event_reading);
-            isRecordsSavedToDB = false;
-            maxId++;
-            clearForms();
-            System.out.println("NEW max id " + maxId.toString());
         }
+//        else if (isTheRecordDup.isWarningDuplicate() && !bAcceptWarningDuplicate) {
+//            AlertDialogHighWarning("Please check\n" + isTheRecordDup.getValidationMessage() + "\nPress 'Save' one more time to confirm the data as VALID or update the input data.", "Warning");
+//            return isTheRecordDup;
+//        } else if ((bAcceptRecord) && (bAcceptDup)) {
+//            System.out.println(isTheRecordValid.getValidationMessageWarning() + isTheRecordValid.getValidationMessageError());
+//            maxId = se_table.AddToTable(current_site_event_reading);
+//            isRecordsSavedToDB = false;
+//            maxId++;
+//            clearForms();
+//            System.out.println("NEW max id " + maxId.toString());
+//        }
 
         return isTheRecordValid;
     }

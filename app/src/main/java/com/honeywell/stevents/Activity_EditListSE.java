@@ -22,10 +22,9 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
 import java.util.Objects;
 
-public class StDetEditListActivity extends Activity {
+public class Activity_EditListSE extends Activity {
 
     private TableLayout tableLayout;
     private TableLayout tableLayoutHeader;
@@ -49,8 +48,9 @@ public class StDetEditListActivity extends Activity {
     public void onBackPressed() {
         // do something on back.
         super.onBackPressed();
-       this.finish();
+        this.finish();
     }
+
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,14 +64,14 @@ public class StDetEditListActivity extends Activity {
 
         int rowsInDB = dbHelper.getRowsInLookupTables(db);
         if (rowsInDB < 1) {
-            AlertDialogShow("The Lookup Tables aren't populated, go to Menu | Download and Populate Lookup DB","ERROR!");
+            AlertDialogShow("The Lookup Tables aren't populated, go to Menu | Download and Populate Lookup DB", "ERROR!");
         }
 
 
         currentRowSelected = -1;
         selectedLngID = "";
-        System.out.println("in StDetEditListActivity");
-        setContentView(R.layout.activity_stdet_editlist);
+        System.out.println("in Activity_EditListSE");
+        setContentView(R.layout.activity_se_editlist);
         tableLayoutHeader = findViewById(R.id.table_layout_header);
         tableLayout = findViewById(R.id.table_layout);
         scrView = findViewById(R.id.hor_scroll_view);
@@ -81,23 +81,24 @@ public class StDetEditListActivity extends Activity {
             @Override
             public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
                 final int newScrollX = scrollX;
-                if(scrollX != oldScrollX) {
-                    scrViewHeader.post(  new Runnable() {
+                if (scrollX != oldScrollX) {
+                    scrViewHeader.post(new Runnable() {
                         public void run() {
                             scrViewHeader.scrollTo(newScrollX, 0);
                         }
                     });
                 }
-            }});
+            }
+        });
 
-        btnEdit =findViewById(R.id.btn_edit);
+        btnEdit = findViewById(R.id.btn_edit);
         btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i("------------onClick btnEdit", "12");
-                Reading r = null;
+                SiteEvents r = null;
                 if (!Objects.equals(selectedLngID, "")) {
-                    //r = dbHelper.getSiteEvent(db, selectedLngID);
+                    r = dbHelper.getSiteEvent(db, selectedLngID);
                 }
                 if (r == null) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(ct);
@@ -112,37 +113,48 @@ public class StDetEditListActivity extends Activity {
                     });
 
                     alert.show();
-                }
-                else {
+                } else {
                     Log.i("------------onClick StDetInputActivity", "12");
-                    // get the intent action string from AndroidManifest.xml
-                    Intent barcodeIntent = new Intent("android.intent.action.STDETEDITACTIVITY");
-                    barcodeIntent.putExtra("IR", r);
+                    MeasurementTypes.MEASUREMENT_TYPES type = r.getMeasurementType();
+                    Intent barcodeIntent = null;
+                    if (type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
+                        // get the intent action string from AndroidManifest.xml
+                        barcodeIntent = new Intent("android.intent.action.EDIT_PH_BARCODEACTIVITY");
+                    } else if (type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
+                        barcodeIntent = new Intent("android.intent.action.EDIT_NOISE_BARCODEACTIVITY");
+                    } else if (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
+                        barcodeIntent = new Intent("android.intent.action.EDIT_GENERAL_EQ_BARCODEACTIVITY");
+                    } else if (type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
+                        barcodeIntent = new Intent("android.intent.action.EDIT_VOC_BARCODEACTIVITY");
+                    } else
+                        barcodeIntent = new Intent("android.intent.action.EDIT_OTHER_BARCODEACTIVITY");
+
+                    barcodeIntent.putExtra("SE", r);
                     startActivity(barcodeIntent);
 
                 }
-               System.out.println("In StDetEditListActivity btnEdit.setOnClickListener " + selectedLngID);
+                System.out.println("In Activity_EditListSE btnEdit.setOnClickListener " + selectedLngID);
             }
         });
 
-        btnDelete=findViewById(R.id.btn_update);
+        btnDelete = findViewById(R.id.btn_update);
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i("------------onClick btnDelete", "s");
-                System.out.println("In StDetEditListActivity btnDelete.setOnClickListener " + selectedLngID);
+                System.out.println("In Activity_EditListSE btnDelete.setOnClickListener " + selectedLngID);
 
                 AlertDialog.Builder alert = new AlertDialog.Builder(ct);
                 alert.setTitle("Delete entry");
 
                 alert.setMessage("Are you sure you want to delete a record "
-                        + String.valueOf(currentRowSelected+1) +"? ");
+                        + String.valueOf(currentRowSelected + 1) + "? ");
                 alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int which) {
                         // continue with delete
                         dbHelper.deleteRecords(db, selectedLngID);
-                        Cursor cursor_list = dbHelper.getIRRecordsShortList(db);
+                        Cursor cursor_list = dbHelper.getSE_ShortList(db);
                         fillData(cursor_list);
                         finish();
                         startActivity(getIntent());
@@ -158,12 +170,12 @@ public class StDetEditListActivity extends Activity {
             }
 
         });
-        btnDone =findViewById(R.id.btn_cancel);
+        btnDone = findViewById(R.id.btn_cancel);
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i("------------onClick btnDone", "12");
-                System.out.println("In StDetEditListActivity btnDelete.btnDone " + selectedLngID);
+                System.out.println("In Activity_EditListSE btnDelete.btnDone " + selectedLngID);
                 onBackPressed();
             }
         });
@@ -174,7 +186,7 @@ public class StDetEditListActivity extends Activity {
         colorSel = new ColorDrawable(ContextCompat.getColor(this, R.color.brightblue));
 
 
-        Cursor cursor_list = dbHelper.getIRRecordsShortList(db);
+        Cursor cursor_list = dbHelper.getSE_ShortList(db);
 
         createColumns();
         fillData(cursor_list);
@@ -223,29 +235,29 @@ public class StDetEditListActivity extends Activity {
         textViewID.setPadding(5, 5, 5, 0);
         row.addView(textViewID);
 
-        //Loc id
-        TextView textViewLocID = new TextView(this);
-        textViewLocID.setText("Loc Id");
-        textViewLocID.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        textViewLocID.setPadding(5, 5, 5, 0);
+        //Equipment id
+        TextView textViewEqD = new TextView(this);
+        textViewEqD.setText("Equipment ID");
+        textViewEqD.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        textViewEqD.setPadding(5, 5, 5, 0);
 
-        row.addView(textViewLocID);
+        row.addView(textViewEqD);
 
-        //Loc id
+        //Event Date/Time
         TextView textViewDT = new TextView(this);
-        textViewDT.setText("Date Time");
+        textViewDT.setText("Event Date/Time");
         textViewDT.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         textViewDT.setPadding(5, 5, 5, 0);
 
         row.addView(textViewDT);
 
-        //Reading
-        TextView textViewReading = new TextView(this);
-        textViewReading.setText("Reading");
-        textViewReading.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        textViewReading.setPadding(5, 5, 5, 0);
-
-        row.addView(textViewReading);
+//        //status
+//        TextView textViewStatus = new TextView(this);
+//        textViewStatus.setText("Status");
+//        textViewStatus.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+//        textViewStatus.setPadding(5, 5, 5, 0);
+//
+//        row.addView(textViewStatus);
 
         //lngId hidden
         TextView textViewlngId = new TextView(this);
@@ -253,6 +265,13 @@ public class StDetEditListActivity extends Activity {
         textViewlngId.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         textViewlngId.setPadding(5, 5, 5, 0);
         textViewlngId.setVisibility(View.INVISIBLE);
+
+        //Measurement type
+        TextView textViewMeasType = new TextView(this);
+        textViewMeasType.setText("Measurement_Type");
+        textViewMeasType.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        textViewMeasType.setPadding(5, 5, 5, 0);
+        textViewMeasType.setVisibility(View.INVISIBLE);
 
         row.addView(textViewlngId);
 
@@ -264,7 +283,7 @@ public class StDetEditListActivity extends Activity {
     private void fillData(Cursor list) {
         int i = 0;
         bDataExists = false;
-        if (list.getCount()>0)
+        if (list.getCount() > 0)
             bDataExists = true;
         for (list.moveToFirst(); !list.isAfterLast(); list.moveToNext()) {
             {
@@ -273,7 +292,7 @@ public class StDetEditListActivity extends Activity {
                         TableRow.LayoutParams.MATCH_PARENT,
                         TableRow.LayoutParams.WRAP_CONTENT);
 
-                lp.setMargins(1,1,1,10);
+                lp.setMargins(1, 1, 1, 10);
                 rowData.setLayoutParams(lp);
                 rowData.setBackground(color2);
 
@@ -307,11 +326,11 @@ public class StDetEditListActivity extends Activity {
 
 
                 //Loc id
-                TextView textViewLocID = new TextView(this);
-                textViewLocID.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                textViewLocID.setPadding(5, 5, 5, 0);
+                TextView textViewEqID = new TextView(this);
+                textViewEqID.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                textViewEqID.setPadding(5, 5, 5, 0);
 
-                rowData.addView(textViewLocID);
+                rowData.addView(textViewEqID);
 
                 //Loc id
                 TextView textViewDT = new TextView(this);
@@ -321,13 +340,11 @@ public class StDetEditListActivity extends Activity {
 
                 rowData.addView(textViewDT);
 
-                //Reading
-                //the max digits after 55.9897384643555
-                DecimalFormat df = new DecimalFormat("#.################");
-                TextView textViewReading = new TextView(this);
-                textViewReading.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                textViewReading.setPadding(5, 5, 5, 0);
-                rowData.addView(textViewReading);
+
+//                TextView textViewStatus = new TextView(this);
+//                textViewStatus.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+//                textViewStatus.setPadding(5, 5, 5, 0);
+//                rowData.addView(textViewStatus);
 
                 //lngId hidden
                 TextView textViewlngId = new TextView(this);
@@ -336,27 +353,39 @@ public class StDetEditListActivity extends Activity {
                 textViewlngId.setVisibility(View.INVISIBLE);
                 rowData.addView(textViewlngId);
 
+                //lngId hidden
+                TextView textViewMeasType = new TextView(this);
+                textViewMeasType.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                textViewMeasType.setPadding(5, 5, 5, 0);
+                textViewMeasType.setVisibility(View.INVISIBLE);
+                rowData.addView(textViewMeasType);
+
                 if (list.getString(0) != null) {
                     //rowid
-                    textViewID.setText(String.valueOf(i+1));//list.getString(0));
+                    textViewID.setText(String.valueOf(i + 1));//list.getString(0));
                 }
 
                 if (list.getString(1) != null) {
                     //locid
-                    textViewLocID.setText(list.getString(1));
+                    textViewEqID.setText(list.getString(1));
                 }
                 if (list.getString(2) != null) {
                     //datetime
                     textViewDT.setText(list.getString(2));
                 }
+//                if (list.getString(3) != null) {
+//                    //reading
+//                    // double dreading = list.getDouble(3);
+//                    textViewStatus.setText(list.getString(3));
+//                    //df.format(dreading));
+//                }
                 if (list.getString(3) != null) {
-                    //reading
-                    double dreading = list.getDouble(3);
-                    textViewReading.setText(df.format(dreading));
+                    //lng id
+                    textViewlngId.setText(list.getString(3));
                 }
                 if (list.getString(4) != null) {
-                    //lng id
-                    textViewlngId.setText(list.getString(4));
+                    //Measurement_Type
+                    textViewMeasType.setText(list.getString(4));
                 }
 
 
@@ -373,7 +402,7 @@ public class StDetEditListActivity extends Activity {
 
     private TableRow getRowById(int j) {
         TableRow row = null;
-       if (j >= 0 && j < tableLayout.getChildCount())
+        if (j >= 0 && j < tableLayout.getChildCount())
             row = (TableRow) tableLayout.getChildAt(j);
         return row;
     }
@@ -382,7 +411,7 @@ public class StDetEditListActivity extends Activity {
         TableRow row = null;
         String lngId = "";
         String one = "";
-       if (j >=0 && j < tableLayout.getChildCount()) {
+        if (j >= 0 && j < tableLayout.getChildCount()) {
             row = (TableRow) tableLayout.getChildAt(j);
             one = ((TextView) row.getChildAt(1)).getText().toString();
             System.out.println("Loc_id " + one);
@@ -394,7 +423,7 @@ public class StDetEditListActivity extends Activity {
 
     public void onDestroy() {
         super.onDestroy();
-            db.close();
+        db.close();
 
     }
 
@@ -404,16 +433,16 @@ public class StDetEditListActivity extends Activity {
     }
 
     @Override
-    public void onRestart()
-    {
+    public void onRestart() {
         super.onRestart();
         finish();
         startActivity(getIntent());
     }
 
-    private void AlertDialogShow(String message, String title){
+    private void AlertDialogShow(String message, String title) {
         AlertDialogShow(message, title, "OK");
     }
+
     private void AlertDialogShow(String message, String title, String button) {
         AlertDialog ad = new AlertDialog.Builder(this)
                 .setTitle(title)

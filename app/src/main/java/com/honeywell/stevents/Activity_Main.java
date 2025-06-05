@@ -79,10 +79,6 @@ public class Activity_Main extends AppCompatActivity {
 
     private File directoryApp;
 
-    public File GetDirectory() {
-        return directoryApp;
-    }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -196,7 +192,7 @@ public class Activity_Main extends AppCompatActivity {
                             String name = credentials[0];
                             String encryptedPassword = credentials[1];
                             // For decryption not ise null or empty string
-                            if (encryptedPassword == null || encryptedPassword == "")
+                            if (encryptedPassword == null || encryptedPassword.equals(""))
                                 encryptedPassword = "NA";
                             String pwd = Application_Encrypt.decrypt(encryptedPassword);
                             String[] errormessage = new String[]{""};
@@ -532,9 +528,9 @@ public class Activity_Main extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 bAcceptWarningDuplicate = false;
-                Log.i("------------onClick StDetEditListActivity", "12");
+                Log.i("------------onClick Activity_EditListSE", "12");
                 // get the intent action string from AndroidManifest.xml
-                Intent barcodeIntent = new Intent("android.intent.action.STDETEDITLISTACTIVITY");
+                Intent barcodeIntent = new Intent("android.intent.action.EDITLISTACTIVITY");
                 startActivity(barcodeIntent);
                 System.out.println("In MAIN btnReviewForms.setOnClickListener " + default_reading.getStrEq_ID());
             }

@@ -21,6 +21,7 @@
         android:allowBackup="true"
         android:icon="@drawable/se"
         android:label="@string/app_name"
+        android:launchMode="singleInstance"
         android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme" >
@@ -31,7 +32,9 @@
             android:exported="true"
             android:theme="@style/AppTheme"
             android:label="@string/app_name"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -64,6 +67,7 @@
             android:name="com.honeywell.stevents.Activity_Main_Input"
             android:exported="true"
             android:theme="@style/AppTheme"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY" />
@@ -75,6 +79,7 @@
             android:name="com.honeywell.stevents.Activity_GeneralEq_Input"
             android:exported="true"
             android:theme="@style/AppTheme"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY" />
@@ -94,9 +99,21 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="com.honeywell.stevents.Activity_Noise_Edit"
+            android:exported="true"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.EDIT_NOISE_BARCODEACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name="com.honeywell.stevents.Activity_PH_Input"
             android:exported="true"
             android:theme="@style/AppTheme"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.INPUT_PH_BARCODEACTIVITY" />
@@ -108,9 +125,22 @@
             android:name="com.honeywell.stevents.Activity_VOC_Input"
             android:exported="true"
             android:theme="@style/AppTheme"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.INPUT_VOC_BARCODEACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.honeywell.stevents.Activity_VOC_Edit"
+            android:exported="true"
+            android:label="@string/EditData"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.EDIT_VOC_BARCODEACTIVITY" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -127,14 +157,49 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name="com.honeywell.stevents.StDetEditListActivity"
+            android:name="com.honeywell.stevents.Activity_GeneralEq_Edit"
+            android:exported="true"
+            android:label="@string/EditData"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.EDIT_GENERAL_EQ_BARCODEACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.honeywell.stevents.Activity_PH_Edit"
+            android:exported="true"
+            android:label="@string/EditData"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.EDIT_PH_BARCODEACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.honeywell.stevents.Activity_Other_Edit"
+            android:exported="true"
+            android:label="@string/EditData"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.EDIT_OTHER_BARCODEACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.honeywell.stevents.Activity_EditListSE"
             android:exported="true"
             android:label="List Recent Readings"
             android:screenOrientation="portrait" >
             <intent-filter>
-                <action android:name="android.intent.action.STDETEDITLISTACTIVITY" />
-                <action android:name="android.intent.action.STDETEDITLISTACTIVITY" />
+                <action android:name="android.intent.action.EDITLISTACTIVITY" />
+                <action android:name="android.intent.action.EDITLISTACTIVITY" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
