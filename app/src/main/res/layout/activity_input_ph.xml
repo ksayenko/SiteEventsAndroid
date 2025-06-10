@@ -158,6 +158,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginStart="1dp"
                     android:layout_weight="1.2"
+                    android:padding="3dp"
                     android:background="@drawable/border"
                     android:focusable="false"
                     android:clickable="true"
@@ -174,6 +175,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginStart="1dp"
                     android:layout_weight="0.8"
+                    android:padding="3dp"
                     android:autofillHints=""
                     android:background="@drawable/border"
                     android:selectAllOnFocus="true"
@@ -254,6 +256,7 @@
                 android:layout_weight="1.1"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
+
                 android:orientation="horizontal">
 
                 <EditText
@@ -263,6 +266,7 @@
                     android:layout_gravity="left"
                     android:layout_marginStart="1dp"
                     android:layout_weight="1.2"
+                    android:padding="3dp"
                     android:background="@drawable/border"
                     android:clickable="true"
                     android:focusable="false"
@@ -279,6 +283,7 @@
                     android:layout_gravity="right"
                     android:layout_marginStart="1dp"
                     android:layout_weight="0.8"
+                    android:padding="3dp"
                     android:background="@drawable/border"
                     android:clickable="true"
                     android:contextClickable="true"
@@ -287,6 +292,7 @@
                     android:selectAllOnFocus="true"
                     android:singleLine="true"
                     android:text="11:43 pm"
+
                     android:textSize="14sp" />
             </LinearLayout>
 
@@ -309,6 +315,7 @@
                 android:layout_weight="0.6"
                 android:gravity="center_vertical"
                 android:text="Comments"
+                android:padding="3dp"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -316,7 +323,7 @@
                 android:id="@+id/txt_comment"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:layout_marginLeft="0dp"
+                android:layout_marginLeft="1dp"
                 android:layout_weight="1.4"
                 android:autofillHints=""
                 android:background="@drawable/border"

@@ -149,8 +149,8 @@ public class Activity_Other_Edit extends AppCompatActivity
         current_se = current_site_event_reading.getStrSE_ID();
         current_value = current_site_event_reading.getValue();
         current_unit = current_site_event_reading.getUnit();
-        current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true");
-
+        current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true")
+                ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
 
         Log.i("------------onCreate Activity_Main_Input", "-onCreate Activity_Main_Input 1");
         setContentView(R.layout.activity_input_main_se);
@@ -418,23 +418,37 @@ public class Activity_Other_Edit extends AppCompatActivity
             current_yn_resolve = false;
             current_site_event_reading.setYnResolved("false");
         }
+        String temp1 = text_event_date.getText().toString();
+        String temp2 = text_event_time.getText().toString();
+
+        current_site_event_reading.setDatSE_Date(DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2));
+        temp1 = text_resolve_date.getText().toString();
+        temp2 = text_resolve_time.getText().toString();
+        current_site_event_reading.setDatResDate(DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2));
+
         isLastRecordSavedToTable = current_site_event_reading.equals(current_site_event_reading_copy);
 
     }
 
     private void text_event_time_picker() {
-        text_event_time.setOnClickListener(new View.OnClickListener() {
 
+        text_event_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatSE_Time(), "");
 
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                String temp1 = text_event_date.getText().toString();
+                String temp2 = text_event_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
+
+                final Calendar mcurrentTime =
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
+
+                int hour = mcurrentTime.get(Calendar.HOUR);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
 //https://stackoverflow.com/questions/32678968/android-timepickerdialog-styling-guide-docs
                 TimePickerDialog mTimePicker;
+                Log.i("timePicker", "h  our " + Integer.toString(hour));
                 mTimePicker = new TimePickerDialog(ct, R.style.CustomTimePickerDialog,
                         (timePicker, selectedHour, selectedMinute) -> {
                             String strSE_DateTime = current_site_event_reading.getDatSE_Date();
@@ -456,8 +470,13 @@ public class Activity_Other_Edit extends AppCompatActivity
 
             @Override
             public void onClick(View v) {
+
+                String temp1 = text_resolve_date.getText().toString();
+                String temp2 = text_resolve_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
+
                 final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatResDate(), "");
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
 
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
@@ -483,8 +502,11 @@ public class Activity_Other_Edit extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+                String temp1 = text_resolve_date.getText().toString();
+                String temp2 = text_resolve_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
                 final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatResDate(), "");
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
 
                 int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
                 int month = mcurrentTime.get(Calendar.MONTH);
@@ -499,7 +521,7 @@ public class Activity_Other_Edit extends AppCompatActivity
                             public void onDateSet(DatePicker dPicker, int year,
                                                   int month, int day) {
 
-                                String strSE_DateTime = current_site_event_reading.getDatResDate();
+                                String strSE_DateTime = current_site_event_reading.getDatSE_Date();
                                 Calendar cal = DateTimeHelper.GetCalendarFromDateTime(strSE_DateTime, "");
                                 strSE_DateTime = DateTimeHelper.UpdateDate(strSE_DateTime, year, month, day);
 
@@ -519,8 +541,11 @@ public class Activity_Other_Edit extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+                String temp1 = text_event_date.getText().toString();
+                String temp2 = text_event_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
                 final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatSE_Time(), "");
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
 
                 int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
                 int month = mcurrentTime.get(Calendar.MONTH);

@@ -249,16 +249,12 @@ public class SiteEvents implements Serializable, Cloneable {
         if (o == null || getClass() != o.getClass()) return false;
         SiteEvents reading = (SiteEvents) o;
         return
-                facility_id.equals(reading.facility_id) &&
-
                         strUserName.equals(reading.strUserName) &&
-                        strUserUploadName.equals(reading.strUserUploadName) &&
                         datSE_Date.equals(reading.datSE_Date) &&
                         strSE_ID.equals(reading.strSE_ID) &&
                         strEq_ID.equals(reading.strEq_ID) &&
                         strComment.equals(reading.strComment) &&
                         datResDate.equals(reading.datResDate) &&
-
                         ynResolved.equals(reading.ynResolved) &&
                         Value.equals(reading.Value);
     }

@@ -196,8 +196,9 @@ public class Activity_Main_Input extends AppCompatActivity
         rbResloved = (RadioGroup) findViewById(R.id.radio_group);
         rbResloved.clearCheck();
         current_yn_resolve = false;
-        if (current_site_event_reading.getYnResolved() == "true")
-            current_yn_resolve = true;
+        current_yn_resolve= Objects.equals(current_site_event_reading.getYnResolved(), "true")
+                ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
+
         if (current_yn_resolve)
             rbResloved.check(R.id.radio_true);
         else
@@ -267,9 +268,8 @@ public class Activity_Main_Input extends AppCompatActivity
         SetSpinnerValue(spin_User_name, array_Users, current_username);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                    isLastRecordSavedToTable = false;
 
-             }
+            }
 
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -289,7 +289,10 @@ public class Activity_Main_Input extends AppCompatActivity
         SetSpinnerValue(spin_SE_Code, array_SE_code, current_se);
         spin_SE_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                isLastRecordSavedToTable = false;
+                if (!Objects.equals(GetSpinnerValue(spin_SE_Code), "NA"))
+                    isLastRecordSavedToTable = false;
+                Log.i("btnDone", "spin_se isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+
             }
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -309,9 +312,9 @@ public class Activity_Main_Input extends AppCompatActivity
             }
 
             public void afterTextChanged(Editable s) {
-                Log.i("isLastRecordSavedToTable", "txtComment.addTextChangedListener " + isLastRecordSavedToTable.toString());
+                      isLastRecordSavedToTable = false;
+                Log.i("btnDone", "comm isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
 
-                isLastRecordSavedToTable = false;
             }
         });
 
@@ -345,6 +348,8 @@ public class Activity_Main_Input extends AppCompatActivity
                 System.out.println(iChecked);
 
                 isRecordsSavedToDB = false;
+                Log.i("btnDone", "btnSave.setOnClickListener isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+
 
             }
         });
@@ -354,6 +359,9 @@ public class Activity_Main_Input extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
+                Log.i("btnDone", "isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+                if (!isLastRecordSavedToTable)
+                    saveForms(true,  true);
                 if (isLastRecordSavedToTable) {
                     isRecordsSavedToDB = dbHelper.getInsertTable(db, se_table);
                     int records = se_table.GetNumberOfRecords();
@@ -480,8 +488,10 @@ public class Activity_Main_Input extends AppCompatActivity
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
 
-        if (!Objects.equals(current_equipment, "NA") && type == current_type)
+        if (!Objects.equals(current_equipment, "NA") )
             isLastRecordSavedToTable = false;
+        Log.i("btnDone", "spin_Equip_Code_Listener isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+
 
         Log.i("isLastRecordSavedToTable", "spin_Equip_Code.listener isLastRecordSavedToTable:" + isLastRecordSavedToTable.toString());
         Log.i("isLastRecordSavedToTable", "spin_Equip_Code.listener isRecordsSavedToDB:" + isRecordsSavedToDB.toString());
@@ -533,21 +543,36 @@ public class Activity_Main_Input extends AppCompatActivity
             current_site_event_reading.setYnResolved("false");
         }
 
+        String temp1 = text_event_date.getText().toString();
+        String temp2 = text_event_time.getText().toString();
+
+        current_site_event_reading.setDatSE_Date(DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2));
+        temp1 = text_resolve_date.getText().toString();
+        temp2 = text_resolve_time.getText().toString();
+        current_site_event_reading.setDatResDate(DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2));
+
+
     }
 
     private void text_event_time_picker() {
-        text_event_time.setOnClickListener(new View.OnClickListener() {
 
+        text_event_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatSE_Time(), "");
 
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                String temp1 = text_event_date.getText().toString();
+                String temp2 = text_event_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
+
+                final Calendar mcurrentTime =
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
+
+                int hour = mcurrentTime.get(Calendar.HOUR);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
 //https://stackoverflow.com/questions/32678968/android-timepickerdialog-styling-guide-docs
                 TimePickerDialog mTimePicker;
+                Log.i("timePicker", "h  our " + Integer.toString(hour));
                 mTimePicker = new TimePickerDialog(ct, R.style.CustomTimePickerDialog,
                         (timePicker, selectedHour, selectedMinute) -> {
                             String strSE_DateTime = current_site_event_reading.getDatSE_Date();
@@ -569,8 +594,13 @@ public class Activity_Main_Input extends AppCompatActivity
 
             @Override
             public void onClick(View v) {
+
+                String temp1 = text_resolve_date.getText().toString();
+                String temp2 = text_resolve_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
+
                 final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatResDate(), "");
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
 
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
@@ -596,8 +626,11 @@ public class Activity_Main_Input extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+                String temp1 = text_resolve_date.getText().toString();
+                String temp2 = text_resolve_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
                 final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatResDate(), "");
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
 
                 int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
                 int month = mcurrentTime.get(Calendar.MONTH);
@@ -612,7 +645,7 @@ public class Activity_Main_Input extends AppCompatActivity
                             public void onDateSet(DatePicker dPicker, int year,
                                                   int month, int day) {
 
-                                String strSE_DateTime = current_site_event_reading.getDatResDate();
+                                String strSE_DateTime = current_site_event_reading.getDatSE_Date();
                                 Calendar cal = DateTimeHelper.GetCalendarFromDateTime(strSE_DateTime, "");
                                 strSE_DateTime = DateTimeHelper.UpdateDate(strSE_DateTime, year, month, day);
 
@@ -632,8 +665,11 @@ public class Activity_Main_Input extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+                String temp1 = text_event_date.getText().toString();
+                String temp2 = text_event_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
                 final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatSE_Time(), "");
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
 
                 int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
                 int month = mcurrentTime.get(Calendar.MONTH);
@@ -663,6 +699,7 @@ public class Activity_Main_Input extends AppCompatActivity
             }
         });
     }
+
 
     @Override
     public void onBarcodeEvent(final BarcodeReadEvent event) {
@@ -899,6 +936,8 @@ Wedge as keys to empty
 
         currentDateTime = Calendar.getInstance().getTime();
 
+        Log.i("Saveforms", "se_table");
+
         Validation isTheRecordValid = Activity_Main_Input.IsRecordValid(current_site_event_reading,
                 spin_Equip_Code,
                 spin_SE_Code, spin_User_name, null);
@@ -906,7 +945,7 @@ Wedge as keys to empty
 
         boolean bAcceptDup = isTheRecordDup.isValid() || (isTheRecordDup.isWarningDuplicate() && bAcceptWarningDuplicate);
         boolean bAcceptRecord = isTheRecordValid.isValid() || (isTheRecordValid.isWarning() && bAcceptWarning);
-
+        Log.i("Saveforms", "isTheRecordValid"+ isTheRecordValid.toString());
         if (isTheRecordValid.isError()) {
             AlertDialogShowError(isTheRecordValid.getValidationMessage(), "ERROR");
         } else if (isTheRecordValid.isWarning() && !bAcceptWarning) {
@@ -916,6 +955,7 @@ Wedge as keys to empty
             return isTheRecordDup;
         } else if ((bAcceptRecord) && (bAcceptDup)) {
             System.out.println(isTheRecordValid.getValidationMessageWarning() + isTheRecordValid.getValidationMessageError());
+            Log.i("Saveforms", "se_table" + current_site_event_reading.toString());
             maxId = se_table.AddToTable(current_site_event_reading);
             isRecordsSavedToDB = false;
             maxId++;

@@ -168,9 +168,8 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         prior_current_equipment = current_equipment;
         current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.PH);
 
-        if (default_site_event_reading.getYnResolved().toLowerCase() == "true")
-            current_yn_resolve = true;
-        else current_yn_resolve = false;
+        current_yn_resolve= Objects.equals(default_site_event_reading.getYnResolved(), "true")
+                ||  Objects.equals(default_site_event_reading.getYnResolved(), "1");
 
         Log.i("------------onCreate ph", "ph 10");
 
@@ -691,6 +690,15 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         current_site_event_reading.setStrEq_ID(current_equipment);
         current_site_event_reading.setStrSE_ID(current_se);
 
+        String temp1 = text_event_date.getText().toString();
+        String temp2 = text_event_time.getText().toString();
+
+        current_site_event_reading.setDatSE_Date(DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2));
+        temp1 = text_resolve_date.getText().toString();
+        temp2 = text_resolve_time.getText().toString();
+        current_site_event_reading.setDatResDate(DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2));
+
+
         if (rbTrue.isChecked()) {
             current_yn_resolve = true;
             current_site_event_reading.setYnResolved("true");
@@ -910,18 +918,24 @@ Wedge as keys to empty
     }
 
     private void text_event_time_picker() {
-        text_event_time.setOnClickListener(new View.OnClickListener() {
 
+        text_event_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatSE_Time(), "");
 
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                String temp1 = text_event_date.getText().toString();
+                String temp2 = text_event_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
+
+                final Calendar mcurrentTime =
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
+
+                int hour = mcurrentTime.get(Calendar.HOUR);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
 //https://stackoverflow.com/questions/32678968/android-timepickerdialog-styling-guide-docs
                 TimePickerDialog mTimePicker;
+                Log.i("timePicker", "h  our " + Integer.toString(hour));
                 mTimePicker = new TimePickerDialog(ct, R.style.CustomTimePickerDialog,
                         (timePicker, selectedHour, selectedMinute) -> {
                             String strSE_DateTime = current_site_event_reading.getDatSE_Date();
@@ -943,8 +957,13 @@ Wedge as keys to empty
 
             @Override
             public void onClick(View v) {
+
+                String temp1 = text_resolve_date.getText().toString();
+                String temp2 = text_resolve_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
+
                 final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatResDate(), "");
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
 
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
@@ -970,8 +989,11 @@ Wedge as keys to empty
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+                String temp1 = text_resolve_date.getText().toString();
+                String temp2 = text_resolve_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
                 final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatResDate(), "");
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
 
                 int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
                 int month = mcurrentTime.get(Calendar.MONTH);
@@ -1006,8 +1028,11 @@ Wedge as keys to empty
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+                String temp1 = text_event_date.getText().toString();
+                String temp2 = text_event_time.getText().toString();
+                String dt =DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2);
                 final Calendar mcurrentTime =
-                        DateTimeHelper.GetCalendarFromDateTime(current_site_event_reading.getDatSE_Time(), "");
+                        DateTimeHelper.GetCalendarFromDateTime(dt, "");
 
                 int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
                 int month = mcurrentTime.get(Calendar.MONTH);

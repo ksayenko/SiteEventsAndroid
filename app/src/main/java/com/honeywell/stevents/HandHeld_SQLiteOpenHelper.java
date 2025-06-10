@@ -25,6 +25,7 @@ import java.util.Objects;
 
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
@@ -339,6 +340,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         String create = table.createTableSQL();
         String tablename = table.getName();
         System.out.println("getInsertFromTable " + create);
+        Log.i("db", " getInsertFromTable " + create);
         db.execSQL(create);
         String insert = "", delete;
         try {
@@ -473,11 +475,14 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
        else
             values.put(DataTable_SiteEvent.strComment, temp);
 
+        values.put(DataTable_SiteEvent.strSE_ID, r.getStrSE_ID());
         values.put(DataTable_SiteEvent.datSE_Date, r.getDatSE_Date());
         values.put(DataTable_SiteEvent.datSE_Time, r.getDatSE_Time());
         values.put(DataTable_SiteEvent.datResDate, r.getDatResDate());
+        values.put(DataTable_SiteEvent.ynResolved, r.getYnResolved());
         values.put(DataTable_SiteEvent.strUserName, r.getStrUserName());
         values.put(DataTable_SiteEvent.strUserUploadName, r.getStrUserUploadName());
+        values.put(DataTable_SiteEvent.Measurement_Type, r.getMeasurementType().value());
 
         int rowsUpdated = db.update(HandHeld_SQLiteOpenHelper.SITE_EVENT, values, DataTable_SiteEvent.lngID + "=" + r.getLngID(), null);
 

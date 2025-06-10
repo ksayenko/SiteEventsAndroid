@@ -157,6 +157,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginStart="1dp"
                     android:layout_weight="1.2"
+                    android:padding="3dp"
                     android:background="@drawable/border"
                     android:focusable="false"
                     android:clickable="true"
@@ -174,6 +175,7 @@
                     android:layout_marginStart="1dp"
                     android:layout_weight="0.8"
                     android:autofillHints=""
+                    android:padding="3dp"
                     android:background="@drawable/border"
                     android:selectAllOnFocus="true"
                     android:focusable="false"
@@ -314,8 +316,10 @@
             <EditText
                 android:id="@+id/txt_comment"
                 android:layout_width="0dp"
+                android:padding="3dp"
                 android:layout_height="50dp"
-                android:layout_marginLeft="0dp"
+                android:layout_marginLeft="1dp"
+
                 android:layout_weight="1.4"
                 android:autofillHints=""
                 android:background="@drawable/border"
@@ -351,10 +355,6 @@
                 android:layout_weight="1"
                 android:text="@string/clear"
                 android:textStyle="bold" />
-
-
-
-
             <Button
                 android:id="@+id/btn_done"
                 style="@style/Widget.AppCompat.Button"

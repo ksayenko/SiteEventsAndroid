@@ -71,6 +71,7 @@ public class Activity_EditListSE extends Activity {
         currentRowSelected = -1;
         selectedLngID = "";
         System.out.println("in Activity_EditListSE");
+        Log.i("Activity_EditListSE", "On Create");
         setContentView(R.layout.activity_se_editlist);
         tableLayoutHeader = findViewById(R.id.table_layout_header);
         tableLayout = findViewById(R.id.table_layout);
@@ -116,6 +117,7 @@ public class Activity_EditListSE extends Activity {
                 } else {
                     Log.i("------------onClick StDetInputActivity", "12");
                     MeasurementTypes.MEASUREMENT_TYPES type = r.getMeasurementType();
+                    Log.i("------------onClick StDetInputActivity", type.toString());
                     Intent barcodeIntent = null;
                     if (type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
                         // get the intent action string from AndroidManifest.xml

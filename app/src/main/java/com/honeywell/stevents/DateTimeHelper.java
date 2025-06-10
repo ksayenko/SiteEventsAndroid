@@ -3,12 +3,15 @@ package com.honeywell.stevents;
 
 
 
+import android.util.Log;
+
 import androidx.core.app.NotificationCompatSideChannelService;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
 public class DateTimeHelper {
 
@@ -16,6 +19,9 @@ public class DateTimeHelper {
     private static final String AM_UPPERCASE = "AM";
 
     public static final String  DefaultFormat ="MM/dd/yyyy HH:mm:ss";
+    public static final String  DefaultFormat2 ="MM/dd/yyyy hh:mm a";
+    /*Problem: The format pattern HH is for hours from 00 to 23 (24-hour format). You're using HH with a 12-hour time and AM/PM indicator (a).
+    Solution: Use hh instead of HH for hours within AM/PM (1-12).*/
     private static final String  DefaultJustDateFormat ="MM/dd/yyyy";
     private static final String DefaultJustTimeFormat = "hh:mm a";
 
@@ -24,8 +30,7 @@ public class DateTimeHelper {
     {
         final Calendar currentDateTime = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat(DefaultFormat);
-        String selectedDate = sdf.format(currentDateTime.getTime());
-        return selectedDate;
+        return sdf.format(currentDateTime.getTime());
     }
 
     public static Date GetDateFromDateTime(String strDateTime)
@@ -45,12 +50,12 @@ public class DateTimeHelper {
 
     public static Calendar GetCalendarFromDateTime(String strDateTime, String aFormat)
     {
-        if (aFormat == "")
+        if (Objects.equals(aFormat, ""))
             aFormat =DefaultFormat;
 
         Calendar theDateTime;
 
-        if (strDateTime == "")
+        if (Objects.equals(strDateTime, ""))
         {
             theDateTime = Calendar.getInstance();
         }
@@ -58,9 +63,13 @@ public class DateTimeHelper {
             ParsePosition pos = new ParsePosition(0);
             SimpleDateFormat simpledateformat = new SimpleDateFormat(aFormat);
             Date theDate = simpledateformat.parse(strDateTime, pos);
+            SimpleDateFormat simpledateformat2 = new SimpleDateFormat(DefaultFormat2);
+            Date theDate2 = simpledateformat2.parse(strDateTime, pos);
             theDateTime = Calendar.getInstance();
             if (theDate != null)
                 theDateTime.setTime(theDate);
+            else if (theDate2 != null)
+                theDateTime.setTime(theDate2);
             if (strDateTime.indexOf(AM_LOWERCASE) != -1 || strDateTime.indexOf(AM_UPPERCASE) != -1) {
                 theDateTime.set(Calendar.AM_PM, Calendar.AM);
             } else {
@@ -115,9 +124,22 @@ public class DateTimeHelper {
         }
         else {
             ParsePosition pos = new ParsePosition(0);
+
+
             SimpleDateFormat simpledateformat = new SimpleDateFormat(aFormat);
+            SimpleDateFormat simpledateformat2 = new SimpleDateFormat(DefaultFormat2);
             Date stringDate = simpledateformat.parse(strDateTime, pos);
-            selectedDate = sdfJustDate.format(stringDate.getTime());
+            Date stringDate2 = simpledateformat2.parse(strDateTime, pos);
+
+
+          //  selectedDate = sdfJustDate.format(stringDate.getTime());
+            try {
+                selectedDate = sdfJustDate.format(stringDate.getTime());
+            }
+            catch(Exception ex)   {
+                selectedDate = sdfJustDate.format(stringDate2.getTime());
+            }
+
 
         }
         return selectedDate;
@@ -131,6 +153,7 @@ public class DateTimeHelper {
 
         if (aFormat == "")
             aFormat =DefaultFormat;
+        Log.i("DateTimeHelper", " GetStringTimeFromDateTime " + strDateTime + aFormat);
         SimpleDateFormat sdfJustTime = new SimpleDateFormat(DefaultJustTimeFormat);
         String selectedDate = "";
         if (strDateTime == "")
@@ -141,8 +164,20 @@ public class DateTimeHelper {
         else {
             ParsePosition pos = new ParsePosition(0);
             SimpleDateFormat simpledateformat = new SimpleDateFormat(aFormat);
+            SimpleDateFormat simpledateformat2 = new SimpleDateFormat(DefaultFormat2);
             Date stringDate = simpledateformat.parse(strDateTime, pos);
-            selectedDate = sdfJustTime.format(stringDate.getTime());
+            Date stringDate2 = simpledateformat2.parse(strDateTime, pos);
+            try {
+                selectedDate = sdfJustTime.format(stringDate.getTime());
+            }
+            catch(Exception ex)   {
+                selectedDate = sdfJustTime.format(stringDate2.getTime());
+
+                Log.i("DateTimeHelper", " ex " + ex.toString());
+                Log.i("DateTimeHelper", " stringDate2 " + stringDate2);
+                Log.i("DateTimeHelper", " selectedDate " + selectedDate);
+
+            }
 
         }
         return selectedDate;

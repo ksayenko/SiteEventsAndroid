@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -18,7 +19,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -40,19 +43,30 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.honeywell.aidc.AidcManager;
 import com.honeywell.aidc.AidcManager.CreatedCallback;
+import com.honeywell.aidc.BarcodeFailureEvent;
+import com.honeywell.aidc.BarcodeReadEvent;
 import com.honeywell.aidc.BarcodeReader;
 import com.honeywell.aidc.InvalidScannerNameException;
+import com.honeywell.aidc.TriggerStateChangeEvent;
+import com.honeywell.aidc.UnsupportedPropertyException;
 
-public class Activity_Main extends AppCompatActivity {
+public class Activity_Main extends AppCompatActivity  implements BarcodeReader.BarcodeListener,
+        BarcodeReader.TriggerListener {
+
 
     private static final int WRITE_REQUEST_CODE =1 ;
-    private static final int REQUEST_CODE_GETMESSAGE =1014 ;
+    private ListView barcodeList;
     private static BarcodeReader barcodeReader;
+    private static final int REQUEST_CODE_GETMESSAGE =1014 ;
+    ArrayList<String[]> array_Eq = null;
     private AidcManager manager;
-
+    Context ct = this;
     private boolean bAcceptWarningDuplicate = false;
 
 
@@ -64,6 +78,8 @@ public class Activity_Main extends AppCompatActivity {
     }
 
 
+    public HandHeld_SQLiteOpenHelper dbHelper;
+    public SQLiteDatabase db;
     private Button btnInputForms;
     private Button btnReviewForms;
     private Button btnUploadDataToServer;
@@ -78,20 +94,23 @@ public class Activity_Main extends AppCompatActivity {
     String versionName = BuildConfig.VERSION_NAME;
 
     private File directoryApp;
-
-
+Cursor Cursor_Eq = null;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_se_main);
+
         directoryApp = getFilesDir();
         context = this;
         default_reading = SiteEvents.GetDefaultReading();
-
-        AppDataTables tables= new AppDataTables();
+        AppDataTables tables = new AppDataTables();
         tables.SetSiteEventsTablesStructure();
-        HandHeld_SQLiteOpenHelper dbHelper =  new HandHeld_SQLiteOpenHelper(context,tables);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        dbHelper = new HandHeld_SQLiteOpenHelper(context, tables);
+        db = dbHelper.getReadableDatabase();
+        Cursor_Eq = dbHelper.GetCursorEquipment(db);
+        array_Eq = transferCursorToArrayList(Cursor_Eq);
+
         // set lock the orientation
         // otherwise, the onDestory will trigger
         // when orientation changes
@@ -109,16 +128,63 @@ public class Activity_Main extends AppCompatActivity {
                     barcodeReader = manager.createBarcodeReader();
                 } catch (
                         InvalidScannerNameException e) {
-                    Toast.makeText(Activity_Main.this, "Invalid Scanner Name Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Invalid Scanner Name Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    Toast.makeText(Activity_Main.this, "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
         ActivitySetting();
         db.close();
+        //barcodeReader = this.getBarcodeObject();
+
+        if (barcodeReader != null) {
+
+            // register bar code event listener
+            barcodeReader.addBarcodeListener(this);
+            Log.i("onCreate", "=====barcodeReader !=null");
+
+            // set the trigger mode to client control
+            try {
+                barcodeReader.setProperty(BarcodeReader.PROPERTY_TRIGGER_CONTROL_MODE,
+                        BarcodeReader.TRIGGER_CONTROL_MODE_CLIENT_CONTROL);
+            } catch (UnsupportedPropertyException e) {
+                Toast.makeText(this, "Failed to apply properties", Toast.LENGTH_SHORT).show();
+            }
+            // register trigger state change listener
+            barcodeReader.addTriggerListener(this);
+
+            Map<String, Object> properties = new HashMap<>();
+            // Set Symbologies On/Off
+            properties.put(BarcodeReader.PROPERTY_CODE_128_ENABLED, true);
+            //properties.put(BarcodeReader.PROPERTY_CODE_128_ENABLED, true);
+            properties.put(BarcodeReader.PROPERTY_GS1_128_ENABLED, true);
+            properties.put(BarcodeReader.PROPERTY_QR_CODE_ENABLED, true);
+            properties.put(BarcodeReader.PROPERTY_CODE_39_ENABLED, true);
+            properties.put(BarcodeReader.PROPERTY_DATAMATRIX_ENABLED, true);
+            properties.put(BarcodeReader.PROPERTY_UPC_A_ENABLE, true);
+            properties.put(BarcodeReader.PROPERTY_EAN_13_ENABLED, false);
+            properties.put(BarcodeReader.PROPERTY_AZTEC_ENABLED, false);
+            properties.put(BarcodeReader.PROPERTY_CODABAR_ENABLED, false);
+            properties.put(BarcodeReader.PROPERTY_INTERLEAVED_25_ENABLED, false);
+            properties.put(BarcodeReader.PROPERTY_PDF_417_ENABLED, true);
+            // Set Max Code 39 barcode length
+            properties.put(BarcodeReader.PROPERTY_CODE_39_MAXIMUM_LENGTH, 10);
+            // Turn on center decoding
+            properties.put(BarcodeReader.PROPERTY_CENTER_DECODE, true);
+            // Disable bad read response, handle in onFailureEvent
+            properties.put(BarcodeReader.PROPERTY_NOTIFICATION_BAD_READ_ENABLED, false);
+            // Apply the settings
+            barcodeReader.setProperties(properties);
+        }
+
+
+        // get initial list
+       // barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
+        //Log.i("barcodeList", barcodeList.toString());
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -292,6 +358,19 @@ public class Activity_Main extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+    public ArrayList<String[]> transferCursorToArrayList(Cursor cursor) {
+        ArrayList<String[]> arrayList = new ArrayList<String[]>();
+        int nCol = cursor.getColumnCount();
+        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+            // The Cursor is now set to the right position
+            String[] strs = new String[nCol];
+            for (int i = 0; i < nCol; i++) {
+                strs[i] = (String) cursor.getString(i);
+            }
+            arrayList.add(strs);
+        }
+        return arrayList;
+    }
 
     private int moveFile(String inputPath, String inputFile, String outputPath) {
 
@@ -462,7 +541,7 @@ public class Activity_Main extends AppCompatActivity {
                 default_reading = (SiteEvents) getIntent().getSerializableExtra("GENERAL_BARCODE");
                 if (default_reading == null)
                     default_reading = SiteEvents.GetDefaultReading();
-                Toast.makeText(context, default_reading.getStrSE_ID(), Toast.LENGTH_SHORT).show();
+               // Toast.makeText(context, default_reading.getStrSE_ID(), Toast.LENGTH_SHORT).show();
             }
         } catch (Exception ex) {
             Toast.makeText(context, ex.toString(),
@@ -712,4 +791,62 @@ public class Activity_Main extends AppCompatActivity {
         return 0;
     }
 
+    @Override
+    public void onBarcodeEvent(final BarcodeReadEvent event) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String current_equipment = "";
+                // update UI to reflect the data
+                Log.i("onBarcodeEvent", "onBarcodeEvent!!!!");
+                List<String> list = new ArrayList<>();
+                SiteEvents se = new SiteEvents();
+                DataTable_SiteEvent table = new DataTable_SiteEvent();
+                String tempcurrent = event.getBarcodeData();
+                Log.i("onBarcodeEvent", "onBarcodeEvent!!!! +" + tempcurrent);
+
+                int id = GetIndexFromArraylist(array_Eq, current_equipment, 1);
+                String current_equipment_type = ((String[]) array_Eq.get(id))[2];
+                if (tempcurrent != null || tempcurrent != "")
+                    se.setStrEq_ID(tempcurrent);
+
+                Log.i("onBarcodeEvent", "onBarcodeEvent :" + current_equipment);
+
+              if (id > 0) {
+                  MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+                  Intent seintent = null;
+                  if (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
+                    seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
+                  }
+                  if (type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
+                      seintent = new Intent("android.intent.action.INPUT_PH_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
+                  }
+                  if (type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
+                      seintent = new Intent("android.intent.action.INPUT_NOISE_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
+                  }
+                  if (type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
+                      Log.i("isLastRecordSavedToTable", " go to ->voc");
+
+                      seintent = new Intent("android.intent.action.INPUT_VOC_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
+                  }
+                  if (type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
+                      seintent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
+                  }
+                  if (seintent != null)
+                      SetAndStartIntent(seintent);
+              }
+            }
+        });
+    }
+
+
+    @Override
+    public void onFailureEvent(BarcodeFailureEvent barcodeFailureEvent) {
+
+    }
+
+    @Override
+    public void onTriggerEvent(TriggerStateChangeEvent triggerStateChangeEvent) {
+
+    }
 }
