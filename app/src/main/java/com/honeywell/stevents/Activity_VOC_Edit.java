@@ -185,6 +185,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
         text_Value= (TextView) findViewById(R.id.txtValue);
 
         rbResloved.clearCheck();
+
         if (current_yn_resolve)
             rbDetected.setChecked(true);
         else
@@ -223,10 +224,6 @@ public class Activity_VOC_Edit extends AppCompatActivity {
             }
 
         });
-        if (current_yn_resolve)
-            rbResloved.check(R.id.radio_false);
-        else
-            rbResloved.check(R.id.radio_true);
 
 
         text_Value.setText(current_reading);
@@ -391,8 +388,31 @@ public class Activity_VOC_Edit extends AppCompatActivity {
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(ct);
+                alert.setTitle("Delete entry");
+                alert.setMessage("Are you sure you want to delete this record ? ");
+                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                        dbHelper.deleteRecords(db, current_site_event_reading.getLngID().toString());
+
+                        Intent intent = new Intent(ct, Activity_EditListSE.class);
+                        startActivity(intent);
+                        finish();
+
+                    }
+                });
+                alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // close dialog
+                        dialog.cancel();
+                    }
+                });
+                alert.show();
             }
+
+
         });
 
         btnSave = (Button) findViewById(R.id.btn_save);
@@ -428,7 +448,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
 
 
         btnDone = (Button) findViewById(R.id.btn_done);
-        btnSave.setText("Cancel");
+        btnDone.setText("Cancel");
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -554,8 +574,6 @@ public class Activity_VOC_Edit extends AppCompatActivity {
 
     }
     public Validation saveForms(boolean bAcceptWarning, boolean bAcceptWarningDuplicate) {
-
-        current_site_event_reading.setLngID((int) (new Date().getTime() / 1000));
 
         Validation isTheRecordValid = Activity_Main_Input.IsRecordValid(current_site_event_reading,
                 spin_Equip_Code,

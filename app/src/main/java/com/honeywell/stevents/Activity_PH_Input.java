@@ -140,14 +140,13 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             System.out.println("we have default reading");
             default_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
             se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
-            current_username = (String) getIntent().getSerializableExtra("USER");
             if (se_table == null)
                 se_table = new DataTable_SiteEvent();
         } else {
             System.out.println("no default reading");
             default_site_event_reading = SiteEvents.GetDefaultReading();
             se_table = new DataTable_SiteEvent();
-            current_username = default_site_event_reading.getStrUserName();
+
         }
 
         try {
@@ -159,7 +158,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         //current_se = default_site_event_reading.getStrSE_ID();
         current_se = "Maintain";
         current_equipment = default_site_event_reading.getStrEq_ID();
-
+        current_username = default_site_event_reading.getStrUserName();
         current_comment = default_site_event_reading.getStrComment();
         current_SEDateTime = default_site_event_reading.getDatSE_Date();
         current_ResDateTime = default_site_event_reading.getDatResDate();
@@ -224,6 +223,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
                         if(desc == null || (!desc.equals("")))
                             desc =current_equipment + " pH Analysis Element";
                         txt_comment.setText("Calibration of " + desc);
+                        SetSpinnerValue(spin_SE_Code, array_SE_code, "Maintain");
                     }
                 } else {
                     txt_comment.setEnabled(false);
@@ -552,10 +552,10 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
 
     private void SetAndStartIntent(Intent seintent) {
         Log.i("SetAndStartIntent", "SetAndStartIntent - general eq");
-
+        current_site_event_reading = current_site_event_reading.ResetValues();
         seintent.putExtra("SE", current_site_event_reading);
         seintent.putExtra("SE_TABLE", se_table);
-        seintent.putExtra("USER", current_username);
+      ;
         if (!isLastRecordSavedToTable) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
@@ -828,7 +828,7 @@ Wedge as keys to empty
         Log.i("isLastRecordSavedToTable", " clear forms " + isLastRecordSavedToTable.toString());
 
         spin_Equip_Code.requestFocus();
-
+        txt_comment.setText("");
     }
 
     public Validation saveForms(boolean bAcceptWarning, boolean bAcceptWarningDuplicate) {

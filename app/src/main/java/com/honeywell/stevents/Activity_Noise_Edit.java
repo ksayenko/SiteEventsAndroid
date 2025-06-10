@@ -95,7 +95,7 @@ public class Activity_Noise_Edit extends AppCompatActivity {
     String current_reading = "";
     String current_unit = "";
     Boolean bBarcodeEquip = false;
-    Integer maxId = 0;
+
     Button btnInputForms;
     public HandHeld_SQLiteOpenHelper dbHelper;
     public SQLiteDatabase db;
@@ -165,8 +165,6 @@ public class Activity_Noise_Edit extends AppCompatActivity {
         current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true");
 
 
-
-
         Log.i("------------onCreate Activity_Main_Input", "10");
         //super.onCreate(savedInstanceState);
         Log.i("------------onCreate Activity_Main_Input", "1");
@@ -181,7 +179,6 @@ public class Activity_Noise_Edit extends AppCompatActivity {
         if (rowsInDB < 1) {
             AlertDialogShow("The Lookup Tables aren't populated, go to Menu | Download and Populate Lookup DB", "ERROR!", "warning");
         }
-        maxId = dbHelper.getMaxID_FromSiteEventsTable(db);
 
         ///Log.i("------------onCreate", Locs.getColumnName(1));
         spin_SE_Code = (Spinner) findViewById(R.id.txt_Site_Event_Code);
@@ -193,10 +190,7 @@ public class Activity_Noise_Edit extends AppCompatActivity {
 //        rbFalse = (RadioButton) findViewById(R.id.radio_false);
 //        rbResloved = (RadioGroup) findViewById(R.id.radio_group);
 //        rbResloved.clearCheck();
-//        if (current_yn_resolve)
-//            rbResloved.check(R.id.radio_true);
-//        else
-//            rbResloved.check(R.id.radio_false);
+
 
         text_Value= (TextView) findViewById(R.id.txtValue);
         text_Value.setText(current_reading);
@@ -215,8 +209,10 @@ public class Activity_Noise_Edit extends AppCompatActivity {
                 Log.i("isLastRecordSavedToTable", "txt_value.addTextChangedListener " + isLastRecordSavedToTable.toString());
                 current_reading = text_Value.getText().toString();
                 current_unit = text_Unit.getText().toString();
-                current_comment = "Noise Monitoring - " + current_reading + " "+current_unit;
-                txt_comment.setText(current_comment);
+                if (!Objects.equals(current_reading, "")) {
+                    current_comment = "Noise Monitoring - " + current_reading + " " + current_unit;
+                    txt_comment.setText(current_comment);
+                }
                 isLastRecordSavedToTable = false;
             }
         });
@@ -249,8 +245,10 @@ public class Activity_Noise_Edit extends AppCompatActivity {
                 Log.i("isLastRecordSavedToTable", "text_Unit.addTextChangedListener " + isLastRecordSavedToTable.toString());
                 current_reading = text_Value.getText().toString();
                 current_unit = text_Unit.getText().toString();
-                current_comment = "Noise Monitoring - " + current_reading + " "+current_unit;
-                txt_comment.setText(current_comment);
+                if (!Objects.equals(current_reading, "")) {
+                    current_comment = "Noise Monitoring - " + current_reading + " " + current_unit;
+                    txt_comment.setText(current_comment);
+                }
                 isLastRecordSavedToTable = false;
             }
         });
@@ -363,8 +361,31 @@ public class Activity_Noise_Edit extends AppCompatActivity {
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                clearForms();
+                AlertDialog.Builder alert = new AlertDialog.Builder(ct);
+                alert.setTitle("Delete entry");
+                alert.setMessage("Are you sure you want to delete this record ? ");
+                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                        dbHelper.deleteRecords(db, current_site_event_reading.getLngID().toString());
+
+                        Intent intent = new Intent(ct, Activity_EditListSE.class);
+                        startActivity(intent);
+                        finish();
+
+                    }
+                });
+                alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // close dialog
+                        dialog.cancel();
+                    }
+                });
+                alert.show();
             }
+
+
         });
 
         btnSave = (Button) findViewById(R.id.btn_save);
@@ -504,26 +525,24 @@ public class Activity_Noise_Edit extends AppCompatActivity {
         return arrayList;
     }
 
-    public void clearForms() {
-
-        txt_comment.setText("");
-        int id = GetIndexFromArraylist(array_Eq, "NA", 1);
-        spin_Equip_Code.setSelection(id);
-        id = GetIndexFromArraylist(array_SE_code, "Monitor", 1);
-        spin_SE_Code.setSelection(id);
-        text_Value.setText("0");
-        text_Unit.setText("dBA");
-
-        bBarcodeEquip = false;
-        isLastRecordSavedToTable = true;
-        Log.i("isLastRecordSavedToTable", " clear forms " + isLastRecordSavedToTable.toString());
-
-        spin_Equip_Code.requestFocus();
-    }
+//    public void clearForms() {
+//
+//        txt_comment.setText("");
+//        int id = GetIndexFromArraylist(array_Eq, "NA", 1);
+//        spin_Equip_Code.setSelection(id);
+//        id = GetIndexFromArraylist(array_SE_code, "Monitor", 1);
+//        spin_SE_Code.setSelection(id);
+//        text_Value.setText("0");
+//        text_Unit.setText("dBA");
+//
+//        bBarcodeEquip = false;
+//        isLastRecordSavedToTable = true;
+//        Log.i("isLastRecordSavedToTable", " clear forms " + isLastRecordSavedToTable.toString());
+//
+//        spin_Equip_Code.requestFocus();
+//    }
 
     public Validation saveForms(boolean bAcceptWarning, boolean bAcceptWarningDuplicate) {
-
-        current_site_event_reading.setLngID((int) (new Date().getTime() / 1000));
 
         Validation isTheRecordValid = Activity_Main_Input.IsRecordValid(current_site_event_reading,
                 spin_Equip_Code,

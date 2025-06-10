@@ -322,18 +322,37 @@ public class SiteEvents implements Serializable, Cloneable {
             isValid.setFocus(Validation.FOCUS.SITEEVENT);
             isValid.setValidation(Validation.VALIDATION.ERROR);
 
-        } else if (dValue == 0.0 && (measurementType == MeasurementTypes.MEASUREMENT_TYPES.NOISE
-                || measurementType == MeasurementTypes.MEASUREMENT_TYPES.VOC) &&
-        ynResolved == "true") {
+        }
+        else if (dValue == 0.0 && measurementType == MeasurementTypes.MEASUREMENT_TYPES.VOC
+               && Objects.equals(ynResolved, "true")) {
             message += "A Reading value of 0 is detected!";
+            isValid.addToValidationMessageError("Please enter a Value");
+            System.out.println(message);
+            isValid.setValidation(Validation.VALIDATION.ERROR);
+            isValid.setFocus(Validation.FOCUS.READING);
+        }
+        else if (dValue == 0.0 && measurementType == MeasurementTypes.MEASUREMENT_TYPES.NOISE)
+           {
+            message += "A Reading value of 0 is detected!";
+            isValid.addToValidationMessageError("Please enter a Value");
             System.out.println(message);
             isValid.setValidation(Validation.VALIDATION.WARNING);
             isValid.setFocus(Validation.FOCUS.READING);
         }
 
-
         return isValid;
 
+    }
+
+    public SiteEvents ResetValues()
+    {
+        //reset values except eqcode and username, use datetime now
+        SiteEvents se =  new SiteEvents();
+        se.setStrEq_ID(this.getStrEq_ID());
+        se.setDatSE_Date(DateTimeHelper.GetDateTimeNow());
+        se.setDatResDate(se.getDatSE_Date());
+        se.setStrUserName(this.strUserName);
+        return se;
     }
 
     private boolean isNA(String sValue) {

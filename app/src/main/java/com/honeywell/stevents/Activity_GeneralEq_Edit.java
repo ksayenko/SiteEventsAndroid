@@ -295,10 +295,32 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(ct);
+                alert.setTitle("Delete entry");
+                alert.setMessage("Are you sure you want to delete this record ? ");
+                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                        dbHelper.deleteRecords(db, current_site_event_reading.getLngID().toString());
+
+                        Intent intent = new Intent(ct, Activity_EditListSE.class);
+                        startActivity(intent);
+                        finish();
+
+                    }
+                });
+                alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // close dialog
+                        dialog.cancel();
+                    }
+                });
+                alert.show();
             }
-        });
 
+
+        });
         btnSave = (Button) findViewById(R.id.btn_save);
         btnSave.setText("Update");
         btnSave.setOnClickListener(new View.OnClickListener() {
@@ -408,9 +430,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
 
     public Validation saveForms(boolean bAcceptWarning, boolean bAcceptWarningDuplicate) {
 
-        current_site_event_reading.setLngID((int) (new Date().getTime() / 1000));
-
-          Validation isTheRecordValid = Activity_Main_Input.IsRecordValid(current_site_event_reading,
+               Validation isTheRecordValid = Activity_Main_Input.IsRecordValid(current_site_event_reading,
                 spin_Equip_Code,
                 spin_SE_Code, spin_User_name, null);
         //Validation isTheRecordDup = Activity_Main_Input.IsRecordDup(db, dbHelper,current_site_event_reading, se_table);

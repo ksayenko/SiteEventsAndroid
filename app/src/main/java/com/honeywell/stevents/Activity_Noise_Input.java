@@ -147,7 +147,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
             System.out.println("we have default reading");
             default_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
             se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
-            current_username = (String) getIntent().getSerializableExtra("USER");
+            current_username = default_site_event_reading.getStrUserName();
             if (se_table == null)
                 se_table = new DataTable_SiteEvent();
         } else {
@@ -228,8 +228,10 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
                 Log.i("isLastRecordSavedToTable", "txt_value.addTextChangedListener " + isLastRecordSavedToTable.toString());
                 current_reading = text_Value.getText().toString();
                 current_unit = text_Unit.getText().toString();
-                current_comment = "Noise Monitoring - " + current_reading + " "+current_unit;
-                txt_comment.setText(current_comment);
+                if (!Objects.equals(current_reading, "")) {
+                    current_comment = "Noise Monitoring - " + current_reading + " " + current_unit;
+                    txt_comment.setText(current_comment);
+                }
                 isLastRecordSavedToTable = false;
             }
         });
@@ -262,8 +264,11 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
                 Log.i("isLastRecordSavedToTable", "text_Unit.addTextChangedListener " + isLastRecordSavedToTable.toString());
                 current_reading = text_Value.getText().toString();
                 current_unit = text_Unit.getText().toString();
-                current_comment = "Noise Monitoring - " + current_reading + " "+current_unit;
-                txt_comment.setText(current_comment);
+                if (!Objects.equals(current_reading, "")) {
+                    current_comment = "Noise Monitoring - " + current_reading + " " + current_unit;
+                    txt_comment.setText(current_comment);
+                }
+
                 isLastRecordSavedToTable = false;
             }
         });
@@ -555,9 +560,9 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
 
     private void SetAndStartIntent(Intent seintent) {
         Log.i("SetAndStartIntent", "SetAndStartIntent - VOC");
+        current_site_event_reading = current_site_event_reading.ResetValues();
         seintent.putExtra("SE", current_site_event_reading);
         seintent.putExtra("SE_TABLE", se_table);
-        seintent.putExtra("USER", current_username);
         if (!isLastRecordSavedToTable) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
@@ -777,7 +782,7 @@ Wedge as keys to empty
         spin_Equip_Code.setSelection(id);
         id = GetIndexFromArraylist(array_SE_code, "Monitor", 1);
         spin_SE_Code.setSelection(id);
-        text_Value.setText("0");
+        text_Value.setText("");
         text_Unit.setText("dBA");
 
         bBarcodeEquip = false;

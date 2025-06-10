@@ -29,7 +29,7 @@ import android.widget.Toast;
 
 public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "HandHeldSE.sqlite3";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     public static String DB_PATH;
 
     //default facility names:
@@ -47,7 +47,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 
 
     // filename prefix for the Readings dataset xml file
-    public static final String FILEPREFIX = "STE.SFDBSQL"; // Instrument Reading, Second File Mask, version 2
+    public static final String FILEPREFIX = "STE.SFDBSQL."; // Instrument Reading, Second File Mask, version 2
     // filename prefix for converted csv files
 
 
@@ -607,7 +607,8 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
                 DataTable_SiteEvent.Value + ", " +
                 DataTable_SiteEvent.Unit + ", " +
 
-                DataTable_SiteEvent.device_name +
+                DataTable_SiteEvent.device_name +","+
+                DataTable_SiteEvent.Measurement_Type +
                 " from " +
                 HandHeld_SQLiteOpenHelper.SITE_EVENT +
                 " where (uploaded is null or uploaded =0) and (" + DataTable_SiteEvent.recordToUpload + " = 1 or " + DataTable_SiteEvent.recordToUpload + " is null) " + orderby;
@@ -763,7 +764,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void UpdateIRIfNeeded(SQLiteDatabase db) {
+    public void Update_SETable_IfNeeded(SQLiteDatabase db) {
 
         String device_name = HandHeld_SQLiteOpenHelper.getDeviceName();
         //update device
@@ -1035,7 +1036,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             if (message1 != "")
                 Toast.makeText(context, message1, Toast.LENGTH_SHORT).show();
             //update IR table with device name and or no seconds if needed
-            UpdateIRIfNeeded(db);
+            Update_SETable_IfNeeded(db);
 
             Cursor records = this.getSiteEventRecords(db);
             nRecords[0] = records.getCount();
@@ -1057,6 +1058,9 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             String s_datResDate;
             String s_ynResolved;
             String s_device_name = "";
+            Integer iMeasurementType=-1;
+            MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.MEASUREMENT_TYPES.OTHER;
+            Integer iResolved;
 
 //#strd_loc_id
 // #strusername
@@ -1117,6 +1121,11 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             if (i_device_name < 0)
                 i_device_name = 0;
 
+            //some difference because of the type
+            int i_meas = records.getColumnIndex(DataTable_SiteEvent.Measurement_Type);
+            if (i_meas < 0)
+                i_meas = 0;
+
             String header = DataTable_SiteEvent.CSVHeader();
 
 
@@ -1141,8 +1150,10 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
                 s_strM_Per_ID = getStringQuotedValue(records, i_strM_Per_ID);
                 s_datResDate = getStringQuotedValue(records, i_datResDate);
                 s_ynResolved = getStringQuotedValue(records, i_ynResolved);
+                iResolved = records.getInt(i_ynResolved);
                 s_device_name = getStringQuotedValue(records, i_device_name);
-
+                iMeasurementType = records.getInt(i_meas);
+                type = MeasurementTypes.GetTypeFromNumber(iMeasurementType);
 
                 row = s_strD_Loc_ID + "," +
                         s_strUserName + "," +
@@ -1154,10 +1165,16 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
                         s_strEqID + "," +
                         s_strEqDesc + "," +
                         s_strComment + "," +
-                        s_strM_Per_ID + "," +
-                        s_datResDate + "," +
-                        s_ynResolved + "," +
-                        s_device_name;
+                        s_strM_Per_ID + ",";
+
+                if ((type == MeasurementTypes.MEASUREMENT_TYPES.PH  && iResolved == 0)
+                    || (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE))
+                    row += ",";
+                else
+                    row += s_datResDate + ",";
+
+                row += s_ynResolved ;//+ "," +
+                      //  s_device_name;
 
                 System.out.println(row);
 
@@ -1223,6 +1240,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             s = (String) records.getString(i);
         return e + s.trim() + e;
     }
+
 
     private String getStringQuotedValue(String s) {
         String e = "\"";

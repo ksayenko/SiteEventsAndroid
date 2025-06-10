@@ -145,14 +145,14 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
             System.out.println("we have default reading");
             default_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
             se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
-            current_username = (String) getIntent().getSerializableExtra("USER");
+
             if (se_table == null)
                 se_table = new DataTable_SiteEvent();
         } else {
             System.out.println("no default reading");
             default_site_event_reading = SiteEvents.GetDefaultReading();
             se_table = new DataTable_SiteEvent();
-            current_username = default_site_event_reading.getStrUserName();
+
         }
 
         try {
@@ -165,7 +165,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         current_se ="Monitor";
         current_unit="ppm";
         current_equipment = default_site_event_reading.getStrEq_ID();
-
+        current_username= default_site_event_reading.getStrUserName();
         current_comment = default_site_event_reading.getStrComment();
         current_SEDateTime = default_site_event_reading.getDatSE_Date();
         current_ResDateTime = default_site_event_reading.getDatResDate();
@@ -606,9 +606,10 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 
     private void SetAndStartIntent(Intent seintent) {
         Log.i("SetAndStartIntent", "SetAndStartIntent - VOC");
+        current_site_event_reading = current_site_event_reading.ResetValues();
         seintent.putExtra("SE", current_site_event_reading);
         seintent.putExtra("SE_TABLE", se_table );
-        seintent.putExtra("USER", current_username );
+
         if (!isLastRecordSavedToTable) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");

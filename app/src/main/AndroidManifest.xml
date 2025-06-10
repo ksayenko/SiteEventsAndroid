@@ -147,18 +147,6 @@
         </activity>
 
         <activity
-            android:name="com.honeywell.stevents.StDetEditDataActivity"
-            android:exported="true"
-            android:label="@string/EditData"
-            android:screenOrientation="portrait" >
-            <intent-filter>
-                <action android:name="android.intent.action.STDETEDITACTIVITY" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:name="com.honeywell.stevents.Activity_GeneralEq_Edit"
             android:exported="true"
             android:label="@string/EditData"
@@ -210,7 +198,7 @@
             android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.LOGINACTIVITY" />
+                <action android:name="android.intent.action.SELOGINACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

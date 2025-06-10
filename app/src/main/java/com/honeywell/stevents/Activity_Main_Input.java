@@ -145,20 +145,21 @@ public class Activity_Main_Input extends AppCompatActivity
             System.out.println("we have default reading");
             default_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
             se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
-            current_username = (String) getIntent().getSerializableExtra("USER");
+
             current_se = "Miscellaneous";
 
         } else {
             System.out.println("no default reading");
             default_site_event_reading = SiteEvents.GetDefaultReading();
             se_table = new DataTable_SiteEvent();
-            current_username = default_site_event_reading.getStrUserName();
+
             current_se = default_site_event_reading.getStrSE_ID();
         }
 
         if (default_site_event_reading == null)
             default_site_event_reading = SiteEvents.GetDefaultReading();
 
+        current_username = default_site_event_reading.getStrUserName();
         current_equipment = default_site_event_reading.getStrEq_ID();
         prior_current_equipment = default_site_event_reading.getStrEq_ID();
         current_username = default_site_event_reading.getStrUserName();
@@ -489,9 +490,10 @@ public class Activity_Main_Input extends AppCompatActivity
 
     private void SetAndStartIntent(Intent seintent) {
         Log.i("SetAndStartIntent", "SetAndStartIntent - main");
+        current_site_event_reading = current_site_event_reading.ResetValues();
         seintent.putExtra("SE", current_site_event_reading);
         seintent.putExtra("SE_TABLE", se_table);
-        seintent.putExtra("USER", current_username);
+
         startActivity(seintent);
     }
     public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue) {

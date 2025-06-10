@@ -149,6 +149,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
         current_unit = current_site_event_reading.getUnit();
         current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true");
 
+        Log.i("------------onCreate ph", "current_yn_resolve " + current_yn_resolve);
         Log.i("------------onCreate ph", "ph 10");
 
 
@@ -184,6 +185,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
         txt_comment = (EditText) findViewById(R.id.txt_comment);
 
         rbResolved.clearCheck();
+
         if (current_yn_resolve)
             rbTrue.setChecked(true);
         else
@@ -205,9 +207,10 @@ public class Activity_PH_Edit extends AppCompatActivity {
                         if(desc == null || (!desc.equals("")))
                             desc =current_equipment + " pH Analysis Element";
                         txt_comment.setText("Calibration of " + desc);
+                        SetSpinnerValue(spin_SE_Code, array_SE_code, "Maintain");
                     }
                 } else {
-                    txt_comment.setEnabled(false);
+                    //txt_comment.setEnabled(false);
                     text_resolve_date.setEnabled(false);
                     text_resolve_time.setEnabled(false);
                     SetSpinnerValue(spin_SE_Code, array_SE_code, "Failure");
@@ -216,10 +219,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
             }
 
         });
-//        if (current_yn_resolve)
-//            rbResolved.check(R.id.radio_true);
-//        else
-//            rbResolved.check(R.id.radio_false);
+
 
         //text_event_time
         text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
@@ -237,6 +237,11 @@ public class Activity_PH_Edit extends AppCompatActivity {
         text_resolve_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_ResDateTime, ""));
         text_resolve_time_picker();
 
+        if (!current_yn_resolve)
+        {
+            text_resolve_date.setEnabled(false);
+            text_resolve_time.setEnabled(false);
+        }
 
         // needed for spinner
         int[] toL = new int[]{android.R.id.text1};
@@ -267,9 +272,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
         SetSpinnerValue(spin_User_name, array_Users, current_username);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-
                     isLastRecordSavedToTable = false;
-
             }
 
             public void onNothingSelected(AdapterView<?> parent) {
@@ -311,12 +314,11 @@ public class Activity_PH_Edit extends AppCompatActivity {
 
             public void afterTextChanged(Editable s) {
                 Log.i("isLastRecordSavedToTable", "txtComment.addTextChangedListener " + isLastRecordSavedToTable.toString());
-                current_comment = txt_comment.getText().toString();
-                if (!current_comment .equals(""))
                     isLastRecordSavedToTable = false;
 
             }
         });
+
 
         btnClear = (Button) findViewById(R.id.btn_clear);
         btnClear.setText("Delete");
@@ -574,8 +576,6 @@ public class Activity_PH_Edit extends AppCompatActivity {
     }
 
     public Validation saveForms(boolean bAcceptWarning, boolean bAcceptWarningDuplicate) {
-
-        current_site_event_reading.setLngID((int) (new Date().getTime() / 1000));
 
           Validation isTheRecordValid = Activity_Main_Input.IsRecordValid(current_site_event_reading,
                 spin_Equip_Code,

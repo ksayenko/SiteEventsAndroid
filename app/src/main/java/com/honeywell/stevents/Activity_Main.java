@@ -138,7 +138,7 @@ public class Activity_Main extends AppCompatActivity {
         }
 
         if (id == R.id.menu_LoginInfo) {
-            Intent barcodeIntent = new Intent("android.intent.action.LOGINACTIVITY");
+            Intent barcodeIntent = new Intent("android.intent.action.SELOGINACTIVITY");
             startActivity(barcodeIntent);
             return true;
         }
@@ -603,7 +603,9 @@ public class Activity_Main extends AppCompatActivity {
                                 Boolean bCanUpload = ws.WS_GetLogin(name, pwd, errormessage);
                                 Boolean bUploaded;
                                 if (bCanUpload) {
-                                    bUploaded = ws.WS_UploadFile2(dataUpload, s, name, pwd);
+//                                    bUploaded = ws.WS_UploadFile2(dataUpload, s, name, pwd);
+//                                    if (!bUploaded)
+                                    bUploaded=  ws.WS_UploadFile2(dataUpload, path.getFileName().toString(), name, pwd);
                                     if (bUploaded) {
                                         db.execSQL(DataTable_SiteEvent.UpdateUploadedData());
                                         AlertDialogShow(nrecords[0] + " Records Has Been Uploaded to the Server",

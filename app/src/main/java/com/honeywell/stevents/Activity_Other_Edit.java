@@ -296,8 +296,31 @@ public class Activity_Other_Edit extends AppCompatActivity
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(ct);
+                alert.setTitle("Delete entry");
+                alert.setMessage("Are you sure you want to delete this record ? ");
+                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                        dbHelper.deleteRecords(db, current_site_event_reading.getLngID().toString());
+
+                        Intent intent = new Intent(ct, Activity_EditListSE.class);
+                        startActivity(intent);
+                        finish();
+
+                    }
+                });
+                alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // close dialog
+                        dialog.cancel();
+                    }
+                });
+                alert.show();
             }
+
+
         });
 
         btnSave = (Button) findViewById(R.id.btn_save);
@@ -704,23 +727,23 @@ Wedge as keys to empty
         this.current_se = current_loc;
     }
 
-    public void clearForms() {
-
-        txt_comment.setText("");
-
-        int id = getIndexFromArraylist(array_Eq, "NA", 1);
-        spin_Equip_Code.setSelection(id);
-        id = getIndexFromArraylist(array_SE_code, "NA", 1);
-        spin_SE_Code.setSelection(id);
-        rbFalse.setChecked(true);
-        bBarcodeEquip = false;
-
-
-        isLastRecordSavedToTable = true;
-        Log.i("isLastRecordSavedToTable", " clear forms " + isLastRecordSavedToTable.toString());
-
-        spin_Equip_Code.requestFocus();
-    }
+//    public void clearForms() {
+//
+//        txt_comment.setText("");
+//
+//        int id = getIndexFromArraylist(array_Eq, "NA", 1);
+//        spin_Equip_Code.setSelection(id);
+//        id = getIndexFromArraylist(array_SE_code, "NA", 1);
+//        spin_SE_Code.setSelection(id);
+//        rbFalse.setChecked(true);
+//        bBarcodeEquip = false;
+//
+//
+//        isLastRecordSavedToTable = true;
+//        Log.i("isLastRecordSavedToTable", " clear forms " + isLastRecordSavedToTable.toString());
+//
+//        spin_Equip_Code.requestFocus();
+//    }
 
 
     public static Validation IsRecordValid(SiteEvents site_event_reading,
@@ -758,8 +781,6 @@ Wedge as keys to empty
     }
 
     public Validation saveForms(boolean bAcceptWarning, boolean bAcceptWarningDuplicate) {
-
-        current_site_event_reading.setLngID((int) (new Date().getTime() / 1000));
 
         currentDateTime = Calendar.getInstance().getTime();
 
