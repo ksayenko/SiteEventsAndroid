@@ -70,8 +70,7 @@ public class Activity_EditListSE extends Activity {
 
         currentRowSelected = -1;
         selectedLngID = "";
-        System.out.println("in Activity_EditListSE");
-        Log.i("Activity_EditListSE", "On Create");
+
         setContentView(R.layout.activity_se_editlist);
         tableLayoutHeader = findViewById(R.id.table_layout_header);
         tableLayout = findViewById(R.id.table_layout);
@@ -96,7 +95,7 @@ public class Activity_EditListSE extends Activity {
         btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("------------onClick btnEdit", "12");
+
                 SiteEvents r = null;
                 if (!Objects.equals(selectedLngID, "")) {
                     r = dbHelper.getSiteEvent(db, selectedLngID);
@@ -115,9 +114,9 @@ public class Activity_EditListSE extends Activity {
 
                     alert.show();
                 } else {
-                    Log.i("------------onClick StDetInputActivity", "12");
+
                     MeasurementTypes.MEASUREMENT_TYPES type = r.getMeasurementType();
-                    Log.i("------------onClick StDetInputActivity", type.toString());
+
                     Intent barcodeIntent = null;
                     if (type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
                         // get the intent action string from AndroidManifest.xml
@@ -143,8 +142,8 @@ public class Activity_EditListSE extends Activity {
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("------------onClick btnDelete", "s");
-                System.out.println("In Activity_EditListSE btnDelete.setOnClickListener " + selectedLngID);
+
+                Log.i( "codedebug","In Activity_EditListSE btnDelete.setOnClickListener " + selectedLngID);
 
                 AlertDialog.Builder alert = new AlertDialog.Builder(ct);
                 alert.setTitle("Delete entry");
@@ -176,7 +175,7 @@ public class Activity_EditListSE extends Activity {
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("------------onClick btnDone", "12");
+
                 System.out.println("In Activity_EditListSE btnDelete.btnDone " + selectedLngID);
                 onBackPressed();
             }

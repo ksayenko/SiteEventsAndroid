@@ -16,44 +16,25 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
-import com.honeywell.aidc.BarcodeFailureEvent;
-import com.honeywell.aidc.BarcodeReadEvent;
-import com.honeywell.aidc.BarcodeReader;
-import com.honeywell.aidc.ScannerNotClaimedException;
-import com.honeywell.aidc.ScannerUnavailableException;
-import com.honeywell.aidc.TriggerStateChangeEvent;
-import com.honeywell.aidc.UnsupportedPropertyException;
-
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 
 public class Activity_PH_Edit extends AppCompatActivity {
 
-
-
     MeasurementTypes.MEASUREMENT_TYPES current_type = MeasurementTypes.MEASUREMENT_TYPES.PH;
-    private String current_SEDateTime;
-    private String current_ResDateTime;
 
     private Spinner spin_SE_Code;
     private Spinner spin_Equip_Code;
@@ -142,17 +123,13 @@ public class Activity_PH_Edit extends AppCompatActivity {
         current_equipment = current_site_event_reading.getStrEq_ID();
         current_username = current_site_event_reading.getStrUserName();
         current_comment = current_site_event_reading.getStrComment();
-        current_SEDateTime = current_site_event_reading.getDatSE_Date();
-        current_ResDateTime = current_site_event_reading.getDatResDate();
+        String current_SEDateTime = current_site_event_reading.getDatSE_Date();
+        String current_ResDateTime = current_site_event_reading.getDatResDate();
         current_se = current_site_event_reading.getStrSE_ID();
         current_reading = current_site_event_reading.getValue();
         current_unit = current_site_event_reading.getUnit();
         current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true")
                 ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
-
-        Log.i("------------onCreate ph", "current_yn_resolve " + current_yn_resolve);
-        Log.i("------------onCreate ph", "current_SEDateTime" + current_SEDateTime);
-        Log.i("------------onCreate ph", current_site_event_reading.getYnResolved());
 
 
         AppDataTables tables = new AppDataTables();
@@ -188,8 +165,6 @@ public class Activity_PH_Edit extends AppCompatActivity {
 
         rbResolved.clearCheck();
 
-        System.out.println(" !!!!bcurrent_yn_resolve = "+Boolean.toString(current_yn_resolve));
-
         if (current_yn_resolve)
             rbTrue.setChecked(true);
         else
@@ -211,13 +186,13 @@ public class Activity_PH_Edit extends AppCompatActivity {
                         if(desc == null || (!desc.equals("")))
                             desc =current_equipment + " pH Analysis Element";
                         txt_comment.setText("Calibration of " + desc);
-                        SetSpinnerValue(spin_SE_Code, array_SE_code, "Maintain");
+                        SetSpinnerValue(spin_SE_Code, array_SE_code, "Maintain",2);
                     }
                 } else {
                     //txt_comment.setEnabled(false);
                     text_resolve_date.setEnabled(false);
                     text_resolve_time.setEnabled(false);
-                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Failure");
+                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Failure",2);
                 }
 
             }
@@ -260,7 +235,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
         adapter_Eq.setDropDownViewResource(android.R.layout.simple_spinner_item);
 
         spin_Equip_Code.setAdapter(adapter_Eq);
-        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment);
+        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment,1);
 
         //USERS
         Cursor_Users = dbHelper.GetCursorUsers(db);
@@ -273,7 +248,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
                         Cursor_Users, from_Users, toL, 0);
         adapter_users.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_User_name.setAdapter(adapter_users);
-        SetSpinnerValue(spin_User_name, array_Users, current_username);
+        SetSpinnerValue(spin_User_name, array_Users, current_username,1);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                     isLastRecordSavedToTable = false;
@@ -294,7 +269,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
                         Cursor_SE_code, from_SE_CODE, toL, 0);
         adapter_SE_code.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_SE_Code.setAdapter(adapter_SE_code);
-        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se);
+        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se,2);
         spin_SE_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 
@@ -317,7 +292,6 @@ public class Activity_PH_Edit extends AppCompatActivity {
             }
 
             public void afterTextChanged(Editable s) {
-                Log.i("isLastRecordSavedToTable", "txtComment.addTextChangedListener " + isLastRecordSavedToTable.toString());
                     isLastRecordSavedToTable = false;
 
             }
@@ -407,8 +381,8 @@ public class Activity_PH_Edit extends AppCompatActivity {
     }
 
 
-    public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue) {
-        int index = GetIndexFromArraylist(strValues, strValue, 1);
+    public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue, int iDataColumn ) {
+        int index = GetIndexFromArraylist(strValues, strValue, iDataColumn);
         spinner.setSelection(index);
     }
     public int GetIndexFromArraylist(ArrayList<String[]> list, String myString, Integer column) {
@@ -506,9 +480,8 @@ public class Activity_PH_Edit extends AppCompatActivity {
 //    }
     public String GetSpinnerValue(Spinner spinner) {
         TextView textView = (TextView)spinner.getSelectedView();
-        String text = textView.getText().toString();
 
-        return text;
+        return textView.getText().toString();
 
     }
     private void SaveReadingsToSiteEventRecord() {
@@ -580,7 +553,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
         rbTrue.setChecked(false);
         bBarcodeEquip = false;
         isLastRecordSavedToTable = true;
-        Log.i("isLastRecordSavedToTable", " clear forms " + isLastRecordSavedToTable.toString());
+        Log.i("isLastRecordSavedToTable", " clear forms " + isLastRecordSavedToTable);
 
         spin_Equip_Code.requestFocus();
 
@@ -599,7 +572,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
         if (isTheRecordValid.isError()) {
             AlertDialogShowError(isTheRecordValid.getValidationMessage(), "ERROR");
         } else if (isTheRecordValid.isWarning() && !bAcceptWarning) {
-            AlertDialogShow("Please check\n" + isTheRecordValid.getValidationMessage() + "\nPress 'Save' one more time to confirm the data as VALID or update the input data.", "Warning");
+            AlertDialogShow("Please check\n" + isTheRecordValid.getValidationMessage() + "\nPress 'Save' one more time to confirm the data as VALID or update the input data.");
         }
 //        else if (isTheRecordDup.isWarningDuplicate() && !bAcceptWarningDuplicate) {
 //            AlertDialogHighWarning("Please check\n" + isTheRecordDup.getValidationMessage() + "\nPress 'Save' one more time to confirm the data as VALID or update the input data.", "Warning");
@@ -625,8 +598,8 @@ public class Activity_PH_Edit extends AppCompatActivity {
         AlertDialogShow(message, title, "OK", "warning");
     }
 
-    private void AlertDialogShow(String message, String title) {
-        AlertDialogShow(message, title, "OK");
+    private void AlertDialogShow(String message) {
+        AlertDialogShow(message, "Warning", "OK");
     }
 
     private void AlertDialogShow(String message, String title, String button) {
@@ -636,21 +609,26 @@ public class Activity_PH_Edit extends AppCompatActivity {
     private void AlertDialogShow(String message, String title, String button, String theme) {
         int themeResId = R.style.AlertDialogTheme;
         try {
-            if (theme.toLowerCase().equals("warning")) {
+            if (theme.equalsIgnoreCase("warning")) {
                 themeResId = R.style.AlertDialogWarning;
             }
-            if (theme.toLowerCase().equals("error")) {
+            if (theme.equalsIgnoreCase("error")) {
                 themeResId = R.style.AlertDialogError;
             }
 
-            AlertDialog ad = new AlertDialog.Builder(this, themeResId)
-                    .setTitle(title)
-                    .setMessage(message)
-                    .setPositiveButton(button, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                        }
-                    })
-                    .show();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, themeResId);
+            builder .setTitle(title);
+            builder   .setMessage(message);
+            builder   .setPositiveButton(button, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+            AlertDialog ad = builder.create();
+            if (ad != null) { ad.dismiss(); }
+            assert ad != null;
+            ad.show();
+
             ad.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
             try {
                 wait(10);
@@ -662,7 +640,6 @@ public class Activity_PH_Edit extends AppCompatActivity {
         }
 
     }
-
     private void text_event_time_picker() {
 
         text_event_time.setOnClickListener(new View.OnClickListener() {
@@ -681,7 +658,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
                 int minute = mcurrentTime.get(Calendar.MINUTE);
 //https://stackoverflow.com/questions/32678968/android-timepickerdialog-styling-guide-docs
                 TimePickerDialog mTimePicker;
-                Log.i("timePicker", "h  our " + Integer.toString(hour));
+
                 mTimePicker = new TimePickerDialog(ct, R.style.CustomTimePickerDialog,
                         (timePicker, selectedHour, selectedMinute) -> {
                             String strSE_DateTime = current_site_event_reading.getDatSE_Date();
@@ -812,9 +789,6 @@ public class Activity_PH_Edit extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        Log.i("isLastRecordSavedToTable ", " onBackPressed isLastRecordSavedToTable BEFORE " + isLastRecordSavedToTable.toString());
-        Log.i("isLastRecordSavedToTable ", " onBackPressed isRecordsSavedToDB  " + isRecordsSavedToDB.toString());
-
         if (isLastRecordSavedToTable && isRecordsSavedToDB) {
             // code here to show dialog
             super.onBackPressed();  // optional depending on your needs
@@ -830,9 +804,6 @@ public class Activity_PH_Edit extends AppCompatActivity {
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
         }
 
-
-        Log.i("isLastRecordSavedToTable ", "onBackPressed isLastRecordSavedToTable AFTER " + isLastRecordSavedToTable.toString());
-        Log.i("isLastRecordSavedToTable ", " onBackPressed isRecordsSavedToDB AFTER " + isRecordsSavedToDB.toString());
     }
 
 

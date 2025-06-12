@@ -110,7 +110,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
     Boolean bAcceptWarningDuplicate = false;
 
 
-    private SiteEvents default_site_event_reading;
+    private SiteEvents current_site_event_reading_copy;
     private SiteEvents current_site_event_reading;
     private DataTable_SiteEvent se_table = new DataTable_SiteEvent();
 
@@ -131,51 +131,37 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
        // Toast.makeText(ct, ct.getPackageName(), Toast.LENGTH_SHORT).show();
         prior_current_equipment = "NA";
-
-        default_site_event_reading = SiteEvents.GetDefaultReading();
         current_site_event_reading = SiteEvents.GetDefaultReading();
 
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             System.out.println("we have default reading");
-            default_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
+            current_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
             se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
 
             if (se_table == null)
                 se_table = new DataTable_SiteEvent();
-        } else {
-            System.out.println("no default reading");
-            default_site_event_reading = SiteEvents.GetDefaultReading();
-            se_table = new DataTable_SiteEvent();
-
         }
-
         try {
-            current_site_event_reading = (SiteEvents) default_site_event_reading.clone();
+            current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
 
         //current_se = default_site_event_reading.getStrSE_ID();
         current_se = "Maintain";
-        current_equipment = default_site_event_reading.getStrEq_ID();
-        current_username = default_site_event_reading.getStrUserName();
-        current_comment = default_site_event_reading.getStrComment();
-        current_SEDateTime = default_site_event_reading.getDatSE_Date();
+        current_equipment = current_site_event_reading.getStrEq_ID();
+        current_username = current_site_event_reading.getStrUserName();
+        current_comment = current_site_event_reading.getStrComment();
+        current_SEDateTime = current_site_event_reading.getDatSE_Date();
 
-        current_yn_resolve = Objects.equals(default_site_event_reading.getYnResolved(), "true")
-                ||  Objects.equals(default_site_event_reading.getYnResolved(), "1");
+        current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true")
+                ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
         prior_current_username = current_username;
         //prior_current_equipment = current_equipment;
         prior_current_se = current_se;
-
         current_site_event_reading.setMeasurementType(current_type);
-
-
-        Log.i("------------onCreate Activity_Main_Input", "10");
-        //super.onCreate(savedInstanceState);
-        Log.i("------------onCreate Activity_Main_Input", "1");
 
         AppDataTables tables = new AppDataTables();
         tables.SetSiteEventsTablesStructure();
@@ -214,7 +200,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                 if (rb == rbShutdown)
                     txt_comment.setText("PCTF Shutdown ");
                 if ((rb == rbStartup) || (rb == rbShutdown))
-                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Operate");
+                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Operate",2);
             }
         });
 
@@ -254,7 +240,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         adapter_Eq.setDropDownViewResource(android.R.layout.simple_spinner_item);
         //prior_current_equipment = current_equipment;
         spin_Equip_Code.setAdapter(adapter_Eq);
-        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment);
+        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment,1);
         spin_Equip_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 //CUSTOM METHOD
@@ -276,7 +262,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                         Cursor_Users, from_Users, toL, 0);
         adapter_users.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_User_name.setAdapter(adapter_users);
-        SetSpinnerValue(spin_User_name, array_Users, current_username);
+        SetSpinnerValue(spin_User_name, array_Users, current_username,1);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 current_username = GetSpinnerValue(spin_User_name);
@@ -301,7 +287,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                         Cursor_SE_code, from_SE_CODE, toL, 0);
         adapter_SE_code.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_SE_Code.setAdapter(adapter_SE_code);
-        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se);
+        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se,2);
         spin_SE_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 current_se = GetSpinnerValue(spin_SE_Code);
@@ -326,7 +312,6 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             }
 
             public void afterTextChanged(Editable s) {
-                Log.i("isLastRecordSavedToTable", "txtComment.addTextChangedListener " + isLastRecordSavedToTable.toString());
                 if (!txt_comment.getText().toString().equals(""))
                     isLastRecordSavedToTable = false;
             }
@@ -349,18 +334,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                 SaveReadingsToSiteEventRecord();
                 System.out.println(bAcceptWarningValid);
 
-                Validation iChecked = saveForms(bAcceptWarningValid, bAcceptWarningDuplicate);
-                if (iChecked.isValid() ||
-                        (iChecked.isWarning() && bAcceptWarningValid) || (iChecked.isWarningDuplicate() && bAcceptWarningDuplicate))
-                    isLastRecordSavedToTable = true;
-
-                if (iChecked.isWarning())
-                    bAcceptWarningValid = true;
-                if (iChecked.isWarningDuplicate())
-                    bAcceptWarningDuplicate = true;
-                System.out.println(bAcceptWarningValid);
-                System.out.println(bAcceptWarningDuplicate);
-                System.out.println(iChecked);
+                SaveFormAndValidate();
 
                 isRecordsSavedToDB = false;
 
@@ -371,7 +345,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                SaveFormAndValidate();
                 if (isLastRecordSavedToTable) {
                     isRecordsSavedToDB = dbHelper.getInsertTable(db, se_table);
                     int records = se_table.GetNumberOfRecords();
@@ -384,17 +358,14 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                     }
                 } else
                     isRecordsSavedToDB = false;
-
-                Log.i("isLastRecordSavedToTable", "btnDone.setOnClickListener ,isLastRecordSavedToTable " + isLastRecordSavedToTable.toString());
-                if (isLastRecordSavedToTable && isRecordsSavedToDB) {
+                 if (isLastRecordSavedToTable && isRecordsSavedToDB) {
                     clearForms();
-                }
-                Log.i("isLastRecordSavedToTable", "btnDone.setOnClickListener ,isLastRecordSavedToTable " + isLastRecordSavedToTable.toString());
-                Intent intent = new Intent(ct, Activity_Main.class);
-                startActivity(intent);
-                finish();
-                //onBackPressed();
 
+                   Intent intent = new Intent(ct, Activity_Main.class);
+                    startActivity(intent);
+                    finish();
+                    //onBackPressed();
+                }
             }
         });
 
@@ -406,8 +377,6 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
             // register bar code event listener
             barcodeReader.addBarcodeListener(this);
-            Log.i("onCreate", "barcodeReader !=null");
-
             // set the trigger mode to client control
             try {
                 barcodeReader.setProperty(BarcodeReader.PROPERTY_TRIGGER_CONTROL_MODE,
@@ -445,39 +414,34 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
         // get initial list
         barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
-        Log.i("barcodeList", barcodeList.toString());
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
     }
     private void spin_Equip_Code_Listener(AdapterView<?> parent, int pos) {
         Object item = parent.getItemAtPosition(pos);
 
+        Log.i("CodeDebug", "GE -> " +  " "+ current_equipment + current_site_event_reading.getStrEq_ID() + current_site_event_reading_copy.getStrEq_ID());
+        try {
+            current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
         current_equipment_type = ((String[]) array_Eq.get(pos))[2];
-
         current_equipment = ((String[]) array_Eq.get(pos))[1];
-        current_SEDateTime = DateTimeHelper.GetDateTimeNow();
-        text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
-        text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime,""));
-        Log.i("spin_Equip_Code_Listener", "spin_Equip_Code_Listener");
-        Log.i("spin_Equip_Code_Listener", "spin_Equip_Code_Listener");
-        Log.i("spin_Equip_Code_Listener", "spin_Equip_Code_Listener");
-
-//        if (!bBarcodeEquip) {
-//            //strDataModComment = "Manual";
-//            bBarcodeEquip = false;
-//        } else {
-//            //strDataModComment = "";
-//            bBarcodeEquip = false;
-//        }
+        SaveReadingsToSiteEventRecord();
+        boolean b = current_site_event_reading.equalAllExceptEquipment(current_site_event_reading_copy);
         MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
-        if(!current_equipment.startsWith("NA")   &&    !Objects.equals(prior_current_equipment, current_equipment)) {
+        if((!current_equipment.startsWith("NA")   &&    !Objects.equals(prior_current_equipment, current_equipment))||b)
+        {
+
 //collect dataIntent seintent
             Intent seintent = null;
-            Log.i("isLastRecordSavedToTable", " isLastRecordSavedToTable 1 " + isLastRecordSavedToTable.toString());
-            SaveReadingsToSiteEventRecord();
 
             if (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
                 prior_current_equipment=current_equipment;
+                current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
                 text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
                 //seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
@@ -489,7 +453,6 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                 seintent = new Intent("android.intent.action.INPUT_NOISE_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
             if (type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
-                Log.i("isLastRecordSavedToTable", " go to ->voc");
 
                 seintent = new Intent("android.intent.action.INPUT_VOC_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
@@ -504,14 +467,10 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
         if (!Objects.equals(current_equipment, "NA") && type == current_type)
             isLastRecordSavedToTable = false;
-
-        Log.i("isLastRecordSavedToTable", "spin_Equip_Code.listener isLastRecordSavedToTable:" + isLastRecordSavedToTable.toString());
-        Log.i("isLastRecordSavedToTable", "spin_Equip_Code.listener isRecordsSavedToDB:" + isRecordsSavedToDB.toString());
-        Log.i("current_equipment", "spin_Equip_Code.listener current_equipment" + current_equipment);
     }
 
-    public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue) {
-        int index = GetIndexFromArraylist(strValues, strValue, 1);
+    public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue, int iDataColumn ) {
+        int index = GetIndexFromArraylist(strValues, strValue, iDataColumn);
         spinner.setSelection(index);
     }
     public int GetIndexFromArraylist(ArrayList<String[]> list, String myString, Integer column) {
@@ -533,16 +492,27 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
     }
 
     private void SetAndStartIntent(Intent seintent) {
-        Log.i("SetAndStartIntent", "SetAndStartIntent - general eq");
-        current_site_event_reading = current_site_event_reading.ResetValues();
-        seintent.putExtra("SE", current_site_event_reading);
-        seintent.putExtra("SE_TABLE", se_table );
 
-        if (!isLastRecordSavedToTable) {
+        boolean isOnlyEquipmentChanged = true;
+        if (isLastRecordSavedToTable)
+            current_site_event_reading = current_site_event_reading.ResetValues();
+        if (!isLastRecordSavedToTable)
+            isOnlyEquipmentChanged = current_site_event_reading.equalAllExceptEquipment(current_site_event_reading_copy);
+
+        if (isOnlyEquipmentChanged || isLastRecordSavedToTable)
+            current_site_event_reading = current_site_event_reading.ResetValues();
+
+        seintent.putExtra("SE", current_site_event_reading);
+        seintent.putExtra("SE_TABLE", se_table);
+
+
+        if (!isLastRecordSavedToTable && !isOnlyEquipmentChanged) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
-        } else
+        } else {
+
             startActivity(seintent);
+        }
     }
 
     @Override
@@ -551,37 +521,31 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             @Override
             public void run() {
                 // update UI to reflect the data
-                Log.i("onBarcodeEvent", "onBarcodeEvent!!!!");
+                
                 List<String> list = new ArrayList<>();
                 String tempcurrent = event.getBarcodeData();
-                Log.i("onBarcodeEvent", "onBarcodeEvent!!!! +"+tempcurrent);
-                if (tempcurrent != null || tempcurrent != "")
+                
+                if (!Objects.equals(tempcurrent, ""))
                     current_equipment = tempcurrent;
-                Log.i("onBarcodeEvent", "onBarcodeEvent :" +current_equipment);
 
-                //isLastRecordSavedToTable = false;
 
                 final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(
                         ct, android.R.layout.simple_list_item_1, list);
 
                 int id = getIndexFromArraylist(array_Eq, current_equipment, 1);
 
-                Log.i("onBarcodeEvent", "onBarcodeEvent id: " + Integer.toString(id));
                 if (id > 0) {
                     bBarcodeEquip = true;
                 }
                 if(id >-1) {
-                    Log.i("onBarcodeEvent", "SetSpinnerValue FROM onBarcodeEvent");
-
-                    SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment);
+                    SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment,1);
                     //barcodeList.setAdapter(dataAdapter);
                     isRecordsSavedToDB = false;
                     bAcceptWarningDuplicate = false;
                     bAcceptWarningValid = false;
                 }
 
-                Log.i("isLastRecordSavedToTable", "on barcode event isLastRecordSavedToTable " + isLastRecordSavedToTable.toString());
-                Log.i("isLastRecordSavedToTable", "on barcode event isRecordsSavedToDB " + isRecordsSavedToDB.toString());
+
             }
         });
     }
@@ -597,8 +561,6 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                 //         StDetInputActivity.this, android.R.layout.simple_list_item_1, list);
                 if (Objects.equals(current_equipment, "NA")) {
                     int id = getIndexFromArraylist(array_Eq, "NA", 1);
-
-                    Log.i("onFailureEvent", " onFailureEvent Id = " + Integer.toString(id));
 
                     bBarcodeEquip = false;
                     //spin_Loc_id.setSelection(id);
@@ -623,7 +585,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         try {
             // only handle trigger presses
             // turn on/off aimer, illumination and decoding
-            Log.i("onTriggerEvent", "no Data");
+
             /*
             To get the "CR" in the barcode to be processed two settings needs to be changed:
 "Settings - Honeywell Settings - Scanning - Internal Scanner - Default profile - Data Processing Settings. Set:
@@ -708,7 +670,7 @@ Wedge as keys to empty
 
         bBarcodeEquip = false;
         isLastRecordSavedToTable = true;
-        Log.i("isLastRecordSavedToTable", " clear forms " + isLastRecordSavedToTable.toString());
+
         //txt_Reading.requestFocus();
     }
 
@@ -759,7 +721,19 @@ Wedge as keys to empty
     private void AlertDialogShow(String message, String title, String button) {
         AlertDialogShow(message, title, button, "default");
     }
+    private void SaveFormAndValidate() {
 
+        Validation iChecked = saveForms(bAcceptWarningValid, bAcceptWarningDuplicate);
+        if (iChecked.isValid() ||
+                (iChecked.isWarning() && bAcceptWarningValid) || (iChecked.isWarningDuplicate() && bAcceptWarningDuplicate))
+            isLastRecordSavedToTable = true;
+
+        if (iChecked.isWarning())
+            bAcceptWarningValid = true;
+        if (iChecked.isWarningDuplicate())
+            bAcceptWarningDuplicate = true;
+
+    }
     private void AlertDialogShow(String message, String title, String button, String theme) {
         int themeResId = R.style.AlertDialogTheme;
         try {
@@ -807,7 +781,7 @@ Wedge as keys to empty
                 int minute = mcurrentTime.get(Calendar.MINUTE);
 //https://stackoverflow.com/questions/32678968/android-timepickerdialog-styling-guide-docs
                 TimePickerDialog mTimePicker;
-                Log.i("timePicker", "h  our " + Integer.toString(hour));
+
                 mTimePicker = new TimePickerDialog(ct, R.style.CustomTimePickerDialog,
                         (timePicker, selectedHour, selectedMinute) -> {
                             String strSE_DateTime = current_site_event_reading.getDatSE_Date();

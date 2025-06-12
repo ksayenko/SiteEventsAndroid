@@ -148,9 +148,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
         current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true")
                 ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
 
-        Log.i("------------onCreate VOC", "10");
-        //super.onCreate(savedInstanceState);
-        Log.i("------------onCreate VOC", "1");
+
         //((TextView)findViewById(R.id.txtActivityTitle)).setText("Input Form");
         AppDataTables tables = new AppDataTables();
         tables.SetSiteEventsTablesStructure();
@@ -198,7 +196,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
 
                 if (rb == rbDetected) {
-                    txt_comment.setEnabled(true);
+
                     text_Value.setEnabled(true);
                     text_Unit.setEnabled(true);
                     current_ResDateTime = DateTimeHelper.GetDateTimeNow();
@@ -207,7 +205,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
 
                     text_resolve_time.setText(   DateTimeHelper.GetStringTimeFromDateTime(current_ResDateTime, ""));
 
-                    if (!current_equipment.equals("NA") && current_reading!="")
+                    if (!current_equipment.equals("NA") && !Objects.equals(current_reading, ""))
                         txt_comment.setText("VOC Monitoring - "
                                 + current_reading
                                 + " " + current_unit);
@@ -216,10 +214,13 @@ public class Activity_VOC_Edit extends AppCompatActivity {
 
 
                 } else {
-                    txt_comment.setEnabled(false);
+
                     text_Value.setEnabled(false);
                     text_Unit.setEnabled(false);
-                    txt_comment.setText("");
+                    if (!current_equipment.equals("NA"))
+                        txt_comment.setText("VOC Monitoring - ND");
+                    else
+                        txt_comment.setText("");
                 }
 
             }
@@ -240,8 +241,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
             }
 
             public void afterTextChanged(Editable s) {
-                Log.i("isLastRecordSavedToTable", "txt_value.addTextChangedListener " + isLastRecordSavedToTable.toString());
-                current_reading = text_Value.getText().toString();
+             current_reading = text_Value.getText().toString();
                 current_unit = text_Unit.getText().toString();
                 if (rbDetected.isChecked() && (!current_reading.equals(""))) {
                     current_comment = "VOC Monitoring - " + current_reading + " " + current_unit;
@@ -276,8 +276,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
             }
 
             public void afterTextChanged(Editable s) {
-                Log.i("isLastRecordSavedToTable", "text_Unit.addTextChangedListener " + isLastRecordSavedToTable.toString());
-                current_reading = text_Value.getText().toString();
+                 current_reading = text_Value.getText().toString();
                 current_unit = text_Unit.getText().toString();
                 current_comment = "VOC Monitoring - " + current_reading + " "+current_unit;
                 txt_comment.setText(current_comment);
@@ -318,7 +317,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
         adapter_Eq.setDropDownViewResource(android.R.layout.simple_spinner_item);
         //prior_current_equipment = current_equipment;
         spin_Equip_Code.setAdapter(adapter_Eq);
-        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment);
+        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment,1);
 
 
         //USERS
@@ -332,7 +331,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
                         Cursor_Users, from_Users, toL, 0);
         adapter_users.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_User_name.setAdapter(adapter_users);
-        SetSpinnerValue(spin_User_name, array_Users, current_username);
+        SetSpinnerValue(spin_User_name, array_Users, current_username,1);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                     isLastRecordSavedToTable = false;
@@ -353,7 +352,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
                         Cursor_SE_code, from_SE_CODE, toL, 0);
         adapter_SE_code.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_SE_Code.setAdapter(adapter_SE_code);
-        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se);
+        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se,2);
         spin_SE_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                     isLastRecordSavedToTable = false;
@@ -375,8 +374,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
             }
 
             public void afterTextChanged(Editable s) {
-                Log.i("isLastRecordSavedToTable", "txtComment.addTextChangedListener " + isLastRecordSavedToTable.toString());
-                current_comment = txt_comment.getText().toString();
+                 current_comment = txt_comment.getText().toString();
                 if (!current_comment .equals(""))
                     isLastRecordSavedToTable = false;
 
@@ -572,8 +570,6 @@ public class Activity_VOC_Edit extends AppCompatActivity {
 
         bBarcodeEquip = false;
         isLastRecordSavedToTable = true;
-        Log.i("isLastRecordSavedToTable", " clear forms " + isLastRecordSavedToTable.toString());
-
         spin_Equip_Code.requestFocus();
     }
     public String GetSpinnerValue(Spinner spinner) {
@@ -640,14 +636,18 @@ public class Activity_VOC_Edit extends AppCompatActivity {
                 themeResId = R.style.AlertDialogError;
             }
 
-            AlertDialog ad = new AlertDialog.Builder(this, themeResId)
-                    .setTitle(title)
-                    .setMessage(message)
-                    .setPositiveButton(button, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                        }
-                    })
-                    .show();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, themeResId);
+            builder .setTitle(title);
+            builder   .setMessage(message);
+            builder   .setPositiveButton(button, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+            AlertDialog ad = builder.create();
+            if (ad != null) { ad.dismiss(); }
+            ad.show();
+
             ad.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
             try {
                 wait(10);
@@ -659,7 +659,6 @@ public class Activity_VOC_Edit extends AppCompatActivity {
         }
 
     }
-
     private void text_event_time_picker() {
 
         text_event_time.setOnClickListener(new View.OnClickListener() {
@@ -678,8 +677,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
                 int minute = mcurrentTime.get(Calendar.MINUTE);
 //https://stackoverflow.com/questions/32678968/android-timepickerdialog-styling-guide-docs
                 TimePickerDialog mTimePicker;
-                Log.i("timePicker", "h  our " + Integer.toString(hour));
-                mTimePicker = new TimePickerDialog(ct, R.style.CustomTimePickerDialog,
+                 mTimePicker = new TimePickerDialog(ct, R.style.CustomTimePickerDialog,
                         (timePicker, selectedHour, selectedMinute) -> {
                             String strSE_DateTime = current_site_event_reading.getDatSE_Date();
                             Calendar cal = DateTimeHelper.GetCalendarFromDateTime(strSE_DateTime, "");
@@ -809,9 +807,6 @@ public class Activity_VOC_Edit extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        Log.i("isLastRecordSavedToTable ", " onBackPressed isLastRecordSavedToTable BEFORE " + isLastRecordSavedToTable.toString());
-        Log.i("isLastRecordSavedToTable ", " onBackPressed isRecordsSavedToDB  " + isRecordsSavedToDB.toString());
-
         if (isLastRecordSavedToTable && isRecordsSavedToDB) {
             // code here to show dialog
             super.onBackPressed();  // optional depending on your needs
@@ -827,13 +822,10 @@ public class Activity_VOC_Edit extends AppCompatActivity {
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
         }
 
-
-        Log.i("isLastRecordSavedToTable ", "onBackPressed isLastRecordSavedToTable AFTER " + isLastRecordSavedToTable.toString());
-        Log.i("isLastRecordSavedToTable ", " onBackPressed isRecordsSavedToDB AFTER " + isRecordsSavedToDB.toString());
     }
 
-    public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue) {
-        int index = GetIndexFromArraylist(strValues, strValue, 1);
+    public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue, int iDataColumn ) {
+        int index = GetIndexFromArraylist(strValues, strValue, iDataColumn);
         spinner.setSelection(index);
     }
     public int GetIndexFromArraylist(ArrayList<String[]> list, String myString, Integer column) {

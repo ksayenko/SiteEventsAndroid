@@ -34,7 +34,6 @@ public class Activity_Login extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Log.i("------------onCreate Activity_Login", "");
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_login);

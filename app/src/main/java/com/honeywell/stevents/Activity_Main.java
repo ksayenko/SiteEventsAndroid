@@ -713,7 +713,7 @@ Cursor Cursor_Eq = null;
 
     }
 
-    private void AlertDialogShow(String message, String title, String button,  String theme) {
+    private void AlertDialogShow(String message, String title, String button, String theme) {
         int themeResId = R.style.AlertDialogTheme;
         try {
             if (theme.toLowerCase().equals("warning")) {
@@ -723,14 +723,18 @@ Cursor Cursor_Eq = null;
                 themeResId = R.style.AlertDialogError;
             }
 
-            AlertDialog ad = new AlertDialog.Builder(this,themeResId)
-                    .setTitle(title)
-                    .setMessage(message)
-                    .setPositiveButton(button, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                        }
-                    })
-                    .show();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, themeResId);
+            builder .setTitle(title);
+            builder   .setMessage(message);
+            builder   .setPositiveButton(button, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+            AlertDialog ad = builder.create();
+            if (ad != null) { ad.dismiss(); }
+            ad.show();
+
             ad.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
             try {
                 wait(10);
@@ -742,7 +746,6 @@ Cursor Cursor_Eq = null;
         }
 
     }
-
 
 
     @Override
@@ -798,7 +801,7 @@ Cursor Cursor_Eq = null;
             public void run() {
                 String current_equipment = "";
                 // update UI to reflect the data
-                Log.i("onBarcodeEvent", "onBarcodeEvent!!!!");
+                
                 List<String> list = new ArrayList<>();
                 SiteEvents se = new SiteEvents();
                 DataTable_SiteEvent table = new DataTable_SiteEvent();

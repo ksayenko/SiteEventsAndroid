@@ -146,14 +146,12 @@ public class Activity_Other_Edit extends AppCompatActivity
         current_SEDateTime = current_site_event_reading.getDatSE_Date();
         current_ResDateTime = current_site_event_reading.getDatResDate();
 
-        current_se = current_site_event_reading.getStrSE_ID();
         current_value = current_site_event_reading.getValue();
         current_unit = current_site_event_reading.getUnit();
         current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true")
                 ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
 
-        Log.i("------------onCreate Activity_Main_Input", "-onCreate Activity_Main_Input 1");
-        setContentView(R.layout.activity_input_main_se);
+         setContentView(R.layout.activity_input_main_se);
 
         AppDataTables tables = new AppDataTables();
         tables.SetSiteEventsTablesStructure();
@@ -221,7 +219,7 @@ public class Activity_Other_Edit extends AppCompatActivity
         adapter_Eq.setDropDownViewResource(android.R.layout.simple_spinner_item);
 
         spin_Equip_Code.setAdapter(adapter_Eq);
-        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment);
+        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment,1);
 
 
         //USERS
@@ -237,7 +235,7 @@ public class Activity_Other_Edit extends AppCompatActivity
                         Cursor_Users, from_Users, toL, 0);
         adapter_users.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_User_name.setAdapter(adapter_users);
-        SetSpinnerValue(spin_User_name, array_Users, current_username);
+        SetSpinnerValue(spin_User_name, array_Users, current_username,1);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 isLastRecordSavedToTable = false;
@@ -259,7 +257,7 @@ public class Activity_Other_Edit extends AppCompatActivity
                         Cursor_SE_code, from_SE_CODE, toL, 0);
         adapter_SE_code.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_SE_Code.setAdapter(adapter_SE_code);
-        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se);
+        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se,2);
         spin_SE_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 isLastRecordSavedToTable = false;
@@ -382,8 +380,8 @@ public class Activity_Other_Edit extends AppCompatActivity
 //        seintent.putExtra("USER", current_username);
 //        startActivity(seintent);
 //    }
-    public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue) {
-        int index = GetIndexFromArraylist(strValues, strValue, 1);
+    public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue, int iDataColumn ) {
+        int index = GetIndexFromArraylist(strValues, strValue, iDataColumn);
         spinner.setSelection(index);
     }
     public String GetSpinnerValue(Spinner spinner) {
@@ -448,8 +446,7 @@ public class Activity_Other_Edit extends AppCompatActivity
                 int minute = mcurrentTime.get(Calendar.MINUTE);
 //https://stackoverflow.com/questions/32678968/android-timepickerdialog-styling-guide-docs
                 TimePickerDialog mTimePicker;
-                Log.i("timePicker", "h  our " + Integer.toString(hour));
-                mTimePicker = new TimePickerDialog(ct, R.style.CustomTimePickerDialog,
+                 mTimePicker = new TimePickerDialog(ct, R.style.CustomTimePickerDialog,
                         (timePicker, selectedHour, selectedMinute) -> {
                             String strSE_DateTime = current_site_event_reading.getDatSE_Date();
                             Calendar cal = DateTimeHelper.GetCalendarFromDateTime(strSE_DateTime, "");
@@ -582,15 +579,13 @@ public class Activity_Other_Edit extends AppCompatActivity
             @Override
             public void run() {
                 // update UI to reflect the data
-                Log.i("onBarcodeEvent", "onBarcodeEvent!!!!");
+
                 List<String> list = new ArrayList<>();
                 String tempcurrent = event.getBarcodeData();
-                Log.i("onBarcodeEvent", "onBarcodeEvent!!!! +"+tempcurrent);
+
                 currentDateTime = Calendar.getInstance().getTime(); //
                 if (tempcurrent != null || tempcurrent != "")
                     current_equipment = tempcurrent;
-                //current_se = event.getBarcodeData();
-                Log.i("onBarcodeEvent", "onBarcodeEvent :" +current_equipment);
 
                 //isLastRecordSavedToTable = false;
 
@@ -598,21 +593,16 @@ public class Activity_Other_Edit extends AppCompatActivity
                         ct, android.R.layout.simple_list_item_1, list);
 
                 int id = getIndexFromArraylist(array_Eq, current_equipment, 1);
-
-                Log.i("onBarcodeEvent", "onBarcodeEvent id: " + Integer.toString(id));
                 if (id > 0) {
                     bBarcodeEquip = true;
                 }
-                if(id >-1) {
+                if (id > -1) {
                     spin_Equip_Code.setSelection(id);
                     //barcodeList.setAdapter(dataAdapter);
                     isRecordsSavedToDB = false;
                     bAcceptWarningDuplicate = false;
                     bAcceptWarningValid = false;
                 }
-
-                Log.i("isLastRecordSavedToTable", "on barcode event isLastRecordSavedToTable " + isLastRecordSavedToTable.toString());
-                Log.i("isLastRecordSavedToTable", "on barcode event isRecordsSavedToDB " + isRecordsSavedToDB.toString());
             }
         });
     }
@@ -625,7 +615,7 @@ public class Activity_Other_Edit extends AppCompatActivity
         try {
             // only handle trigger presses
             // turn on/off aimer, illumination and decoding
-            Log.i("onTriggerEvent", "no Data");
+
             /*
             To get the "CR" in the barcode to be processed two settings needs to be changed:
 "Settings - Honeywell Settings - Scanning - Internal Scanner - Default profile - Data Processing Settings. Set:
@@ -656,8 +646,6 @@ Wedge as keys to empty
                 //         StDetInputActivity.this, android.R.layout.simple_list_item_1, list);
                  if (Objects.equals(current_equipment, "NA")) {
                     int id = getIndexFromArraylist(array_Eq, "NA", 1);
-
-                    Log.i("onFailureEvent", " onFailureEvent Id = " + Integer.toString(id));
 
                     bBarcodeEquip = false;
                     //spin_Loc_id.setSelection(id);
@@ -744,13 +732,7 @@ Wedge as keys to empty
         return 0;
     }
 
-    public String getCurrent_Equipment() {
-        return current_equipment;
-    }
 
-    public void setCurrent_loc(String current_loc) {
-        this.current_se = current_loc;
-    }
 
 //    public void clearForms() {
 //
@@ -911,14 +893,18 @@ Wedge as keys to empty
                 themeResId = R.style.AlertDialogError;
             }
 
-            AlertDialog ad = new AlertDialog.Builder(this, themeResId)
-                    .setTitle(title)
-                    .setMessage(message)
-                    .setPositiveButton(button, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                        }
-                    })
-                    .show();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, themeResId);
+            builder .setTitle(title);
+            builder   .setMessage(message);
+            builder   .setPositiveButton(button, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+            AlertDialog ad = builder.create();
+            if (ad != null) { ad.dismiss(); }
+            ad.show();
+
             ad.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
             try {
                 wait(10);
@@ -930,12 +916,9 @@ Wedge as keys to empty
         }
 
     }
-
     @Override
     public void onBackPressed() {
 
-        Log.i("isLastRecordSavedToTable ", " onBackPressed isLastRecordSavedToTable BEFORE " + isLastRecordSavedToTable.toString());
-        Log.i("isLastRecordSavedToTable ", " onBackPressed isRecordsSavedToDB  " + isRecordsSavedToDB.toString());
 
         if (isLastRecordSavedToTable && isRecordsSavedToDB) {
             // code here to show dialog
@@ -951,11 +934,6 @@ Wedge as keys to empty
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
         }
-
-
-        Log.i("isLastRecordSavedToTable ", "onBackPressed isLastRecordSavedToTable AFTER " + isLastRecordSavedToTable.toString());
-        Log.i("isLastRecordSavedToTable ", " onBackPressed isRecordsSavedToDB AFTER " + isRecordsSavedToDB.toString());
     }
-
 
 }

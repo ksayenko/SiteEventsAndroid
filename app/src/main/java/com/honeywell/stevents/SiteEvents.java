@@ -1,8 +1,11 @@
 package com.honeywell.stevents;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 
 public class SiteEvents implements Serializable, Cloneable {
 
@@ -37,8 +40,8 @@ public class SiteEvents implements Serializable, Cloneable {
     private String ynResolved = "false";
     //YYYY-MM-DD HH:MM:SS
     private String datetimedefault = "2000-01-01";
-    private String Value = null;
-    private String Unit = null;
+    private String Value = "";
+    private String Unit = "";
 
 
     public MeasurementTypes.MEASUREMENT_TYPES getMeasurementType() {
@@ -259,24 +262,36 @@ public class SiteEvents implements Serializable, Cloneable {
                         Value.equals(reading.Value);
     }
 
+    public boolean equalAllExceptEquipment(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SiteEvents reading = (SiteEvents) o;
+        boolean rv=
+                strUserName.equals(reading.strUserName) &&
+                        datSE_Date.equals(reading.datSE_Date) &&
+                        strSE_ID.equals(reading.strSE_ID) &&
+                        strComment.equals(reading.strComment) &&
+                        datResDate.equals(reading.datResDate) &&
+                        ynResolved.equals(reading.ynResolved) &&
+                        Value.equals(reading.Value);
+        if(!rv)
+            Log.i("CodeDebug", " equalAllExceptEquipment : 1: " +this.toString() + " 2: "+ reading.toString());
+        return rv;
+    }
+
     @Override
     public String toString() {
         return "SiteEvent{" +
                 "lngID=" + lngID +
-                ", facility_id=" + facility_id +
                 ", strEq_ID='" + strEq_ID + '\'' +
                 ", strUserName='" + strUserName + '\'' +
                 ", strSE_ID='" + strSE_ID + '\'' +
                 ", datSE_Date=" + datSE_Date +
-                ", datSE_Time=" + datSE_Time +
-                ", datSE_Date_NoSeconds=" + datSE_Date_NoSeconds +
-
                 ", strComment='" + strComment + '\'' +
                 ", ynResolved=" + ynResolved +
                 ", Value='" + Objects.toString(Value, "") + '\'' +
                 ", Unit='" + Objects.toString(Unit, "") + '\'' +
                 ", datResDate='" + datResDate + '\'' +
-                ", datResDate_NoSeconds='" + datResDate_NoSeconds + '\'' +
                 '}';
     }
 

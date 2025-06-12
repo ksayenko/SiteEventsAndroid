@@ -51,8 +51,6 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
     private BarcodeReader barcodeReader;
     private ListView barcodeList;
 
-    private String current_SEDateTime;
-
     MeasurementTypes.MEASUREMENT_TYPES current_type = MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE;
 
     private Spinner spin_SE_Code;
@@ -66,7 +64,6 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
 
     private TextView txt_comment;
 
-    private RadioGroup rbResloved;
     private RadioButton rbStartup;
     private RadioButton rbShutdown;
 
@@ -136,18 +133,14 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         current_equipment = current_site_event_reading.getStrEq_ID();
         current_username = current_site_event_reading.getStrUserName();
         current_comment = current_site_event_reading.getStrComment();
-        current_SEDateTime = current_site_event_reading.getDatSE_Date();
+        String current_SEDateTime = current_site_event_reading.getDatSE_Date();
       //  current_ResDateTime = current_site_event_reading.getDatResDate();
         current_se = current_site_event_reading.getStrSE_ID();
         //current_value = current_site_event_reading.getValue();
         current_unit = current_site_event_reading.getUnit();
         current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true")
                 ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
-        Log.i("------------onCreate Activity_Main_Input", "current_yn_resolve " + current_site_event_reading.getYnResolved());
 
-        Log.i("------------onCreate Activity_Main_Input", "current_yn_resolve " + Boolean.toString(current_yn_resolve));
-        //super.onCreate(savedInstanceState);
-        Log.i("------------onCreate Activity_Main_Input", "1");
 
         AppDataTables tables = new AppDataTables();
         tables.SetSiteEventsTablesStructure();
@@ -170,7 +163,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
 
         rbStartup = (RadioButton) findViewById(R.id.radio_true);
         rbShutdown = (RadioButton) findViewById(R.id.radio_false);
-        rbResloved = (RadioGroup) findViewById(R.id.radio_group);
+        RadioGroup rbResloved = (RadioGroup) findViewById(R.id.radio_group);
         rbResloved.clearCheck();
         if (current_yn_resolve)
             rbStartup.setChecked(true);
@@ -186,7 +179,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
                 if (rb == rbShutdown)
                     txt_comment.setText("PCTF Shutdown ");
                 if ((rb == rbStartup) || (rb == rbShutdown))
-                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Operate");
+                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Operate", 2);
             }
         });
 
@@ -226,7 +219,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         adapter_Eq.setDropDownViewResource(android.R.layout.simple_spinner_item);
 
         spin_Equip_Code.setAdapter(adapter_Eq);
-        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment);
+        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment,1);
 
 
         //USERS
@@ -240,7 +233,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
                         Cursor_Users, from_Users, toL, 0);
         adapter_users.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_User_name.setAdapter(adapter_users);
-        SetSpinnerValue(spin_User_name, array_Users, current_username);
+        SetSpinnerValue(spin_User_name, array_Users, current_username,1);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 
@@ -263,7 +256,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
                         Cursor_SE_code, from_SE_CODE, toL, 0);
         adapter_SE_code.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_SE_Code.setAdapter(adapter_SE_code);
-        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se);
+        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se,2);
         spin_SE_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                     isLastRecordSavedToTable = false;
@@ -285,7 +278,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
             }
 
             public void afterTextChanged(Editable s) {
-                Log.i("isLastRecordSavedToTable", "txtComment.addTextChangedListener " + isLastRecordSavedToTable.toString());
+
                 if (!txt_comment.getText().toString().equals(""))
                     isLastRecordSavedToTable = false;
             }
@@ -374,8 +367,8 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
     }
 
 
-    public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue) {
-        int index = GetIndexFromArraylist(strValues, strValue, 1);
+    public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue, int iDataColumn ) {
+        int index = GetIndexFromArraylist(strValues, strValue, iDataColumn);
         spinner.setSelection(index);
     }
     public int GetIndexFromArraylist(ArrayList<String[]> list, String myString, Integer column) {
@@ -476,14 +469,18 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
                 themeResId = R.style.AlertDialogError;
             }
 
-            AlertDialog ad = new AlertDialog.Builder(this, themeResId)
-                    .setTitle(title)
-                    .setMessage(message)
-                    .setPositiveButton(button, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                        }
-                    })
-                    .show();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, themeResId);
+            builder .setTitle(title);
+            builder   .setMessage(message);
+            builder   .setPositiveButton(button, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+            AlertDialog ad = builder.create();
+            if (ad != null) { ad.dismiss(); }
+            ad.show();
+
             ad.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
             try {
                 wait(10);
@@ -494,8 +491,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
             finish();
         }
 
-    }
-    private void text_event_time_picker() {
+    }    private void text_event_time_picker() {
 
         text_event_time.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -513,7 +509,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
                 int minute = mcurrentTime.get(Calendar.MINUTE);
 //https://stackoverflow.com/questions/32678968/android-timepickerdialog-styling-guide-docs
                 TimePickerDialog mTimePicker;
-                Log.i("timePicker", "h  our " + Integer.toString(hour));
+
                 mTimePicker = new TimePickerDialog(ct, R.style.CustomTimePickerDialog,
                         (timePicker, selectedHour, selectedMinute) -> {
                             String strSE_DateTime = current_site_event_reading.getDatSE_Date();
@@ -645,9 +641,6 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        Log.i("isLastRecordSavedToTable ", " onBackPressed isLastRecordSavedToTable BEFORE " + isLastRecordSavedToTable.toString());
-        Log.i("isLastRecordSavedToTable ", " onBackPressed isRecordsSavedToDB  " + isRecordsSavedToDB.toString());
-
         if (isLastRecordSavedToTable && isRecordsSavedToDB) {
             // code here to show dialog
             super.onBackPressed();  // optional depending on your needs
@@ -697,7 +690,6 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
             current_site_event_reading.setYnResolved("false");
         }
 
-        Log.i("Activity_Main_Input", "getYnResolved " +current_site_event_reading.getYnResolved());
         String temp1 = text_event_date.getText().toString();
         String temp2 = text_event_time.getText().toString();
 
