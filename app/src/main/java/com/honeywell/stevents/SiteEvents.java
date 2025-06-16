@@ -166,6 +166,14 @@ public class SiteEvents implements Serializable, Cloneable {
         return ynResolved;
     }
 
+    public boolean getBoolResolved() {
+        boolean rv = false;
+        rv = Objects.equals(getYnResolved().toLowerCase(), "true")
+                || Objects.equals(getYnResolved(), "1");
+
+        return rv;
+    }
+
     public void setYnResolved(String ynResolved) {
         this.ynResolved = ynResolved;
     }
@@ -262,10 +270,22 @@ public class SiteEvents implements Serializable, Cloneable {
                         Value.equals(reading.Value);
     }
 
+    public boolean equalAllExceptEquipmentOrEquipmentNA(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SiteEvents reading = (SiteEvents) o;
+        if (Objects.equals(reading.strEq_ID, "NA"))
+            return true;
+        else
+            return equalAllExceptEquipment(o);
+    }
+
     public boolean equalAllExceptEquipment(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SiteEvents reading = (SiteEvents) o;
+
         boolean rv=
                 strUserName.equals(reading.strUserName) &&
                         datSE_Date.equals(reading.datSE_Date) &&
@@ -318,6 +338,10 @@ public class SiteEvents implements Serializable, Cloneable {
             dValue = 0.0;
         }
 
+        Log.i("codedebug","isRecordValid strEq_ID ="+strEq_ID  );
+        Log.i("codedebug","isRecordValid record ="+this.toString()  );
+
+
         if (isNA(strEq_ID)) {
             isValid.addToValidationMessageError("Please select a Equipment Id. ");
             isValid.setFocus(Validation.FOCUS.EQUIPMENT);
@@ -334,6 +358,15 @@ public class SiteEvents implements Serializable, Cloneable {
             isValid.setValidation(Validation.VALIDATION.ERROR);
 
         }
+        else if (Objects.equals(strComment, "") && measurementType == MeasurementTypes.MEASUREMENT_TYPES.PH
+                && Objects.equals(ynResolved, "true"))
+                {
+            message += "Empty Comment";
+            isValid.addToValidationMessageWarning("Please Populate a comment.");
+            System.out.println(message);
+            isValid.setValidation(Validation.VALIDATION.WARNING);
+            isValid.setFocus(Validation.FOCUS.SITEEVENT);
+        }
         else if (dValue == 0.0 && measurementType == MeasurementTypes.MEASUREMENT_TYPES.VOC
                && Objects.equals(ynResolved, "true")) {
             message += "A Reading value of 0 is detected!";
@@ -346,11 +379,12 @@ public class SiteEvents implements Serializable, Cloneable {
            {
             message += "A Reading value of 0 is detected!";
             isValid.addToValidationMessageError("Please enter a Value");
+            isValid.addToValidationMessageWarning("Please enter a Value");
             System.out.println(message);
-            isValid.setValidation(Validation.VALIDATION.WARNING);
+            isValid.setValidation(Validation.VALIDATION.ERROR);
             isValid.setFocus(Validation.FOCUS.READING);
         }
-
+        Log.i("codedebug","isRecordValid isValid ="+isValid.getValidation().toString() +  message );
         return isValid;
 
     }

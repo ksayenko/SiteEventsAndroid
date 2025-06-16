@@ -91,7 +91,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
     boolean current_yn_resolve = true;
 
     String current_comment = "";
-
+    private final String default_SE="Maintain";
     
     String current_reading = "";
     String current_unit = "";
@@ -147,7 +147,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         }
 
         //current_se = default_site_event_reading.getStrSE_ID();
-        current_se = "Maintain";
+        current_se =default_SE;
         current_equipment = current_site_event_reading.getStrEq_ID();
         current_username = current_site_event_reading.getStrUserName();
         current_comment = current_site_event_reading.getStrComment();
@@ -159,8 +159,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         prior_current_equipment = current_equipment;
         current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.PH);
 
-        current_yn_resolve= Objects.equals(current_site_event_reading.getYnResolved(), "true")
-                ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
+        current_yn_resolve= current_site_event_reading.getBoolResolved();
 
 
         AppDataTables tables = new AppDataTables();
@@ -195,6 +194,10 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
 
         rbResolved.clearCheck();
 
+        if (current_yn_resolve)
+            rbResolved.check(R.id.radio_true);
+        else
+            rbResolved.check(R.id.radio_false);
         rbResolved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -211,7 +214,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
                         if(desc == null || (!desc.equals("")))
                             desc =current_equipment + " pH Analysis Element";
                         txt_comment.setText("Calibration of " + desc);
-                        SetSpinnerValue(spin_SE_Code, array_SE_code, "Maintain",2);
+                        SetSpinnerValue(spin_SE_Code, array_SE_code, default_SE,2);
                     }
                 } else {
                     txt_comment.setEnabled(false);
@@ -223,10 +226,8 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             }
 
         });
-//        if (current_yn_resolve)
-//            rbResolved.check(R.id.radio_true);
-//        else
-//            rbResolved.check(R.id.radio_false);
+
+
 
         //text_event_time
         text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
@@ -309,7 +310,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         spin_SE_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 current_se = GetSpinnerValue(spin_SE_Code);
-                if ((!current_se.equals("NA") &&
+                if ((!current_se.equals("NA") && (!current_se.equals(default_SE)) &&
                         (!current_se.equals(prior_current_se))))
                     isLastRecordSavedToTable = false;
             }
@@ -452,7 +453,14 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         current_equipment_type = ((String[]) array_Eq.get(pos))[2];
         //prior_current_equipment=current_equipment;
         current_equipment = ((String[]) array_Eq.get(pos))[1];
+
+        current_SEDateTime = DateTimeHelper.GetDateTimeNow();
+        text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
+        text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime,""));
+
         SaveReadingsToSiteEventRecord();
+        if(Objects.equals(current_equipment, "NA"))
+            return;
 
         boolean b = current_site_event_reading.equalAllExceptEquipment(current_site_event_reading_copy);
 
@@ -463,33 +471,31 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             //strDataModComment = "";
             bBarcodeEquip = false;
         }
-        MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+        current_type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
 
         if (!Objects.equals(current_equipment, "NA")
-                && !Objects.equals(current_equipment, prior_current_equipment) && type == current_type)
+                && !Objects.equals(current_equipment, prior_current_equipment) )
             isLastRecordSavedToTable = false;
 
         if((!current_equipment.startsWith("NA")&& !Objects.equals(prior_current_equipment, current_equipment))||b) {
 //collect dataIntent seintent
             Intent seintent = null;
-            SaveReadingsToSiteEventRecord();
 
-
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
                 seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
                 current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
                 text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
                 seintent = new Intent("android.intent.action.INPUT_NOISE_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
                 seintent = new Intent("android.intent.action.INPUT_VOC_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
                 seintent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
             SaveReadingsToSiteEventRecord();
@@ -655,6 +661,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         //note that dates and times saved in the events
         current_comment = (String) txt_comment.getText().toString();
         current_username = GetSpinnerValue(spin_User_name);
+        current_equipment = GetSpinnerValue(spin_Equip_Code);
 
         String userupload = dbHelper.GetUserUploadName(db,current_username);
         if(userupload == null || (!userupload.equals("")))
@@ -805,7 +812,7 @@ Wedge as keys to empty
         txt_comment.setText("");
         int id = GetIndexFromArraylist(array_Eq, "NA", 1);
         spin_Equip_Code.setSelection(id);
-        id = GetIndexFromArraylist(array_SE_code, "Maintain", 1);
+        id = GetIndexFromArraylist(array_SE_code, default_SE, 1);
         spin_SE_Code.setSelection(id);
         rbFalse.setChecked(false);
         rbTrue.setChecked(false);

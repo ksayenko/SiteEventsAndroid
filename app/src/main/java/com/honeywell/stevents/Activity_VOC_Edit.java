@@ -145,9 +145,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
         current_se = current_site_event_reading.getStrSE_ID();
         current_reading = current_site_event_reading.getValue();
         current_unit = current_site_event_reading.getUnit();
-        current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true")
-                ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
-
+        current_yn_resolve = current_site_event_reading.getBoolResolved();
 
         //((TextView)findViewById(R.id.txtActivityTitle)).setText("Input Form");
         AppDataTables tables = new AppDataTables();

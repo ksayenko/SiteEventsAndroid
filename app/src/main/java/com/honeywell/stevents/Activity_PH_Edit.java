@@ -489,6 +489,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
         current_comment = (String) txt_comment.getText().toString();
         current_username = GetSpinnerValue(spin_User_name);
         current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.PH);
+        current_equipment = GetSpinnerValue(spin_Equip_Code);
         String userupload = dbHelper.GetUserUploadName(db,current_username);
         if(userupload == null || (!userupload.equals("")))
             current_site_event_reading.setStrUserUploadName(userupload);

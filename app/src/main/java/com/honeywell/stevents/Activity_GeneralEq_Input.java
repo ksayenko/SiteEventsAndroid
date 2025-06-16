@@ -51,7 +51,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         BarcodeReader.TriggerListener {
     private BarcodeReader barcodeReader;
     private ListView barcodeList;
-
+    private final String default_SE="Maintain";
     private String current_SEDateTime;
 
     MeasurementTypes.MEASUREMENT_TYPES current_type = MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE;
@@ -150,14 +150,13 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         }
 
         //current_se = default_site_event_reading.getStrSE_ID();
-        current_se = "Maintain";
+        current_se =default_SE;
         current_equipment = current_site_event_reading.getStrEq_ID();
         current_username = current_site_event_reading.getStrUserName();
         current_comment = current_site_event_reading.getStrComment();
         current_SEDateTime = current_site_event_reading.getDatSE_Date();
 
-        current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true")
-                ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
+        current_yn_resolve = current_site_event_reading.getBoolResolved();
         prior_current_username = current_username;
         //prior_current_equipment = current_equipment;
         prior_current_se = current_se;
@@ -430,33 +429,42 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
         current_equipment_type = ((String[]) array_Eq.get(pos))[2];
         current_equipment = ((String[]) array_Eq.get(pos))[1];
+
+        current_SEDateTime = DateTimeHelper.GetDateTimeNow();
+        text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
+        text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime,""));
+
         SaveReadingsToSiteEventRecord();
+
+        if(Objects.equals(current_equipment, "NA"))
+            return;
+
         boolean b = current_site_event_reading.equalAllExceptEquipment(current_site_event_reading_copy);
-        MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+        current_type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
         if((!current_equipment.startsWith("NA")   &&    !Objects.equals(prior_current_equipment, current_equipment))||b)
         {
 
 //collect dataIntent seintent
             Intent seintent = null;
 
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
                 prior_current_equipment=current_equipment;
                 current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
                 text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
                 //seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
                 seintent = new Intent("android.intent.action.INPUT_PH_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
                 seintent = new Intent("android.intent.action.INPUT_NOISE_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
 
                 seintent = new Intent("android.intent.action.INPUT_VOC_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
                 seintent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
             if (seintent != null)
@@ -465,7 +473,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
 
-        if (!Objects.equals(current_equipment, "NA") && type == current_type)
+        if (!Objects.equals(current_equipment, "NA") )
             isLastRecordSavedToTable = false;
     }
 
@@ -946,7 +954,7 @@ Wedge as keys to empty
             current_site_event_reading.setStrUserUploadName(userupload);
 
         current_se = GetSpinnerValue(spin_SE_Code);
-
+        current_equipment = GetSpinnerValue(spin_Equip_Code);
         current_site_event_reading.setStrComment(current_comment);
         current_site_event_reading.setStrUserName(current_username);
         current_site_event_reading.setStrEq_ID(current_equipment);

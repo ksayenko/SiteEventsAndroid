@@ -58,6 +58,8 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
     private String current_SEDateTime;
     private String current_ResDateTime;
 
+    private String default_SE="Monitor";
+
     private Spinner spin_SE_Code;
     private Spinner spin_Equip_Code;
     private Spinner spin_User_name;
@@ -155,15 +157,14 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         }
 
         //current_se = default_site_event_reading.getStrSE_ID();
-        current_se = "Monitor";
+        current_se = default_SE;
         current_unit = "ppm";
         current_equipment = current_site_event_reading.getStrEq_ID();
         current_username = current_site_event_reading.getStrUserName();
         current_comment = current_site_event_reading.getStrComment();
         current_SEDateTime = current_site_event_reading.getDatSE_Date();
         current_ResDateTime = current_site_event_reading.getDatResDate();
-        current_yn_resolve = current_site_event_reading.getYnResolved().equalsIgnoreCase("true") ||
-                current_site_event_reading.getYnResolved().equalsIgnoreCase("1");
+        current_yn_resolve = current_site_event_reading.getBoolResolved();
         current_reading = current_site_event_reading.getValue();
         prior_current_username = current_username;
         // prior_current_equipment = current_equipment;
@@ -532,7 +533,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 
     private void spin_Equip_Code_Listener(AdapterView<?> parent, int pos) {
         Object item = parent.getItemAtPosition(pos);
-        Log.i("CodeDebug", "voc -> " + " " + current_equipment + current_site_event_reading.getStrEq_ID() + current_site_event_reading_copy.getStrEq_ID());
+        Log.i("CodeDebug", "spin_Equip_Code_Listener voc -> " + " " + current_equipment + current_site_event_reading.getStrEq_ID() + current_site_event_reading_copy.getStrEq_ID());
 
         try {
             current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
@@ -544,6 +545,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         //prior_current_equipment=current_equipment;
         current_equipment = ((String[]) array_Eq.get(pos))[1];
 
+        current_SEDateTime = DateTimeHelper.GetDateTimeNow();
         text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
         text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
 
@@ -558,33 +560,35 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 //            //strDataModComment = "";
 //            bBarcodeEquip = false;
 //        }
-        MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
-        System.out.println("in spin eq list " + current_equipment + current_equipment_type + prior_current_equipment);
+        current_type  = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+        if(current_equipment.startsWith("NA"))
+            return;
+
         if ((!current_equipment.startsWith("NA") &&
                 !Objects.equals(prior_current_equipment, current_equipment)) || b) {
 
 //collect dataIntent seintent
             Intent seintent = null;
-            Log.i("CodeDebug", "setting intent" + type);
+            Log.i("CodeDebug", "setting intent" + current_type);
 
 
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
                 seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
                 seintent = new Intent("android.intent.action.INPUT_PH_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
                 seintent = new Intent("android.intent.action.INPUT_NOISE_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
                 current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
                 text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
 
                 //seintent = new Intent("android.intent.action.INPUT_VOC_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
                 seintent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
             if (seintent != null)
@@ -594,7 +598,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         bAcceptWarningDuplicate = false;
 
         if (!Objects.equals(current_equipment, "NA")
-                && !Objects.equals(current_equipment, prior_current_equipment) && type == current_type)
+                && !Objects.equals(current_equipment, prior_current_equipment) )
             isLastRecordSavedToTable = false;
     }
 
@@ -768,6 +772,7 @@ Wedge as keys to empty
         current_reading = text_Value.getText().toString();
         current_site_event_reading.setValue(current_reading);
         current_site_event_reading.setUnit(text_Unit.getText().toString());
+        current_equipment = GetSpinnerValue(spin_Equip_Code);
 
         current_username = GetSpinnerValue(spin_User_name);
         current_site_event_reading.setStrUserName(current_username);
@@ -823,9 +828,12 @@ Wedge as keys to empty
 
         txt_comment.setText("");
         int id = GetIndexFromArraylist(array_Eq, "NA", 1);
+        current_equipment = "NA";
         spin_Equip_Code.setSelection(id);
-        id = GetIndexFromArraylist(array_SE_code, "Monitor", 1);
+        id = GetIndexFromArraylist(array_SE_code, default_SE, 1);
+        current_se = default_SE;
         spin_SE_Code.setSelection(id);
+
         //rbDetected.setChecked(false);
         //rbND.setChecked(true);
         text_Value.setText("");

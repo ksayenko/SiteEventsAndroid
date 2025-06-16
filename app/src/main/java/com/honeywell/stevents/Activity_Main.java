@@ -143,7 +143,6 @@ Cursor Cursor_Eq = null;
 
             // register bar code event listener
             barcodeReader.addBarcodeListener(this);
-            Log.i("onCreate", "=====barcodeReader !=null");
 
             // set the trigger mode to client control
             try {
@@ -574,6 +573,7 @@ Cursor Cursor_Eq = null;
 
     private void SetAndStartIntent(Intent seintent) {
         Log.i("SetAndStartIntent", "SetAndStartIntent - main");
+        default_reading = SiteEvents.GetDefaultReading();
         seintent.putExtra("SE", default_reading);
         seintent.putExtra("SE_TABLE", new DataTable_SiteEvent());
         seintent.putExtra("USER", "NA");
@@ -593,6 +593,7 @@ Cursor Cursor_Eq = null;
             public void onClick(View v) {
                 Log.i("------------onClick SiteEventActivity", "12");
                 // get the intent action string from AndroidManifest.xml
+
                 Intent barcodeIntent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");
                 SetAndStartIntent(barcodeIntent);
                 startActivityForResult(barcodeIntent,REQUEST_CODE_GETMESSAGE);

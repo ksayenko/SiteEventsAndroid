@@ -69,11 +69,6 @@ public class Validation implements Serializable {
     public enum VALIDATION {
         VALID, WARNING, WARNING_DUPLICATE, ERROR;
 
-        @Override
-        public String toString() {
-            return "VALIDATION{}";
-        }
-
         public int value() {
 
             if (this.toString().equals("VALID")) return 0;
@@ -97,6 +92,17 @@ public class Validation implements Serializable {
     private String validationmessage_error;
 
     private FOCUS focus ;
+
+    @Override
+    public String toString() {
+        return "Validation{" +
+                "validation=" + validation +
+                ", validationmessage_valid='" + validationmessage_valid + '\'' +
+                ", validationmessage_warning='" + validationmessage_warning + '\'' +
+                ", validationmessage_error='" + validationmessage_error + '\'' +
+                ", focus=" + focus +
+                '}';
+    }
 
     public Validation(){
         validationmessage_valid = validationmessage_error = validationmessage_warning = "";

@@ -445,8 +445,12 @@ public class Activity_Main_Input extends AppCompatActivity
        // prior_current_equipment=current_equipment;
         current_equipment = ((String[]) array_Eq.get(pos))[1];
 
+        current_SEDateTime = DateTimeHelper.GetDateTimeNow();
+        text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
+        text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime,""));
+
         SaveReadingsToSiteEventRecord();
-        boolean b = current_site_event_reading.equalAllExceptEquipment(current_site_event_reading_copy);
+        boolean b = current_site_event_reading.equalAllExceptEquipmentOrEquipmentNA(current_site_event_reading_copy);
         Log.i("CodeDebug", "other -> " + b + " "+ current_equipment + current_site_event_reading.getStrEq_ID() + current_site_event_reading_copy.getStrEq_ID());
 
 
@@ -457,25 +461,25 @@ public class Activity_Main_Input extends AppCompatActivity
             //strDataModComment = "";
             bBarcodeEquip = false;
         }
-        MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+       current_type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
         if ((!current_equipment.startsWith("NA") && !Objects.equals(prior_current_equipment, current_equipment)) ||b) {
         //collect dataIntent seintent
             Intent seintent = null;
 
 
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
                 seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
                 seintent = new Intent("android.intent.action.INPUT_PH_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
                 seintent = new Intent("android.intent.action.INPUT_NOISE_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
                 seintent = new Intent("android.intent.action.INPUT_VOC_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
                 //seintent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
                 current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
@@ -488,9 +492,9 @@ public class Activity_Main_Input extends AppCompatActivity
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
 
-        if (!Objects.equals(current_equipment, "NA") )
+        if (!Objects.equals(current_equipment, "NA")  && !b)
             isLastRecordSavedToTable = false;
-       Log.i("CodeDebug","spin_Equip_Code_Listener isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+       Log.i("CodeDebug","MAIN spin_Equip_Code_Listener isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
 
     }
 
@@ -500,7 +504,7 @@ public class Activity_Main_Input extends AppCompatActivity
         if (isLastRecordSavedToTable)
             current_site_event_reading = current_site_event_reading.ResetValues();
         if (!isLastRecordSavedToTable)
-            isOnlyEquipmentChanged = current_site_event_reading.equalAllExceptEquipment(current_site_event_reading_copy);
+            isOnlyEquipmentChanged = current_site_event_reading.equalAllExceptEquipmentOrEquipmentNA(current_site_event_reading_copy);
 
         if (isOnlyEquipmentChanged || isLastRecordSavedToTable)
             current_site_event_reading = current_site_event_reading.ResetValues();
@@ -536,7 +540,7 @@ public class Activity_Main_Input extends AppCompatActivity
             current_site_event_reading.setStrUserUploadName(userupload);
 
         current_se = GetSpinnerValue(spin_SE_Code);
-
+        current_equipment = GetSpinnerValue(spin_Equip_Code);
         current_site_event_reading.setStrComment(current_comment);
         current_site_event_reading.setStrUserName(current_username);
         current_site_event_reading.setStrEq_ID(current_equipment);

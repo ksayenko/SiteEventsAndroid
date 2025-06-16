@@ -51,7 +51,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
 
     private BarcodeReader barcodeReader;
     private ListView barcodeList;
-
+    private final String default_SE="Monitor";
     MeasurementTypes.MEASUREMENT_TYPES current_type = MeasurementTypes.MEASUREMENT_TYPES.NOISE;
        private String current_SEDateTime;
     private String current_ResDateTime;
@@ -157,15 +157,13 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         }
 
         //current_se = default_site_event_reading.getStrSE_ID();
-        current_se ="Monitor";
+        current_se =default_SE;
         current_equipment = current_site_event_reading.getStrEq_ID();
 
         current_comment = current_site_event_reading.getStrComment();
         current_SEDateTime = current_site_event_reading.getDatSE_Date();
         current_ResDateTime = current_site_event_reading.getDatResDate();
-        current_yn_resolve= Objects.equals(current_site_event_reading.getYnResolved(), "true")
-                ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
-
+        current_yn_resolve= current_site_event_reading.getBoolResolved();
         current_reading = current_site_event_reading.getValue();
 
         prior_current_username = current_username;
@@ -396,6 +394,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
             @Override
             public void onClick(View view) {
                 SaveFormAndValidate();
+
                 if (isLastRecordSavedToTable) {
                     isRecordsSavedToDB = dbHelper.getInsertTable(db, se_table);
                     int records = se_table.GetNumberOfRecords();
@@ -471,8 +470,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
 
     private void spin_Equip_Code_Listener(AdapterView<?> parent, int pos) {
         Object item = parent.getItemAtPosition(pos);
-        Log.i("CodeDebug", "NOISE -> " +  " "+ current_equipment + current_site_event_reading.getStrEq_ID()
-                + current_site_event_reading_copy.getStrEq_ID());
+
 
         try {
             current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
@@ -483,8 +481,21 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
        // prior_current_equipment=current_equipment;
         current_equipment = ((String[]) array_Eq.get(pos))[1];
 
+        Log.i("CodeDebug", "NOISE -> " +  " "+ current_equipment + current_site_event_reading.getStrEq_ID()
+                + current_site_event_reading_copy.getStrEq_ID());
+
+        current_SEDateTime = DateTimeHelper.GetDateTimeNow();
+        text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
+        text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime,""));
+
+
         SaveReadingsToSiteEventRecord();
-        boolean b = current_site_event_reading.equalAllExceptEquipment(current_site_event_reading_copy);
+
+        if(current_equipment == "NA")
+            return;
+
+
+        boolean b = current_site_event_reading.equalAllExceptEquipmentOrEquipmentNA(current_site_event_reading_copy);
 
         if (!bBarcodeEquip) {
             //strDataModComment = "Manual";
@@ -493,30 +504,30 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
             //strDataModComment = "";
             bBarcodeEquip = false;
         }
-        MeasurementTypes.MEASUREMENT_TYPES type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+        current_type  = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
         if((!current_equipment.startsWith("NA") && !Objects.equals(prior_current_equipment, current_equipment))
         || b) {
 //collect dataIntent seintent
             System.out.println(current_site_event_reading);
             Intent seintent = null;
 
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
                 seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
                 seintent = new Intent("android.intent.action.INPUT_PH_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
               //  seintent = new Intent("android.intent.action.INPUT_NOISE_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
                 current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime,""));
 
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
                 seintent = new Intent("android.intent.action.INPUT_VOC_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
-            if (type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
+            if (current_type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
                 seintent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
             if (seintent != null)
@@ -526,13 +537,13 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
 
-        if (!Objects.equals(current_equipment, "NA")&& type == current_type)
+        if (!Objects.equals(current_equipment, "NA"))
             isLastRecordSavedToTable = false;
 
 
     }
     private void SaveFormAndValidate() {
-
+        SaveReadingsToSiteEventRecord();
         Validation iChecked = saveForms(bAcceptWarningValid, bAcceptWarningDuplicate);
         if (iChecked.isValid() ||
                 (iChecked.isWarning() && bAcceptWarningValid) || (iChecked.isWarningDuplicate() && bAcceptWarningDuplicate))
@@ -632,12 +643,14 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         current_username = GetSpinnerValue(spin_User_name);
         current_reading = text_Value.getText().toString()  ;
         current_site_event_reading.setValue(current_reading);
+        current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.PH);
         current_site_event_reading.setUnit(text_Unit.getText().toString());
 
         String userupload = dbHelper.GetUserUploadName(db,current_username);
         if(userupload == null || (!userupload.equals("")))
             current_site_event_reading.setStrUserUploadName(userupload);
 
+        current_equipment = GetSpinnerValue(spin_Equip_Code);
         current_se = GetSpinnerValue(spin_SE_Code);
         String desc = dbHelper.GetEqDescDB(db,current_equipment);
         if(desc == null || (!desc.equals("")))
@@ -655,15 +668,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         temp1 = text_resolve_date.getText().toString();
         temp2 = text_resolve_time.getText().toString();
         current_site_event_reading.setDatResDate(DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2));
-
-
-//        if (rbTrue.isChecked()) {
-//            current_yn_resolve = true;
-//            current_site_event_reading.setYnResolved("true");
-//        } else {
-//            current_yn_resolve = false;
-//            current_site_event_reading.setYnResolved("false");
-//        }
+        Log.i("codedebug", "SaveReadingsToSiteEventRecord NOISE " + current_site_event_reading.toString());
 
     }
 
@@ -778,7 +783,7 @@ Wedge as keys to empty
         txt_comment.setText("");
         int id = GetIndexFromArraylist(array_Eq, "NA", 1);
         spin_Equip_Code.setSelection(id);
-        id = GetIndexFromArraylist(array_SE_code, "Monitor", 1);
+        id = GetIndexFromArraylist(array_SE_code, default_SE, 1);
         spin_SE_Code.setSelection(id);
         text_Value.setText("");
         text_Unit.setText("dBA");
@@ -800,6 +805,7 @@ Wedge as keys to empty
 
         boolean bAcceptDup = isTheRecordDup.isValid() || (isTheRecordDup.isWarningDuplicate() && bAcceptWarningDuplicate);
         boolean bAcceptRecord = isTheRecordValid.isValid() || (isTheRecordValid.isWarning() && bAcceptWarning);
+        Log.i("CodeDebug", " Noise safe forms validation " + isTheRecordValid.toString() );
 
         if (isTheRecordValid.isError()) {
             AlertDialogShowError(isTheRecordValid.getValidationMessage(), "ERROR");

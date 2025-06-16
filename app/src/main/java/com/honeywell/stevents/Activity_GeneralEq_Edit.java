@@ -138,9 +138,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         current_se = current_site_event_reading.getStrSE_ID();
         //current_value = current_site_event_reading.getValue();
         current_unit = current_site_event_reading.getUnit();
-        current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true")
-                ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
-
+        current_yn_resolve =current_site_event_reading.getBoolResolved();
 
         AppDataTables tables = new AppDataTables();
         tables.SetSiteEventsTablesStructure();

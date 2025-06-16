@@ -148,8 +148,7 @@ public class Activity_Other_Edit extends AppCompatActivity
 
         current_value = current_site_event_reading.getValue();
         current_unit = current_site_event_reading.getUnit();
-        current_yn_resolve = Objects.equals(current_site_event_reading.getYnResolved(), "true")
-                ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
+        current_yn_resolve = current_site_event_reading.getBoolResolved();
 
          setContentView(R.layout.activity_input_main_se);
 
@@ -395,7 +394,7 @@ public class Activity_Other_Edit extends AppCompatActivity
         //note that dates and times saved in the events
         current_comment = (String) txt_comment.getText().toString();
         current_username = GetSpinnerValue(spin_User_name);
-
+        current_equipment = GetSpinnerValue(spin_Equip_Code);
         String userupload = dbHelper.GetUserUploadName(db,current_username);
         if(userupload == null || (!userupload.equals("")))
             current_site_event_reading.setStrUserUploadName(userupload);
