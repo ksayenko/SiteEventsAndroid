@@ -70,7 +70,7 @@ public class Activity_Other_Edit extends AppCompatActivity
 
     private TextView txt_comment;
 
-    private RadioGroup rbResolved;
+    private RadioGroup rbResloved;
     private RadioButton rbTrue;
     private RadioButton rbFalse;
 
@@ -172,13 +172,13 @@ public class Activity_Other_Edit extends AppCompatActivity
 
         rbTrue = (RadioButton) findViewById(R.id.radio_true);
         rbFalse = (RadioButton) findViewById(R.id.radio_false);
-        rbResolved = (RadioGroup) findViewById(R.id.radio_group);
-        rbResolved.clearCheck();
+        rbResloved = (RadioGroup) findViewById(R.id.radio_group);
+        rbResloved.clearCheck();
 
         if (current_yn_resolve)
-            rbResolved.check(R.id.radio_true);
+            rbResloved.check(R.id.radio_true);
         else
-            rbResolved.check(R.id.radio_false);
+            rbResloved.check(R.id.radio_false);
 
         String aDate = DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, "");
         String aTime = DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, "");

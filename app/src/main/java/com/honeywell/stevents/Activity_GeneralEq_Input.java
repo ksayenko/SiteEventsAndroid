@@ -143,6 +143,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             if (se_table == null)
                 se_table = new DataTable_SiteEvent();
         }
+        current_site_event_reading.setMeasurementType(current_type);
         try {
             current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
         } catch (CloneNotSupportedException e) {
@@ -150,6 +151,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         }
 
         //current_se = default_site_event_reading.getStrSE_ID();
+
         current_se =default_SE;
         current_equipment = current_site_event_reading.getStrEq_ID();
         current_username = current_site_event_reading.getStrUserName();
@@ -441,6 +443,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
         boolean b = current_site_event_reading.equalAllExceptEquipment(current_site_event_reading_copy);
         current_type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+
         if((!current_equipment.startsWith("NA")   &&    !Objects.equals(prior_current_equipment, current_equipment))||b)
         {
 
@@ -518,8 +521,9 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
         } else {
-
+            Log.i("codedebug", "GE SetAndStartIntent startActivity ->" + seintent.toString());
             startActivity(seintent);
+            finish();
         }
     }
 
@@ -952,6 +956,7 @@ Wedge as keys to empty
         String userupload = dbHelper.GetUserUploadName(db, current_username);
         if (userupload == null || (!userupload.equals("")))
             current_site_event_reading.setStrUserUploadName(userupload);
+        current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE);
 
         current_se = GetSpinnerValue(spin_SE_Code);
         current_equipment = GetSpinnerValue(spin_Equip_Code);

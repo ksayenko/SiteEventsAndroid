@@ -137,7 +137,6 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
 
-
         current_site_event_reading = SiteEvents.GetDefaultReading();
         current_unit = "dBa";
 
@@ -145,11 +144,14 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         if (extras != null) {
             System.out.println("we have default reading");
             current_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
+            Log.i("codedebug","NOISE ONCREATE current_site_event_reading ->" + current_site_event_reading.toString());
+
             se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
             current_username = current_site_event_reading.getStrUserName();
             if (se_table == null)
                 se_table = new DataTable_SiteEvent();
         }
+        current_site_event_reading.setMeasurementType(current_type);
         try {
             current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
         } catch (CloneNotSupportedException e) {
@@ -157,6 +159,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         }
 
         //current_se = default_site_event_reading.getStrSE_ID();
+
         current_se =default_SE;
         current_equipment = current_site_event_reading.getStrEq_ID();
 
@@ -505,6 +508,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
             bBarcodeEquip = false;
         }
         current_type  = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+
         if((!current_equipment.startsWith("NA") && !Objects.equals(prior_current_equipment, current_equipment))
         || b) {
 //collect dataIntent seintent
@@ -574,8 +578,11 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         if (!isLastRecordSavedToTable && !isOnlyEquipmentChanged) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
-        } else
+        } else {
+            Log.i("codedebug", "NOISE SetAndStartIntent startActivity ->" + seintent.toString());
             startActivity(seintent);
+            finish();
+        }
     }
 
 
@@ -643,7 +650,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         current_username = GetSpinnerValue(spin_User_name);
         current_reading = text_Value.getText().toString()  ;
         current_site_event_reading.setValue(current_reading);
-        current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.PH);
+        current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.NOISE);
         current_site_event_reading.setUnit(text_Unit.getText().toString());
 
         String userupload = dbHelper.GetUserUploadName(db,current_username);
@@ -795,9 +802,9 @@ Wedge as keys to empty
     }
 
     public Validation saveForms(boolean bAcceptWarning, boolean bAcceptWarningDuplicate) {
-
+        SaveReadingsToSiteEventRecord();
         current_site_event_reading.setLngID((int) (new Date().getTime() / 1000));
-
+        Log.i("CodeDebug", "NOISE safe forms validation current_site_event_reading : " + current_site_event_reading.toString() );
         Validation isTheRecordValid = Activity_Main_Input.IsRecordValid(current_site_event_reading,
                 spin_Equip_Code,
                 spin_SE_Code, spin_User_name, null);
@@ -805,7 +812,7 @@ Wedge as keys to empty
 
         boolean bAcceptDup = isTheRecordDup.isValid() || (isTheRecordDup.isWarningDuplicate() && bAcceptWarningDuplicate);
         boolean bAcceptRecord = isTheRecordValid.isValid() || (isTheRecordValid.isWarning() && bAcceptWarning);
-        Log.i("CodeDebug", " Noise safe forms validation " + isTheRecordValid.toString() );
+        Log.i("CodeDebug", "NOISE safe forms validation " + isTheRecordValid.toString() );
 
         if (isTheRecordValid.isError()) {
             AlertDialogShowError(isTheRecordValid.getValidationMessage(), "ERROR");

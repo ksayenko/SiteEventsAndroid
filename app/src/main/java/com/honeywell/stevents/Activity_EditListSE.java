@@ -143,31 +143,44 @@ public class Activity_EditListSE extends Activity {
             @Override
             public void onClick(View v) {
 
-                Log.i( "codedebug","In Activity_EditListSE btnDelete.setOnClickListener " + selectedLngID);
+                Log.i("codedebug", "In Activity_EditListSE btnDelete.setOnClickListener " + selectedLngID);
 
                 AlertDialog.Builder alert = new AlertDialog.Builder(ct);
                 alert.setTitle("Delete entry");
 
-                alert.setMessage("Are you sure you want to delete a record "
-                        + String.valueOf(currentRowSelected + 1) + "? ");
-                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                if (currentRowSelected == -1) {
+                    alert.setMessage("No Record Selected ");
+                    alert.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // close dialog
+                            dialog.cancel();
+                        }
+                    });
+                    alert.show();
 
-                    public void onClick(DialogInterface dialog, int which) {
-                        // continue with delete
-                        dbHelper.deleteRecords(db, selectedLngID);
-                        Cursor cursor_list = dbHelper.getSE_ShortList(db);
-                        fillData(cursor_list);
-                        finish();
-                        startActivity(getIntent());
-                    }
-                });
-                alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // close dialog
-                        dialog.cancel();
-                    }
-                });
-                alert.show();
+                } else {
+
+                    alert.setMessage("Are you sure you want to delete a record "
+                            + String.valueOf(currentRowSelected + 1) + "? ");
+                    alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with delete
+                            dbHelper.deleteRecords(db, selectedLngID);
+                            Cursor cursor_list = dbHelper.getSE_ShortList(db);
+                            fillData(cursor_list);
+                            finish();
+                            startActivity(getIntent());
+                        }
+                    });
+                    alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // close dialog
+                            dialog.cancel();
+                        }
+                    });
+                    alert.show();
+                }
             }
 
         });

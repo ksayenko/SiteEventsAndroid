@@ -312,10 +312,10 @@ public class SiteEvents implements Serializable, Cloneable {
 
         boolean rv=
                 strUserName.equals(reading.strUserName) &&
-                        datSE_Date.equals(reading.datSE_Date) &&
+                        //datSE_Date.equals(reading.datSE_Date) &&
                         strSE_ID.equals(reading.strSE_ID) &&
                         strComment.equals(reading.strComment) &&
-                        datResDate.equals(reading.datResDate) &&
+                        //datResDate.equals(reading.datResDate) &&
                         ynResolved.equals(reading.ynResolved) &&
                         Value.equals(reading.Value);
         if(!rv)
@@ -337,6 +337,7 @@ public class SiteEvents implements Serializable, Cloneable {
                 ", Value='" + Objects.toString(Value, "") + '\'' +
                 ", Unit='" + Objects.toString(Unit, "") + '\'' +
                 ", datResDate='" + datResDate + '\'' +
+                ", meastype='" + measurementType + '\'' +
                 '}';
     }
 

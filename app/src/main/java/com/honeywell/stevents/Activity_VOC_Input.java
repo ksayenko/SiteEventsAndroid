@@ -136,7 +136,6 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         bAcceptWarningDuplicate = false;
         prior_current_equipment = "NA";
 
-        ;
         current_site_event_reading = SiteEvents.GetDefaultReading();
         current_unit = "ppm";
 
@@ -144,6 +143,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         if (extras != null) {
             System.out.println("we have default reading");
             current_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
+            current_site_event_reading.setMeasurementType(current_type);
             se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
 
             if (se_table == null)
@@ -158,6 +158,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 
         //current_se = default_site_event_reading.getStrSE_ID();
         current_se = default_SE;
+        current_site_event_reading.setMeasurementType(current_type);
         current_unit = "ppm";
         current_equipment = current_site_event_reading.getStrEq_ID();
         current_username = current_site_event_reading.getStrUserName();
@@ -564,6 +565,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 //            bBarcodeEquip = false;
 //        }
         current_type  = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+        current_site_event_reading.setMeasurementType(current_type);
         if(current_equipment.startsWith("NA"))
             return;
 
@@ -609,11 +611,17 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         Log.i("Codedebug", "SetAndStartIntent - VOC");
         boolean isOnlyEquipmentChanged = true;
 
+        Log.i("codedebug","VOC SetAndStartIntent current_site_event_reading ->" + current_site_event_reading.toString());
+        Log.i("codedebug","VOC SetAndStartIntent isLastRecordSavedToTable ->" + isLastRecordSavedToTable.toString());
+
         if (!isLastRecordSavedToTable)
             isOnlyEquipmentChanged = current_site_event_reading.equalAllExceptEquipment(current_site_event_reading_copy);
 
+        Log.i("codedebug","VOC SetAndStartIntent isOnlyEquipmentChanged ->" + isOnlyEquipmentChanged);
         if (isOnlyEquipmentChanged || isLastRecordSavedToTable)
             current_site_event_reading = current_site_event_reading.ResetValues();
+        Log.i("codedebug","VOC SetAndStartIntent current_site_event_reading 2 ->" + current_site_event_reading.toString());
+        Log.i("codedebug","VOC SetAndStartIntent INTENT ->" + seintent.toString());
 
         seintent.putExtra("SE", current_site_event_reading);
         seintent.putExtra("SE_TABLE", se_table);
@@ -622,8 +630,11 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         if (!isLastRecordSavedToTable && !isOnlyEquipmentChanged) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
-        } else
+        } else {
+            Log.i("codedebug", "VOC SetAndStartIntent startActivity ->" + seintent.toString());
             startActivity(seintent);
+            finish();
+        }
     }
 
 

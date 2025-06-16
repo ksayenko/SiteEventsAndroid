@@ -139,7 +139,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             if (se_table == null)
                 se_table = new DataTable_SiteEvent();
         }
-
+        current_site_event_reading.setMeasurementType(current_type);
         try {
             current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
         } catch (CloneNotSupportedException e) {
@@ -148,6 +148,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
 
         //current_se = default_site_event_reading.getStrSE_ID();
         current_se =default_SE;
+
         current_equipment = current_site_event_reading.getStrEq_ID();
         current_username = current_site_event_reading.getStrUserName();
         current_comment = current_site_event_reading.getStrComment();
@@ -476,7 +477,6 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             bBarcodeEquip = false;
         }
         current_type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
-
         if (!Objects.equals(current_equipment, "NA")
                 && !Objects.equals(current_equipment, prior_current_equipment) )
             isLastRecordSavedToTable = false;
@@ -551,8 +551,11 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         if (!isLastRecordSavedToTable && !isOnlyEquipmentChanged) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
-        } else
+        } else{
+            Log.i("codedebug", "PH SetAndStartIntent startActivity ->" + seintent.toString());
             startActivity(seintent);
+            finish();
+        }
     }
 
 
@@ -680,7 +683,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         current_site_event_reading.setStrUserName(current_username);
         current_site_event_reading.setStrEq_ID(current_equipment);
         current_site_event_reading.setStrSE_ID(current_se);
-
+        current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.PH);
         String temp1 = text_event_date.getText().toString();
         String temp2 = text_event_time.getText().toString();
 

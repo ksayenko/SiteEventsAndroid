@@ -73,7 +73,7 @@ public class Activity_Main_Input extends AppCompatActivity
 
     private TextView txt_comment;
 
-    private RadioGroup rbResolved;
+    private RadioGroup rbResloved;
     private RadioButton rbTrue;
     private RadioButton rbFalse;
 
@@ -148,7 +148,12 @@ public class Activity_Main_Input extends AppCompatActivity
             se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
 
         }
-
+        current_site_event_reading.setMeasurementType(current_type);
+        try {
+            current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
         current_username = current_site_event_reading.getStrUserName();
         current_equipment = current_site_event_reading.getStrEq_ID();
         prior_current_equipment = current_site_event_reading.getStrEq_ID();
@@ -159,8 +164,6 @@ public class Activity_Main_Input extends AppCompatActivity
 
         AppDataTables tables = new AppDataTables();
         tables.SetSiteEventsTablesStructure();
-
-        current_site_event_reading.setMeasurementType(current_type);
 
         dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
         db = dbHelper.getReadableDatabase();
@@ -182,19 +185,19 @@ public class Activity_Main_Input extends AppCompatActivity
 
         rbTrue = (RadioButton) findViewById(R.id.radio_true);
         rbFalse = (RadioButton) findViewById(R.id.radio_false);
-        rbResolved = (RadioGroup) findViewById(R.id.radio_group);
-        rbResolved.clearCheck();
+        rbResloved = (RadioGroup) findViewById(R.id.radio_group);
+        rbResloved.clearCheck();
         current_yn_resolve = false;
         current_yn_resolve= Objects.equals(current_site_event_reading.getYnResolved(), "true")
                 ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
 
         if (current_site_event_reading.getIntResolved() == -1)
-            rbResolved.clearCheck();
+            rbResloved.clearCheck();
         else {
             if (current_yn_resolve)
-                rbResolved.check(R.id.radio_true);
+                rbResloved.check(R.id.radio_true);
             else
-                rbResolved.check(R.id.radio_false);
+                rbResloved.check(R.id.radio_false);
         }
 
         String aDate = DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, "");
@@ -465,7 +468,10 @@ public class Activity_Main_Input extends AppCompatActivity
             //strDataModComment = "";
             bBarcodeEquip = false;
         }
-       current_type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+         current_type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
+        Log.i("CodeDebug", "MAIN ->  current_type " + current_type);
+        current_site_event_reading.setMeasurementType(current_type);
+
         if ((!current_equipment.startsWith("NA") && !Objects.equals(prior_current_equipment, current_equipment)) ||b) {
         //collect dataIntent seintent
             Intent seintent = null;
@@ -520,8 +526,11 @@ public class Activity_Main_Input extends AppCompatActivity
         if (!isLastRecordSavedToTable && !isOnlyEquipmentChanged) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
-        } else
+        } else {
+            Log.i("codedebug", "MAIN SetAndStartIntent startActivity ->" + seintent.toString());
             startActivity(seintent);
+            finish();
+        }
     }
     public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue) {
         int index = GetIndexFromArraylist(strValues, strValue, 1);
@@ -544,6 +553,7 @@ public class Activity_Main_Input extends AppCompatActivity
             current_site_event_reading.setStrUserUploadName(userupload);
 
         current_se = GetSpinnerValue(spin_SE_Code);
+        current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.OTHER);
         current_equipment = GetSpinnerValue(spin_Equip_Code);
         current_site_event_reading.setStrComment(current_comment);
         current_site_event_reading.setStrUserName(current_username);
