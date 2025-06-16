@@ -74,7 +74,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 
     private TextView txt_comment;
 
-    private RadioGroup rbResloved;
+    private RadioGroup rbResolved;
     private RadioButton rbND;
     private RadioButton rbDetected;
 
@@ -193,7 +193,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 
         rbND = (RadioButton) findViewById(R.id.radio_true);
         rbDetected = (RadioButton) findViewById(R.id.radio_false);
-        rbResloved = (RadioGroup) findViewById(R.id.radio_group);
+        rbResolved = (RadioGroup) findViewById(R.id.radio_group);
 
         //define all controls first
         text_event_time = (TextView) findViewById(R.id.text_event_time);
@@ -204,10 +204,18 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         text_Unit = (TextView) findViewById(R.id.txtUnit);
         text_Value = (TextView) findViewById(R.id.txtValue);
 
-        rbResloved.clearCheck();
+
         Log.i("codedebug", "VOC 1  " + current_site_event_reading.getYnResolved() + current_yn_resolve);
 
-        rbResloved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        if (current_site_event_reading.getIntResolved() == -1)
+            rbResolved.clearCheck();
+        else {
+            if (current_yn_resolve)
+                rbResolved.check(R.id.radio_true);
+            else
+                rbResolved.check(R.id.radio_false);
+        }
+        rbResolved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
@@ -240,11 +248,6 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
             }
 
         });
-
-        if (current_yn_resolve)
-            rbResloved.check(R.id.radio_false);
-        else
-            rbResloved.check(R.id.radio_true);
 
         text_Value.setText(current_reading);
         text_Value.addTextChangedListener(new TextWatcher() {
@@ -802,10 +805,12 @@ Wedge as keys to empty
         if (rbDetected.isChecked()) {
             current_yn_resolve = true;
             current_site_event_reading.setYnResolved("true");
-        } else {
+        }
+        if (rbND.isChecked()) {
             current_yn_resolve = false;
             current_site_event_reading.setYnResolved("false");
         }
+
 
     }
 

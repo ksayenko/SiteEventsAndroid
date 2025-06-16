@@ -73,7 +73,7 @@ public class Activity_Main_Input extends AppCompatActivity
 
     private TextView txt_comment;
 
-    private RadioGroup rbResloved;
+    private RadioGroup rbResolved;
     private RadioButton rbTrue;
     private RadioButton rbFalse;
 
@@ -182,16 +182,20 @@ public class Activity_Main_Input extends AppCompatActivity
 
         rbTrue = (RadioButton) findViewById(R.id.radio_true);
         rbFalse = (RadioButton) findViewById(R.id.radio_false);
-        rbResloved = (RadioGroup) findViewById(R.id.radio_group);
-        rbResloved.clearCheck();
+        rbResolved = (RadioGroup) findViewById(R.id.radio_group);
+        rbResolved.clearCheck();
         current_yn_resolve = false;
         current_yn_resolve= Objects.equals(current_site_event_reading.getYnResolved(), "true")
                 ||  Objects.equals(current_site_event_reading.getYnResolved(), "1");
 
-        if (current_yn_resolve)
-            rbResloved.check(R.id.radio_true);
-        else
-            rbResloved.check(R.id.radio_false);
+        if (current_site_event_reading.getIntResolved() == -1)
+            rbResolved.clearCheck();
+        else {
+            if (current_yn_resolve)
+                rbResolved.check(R.id.radio_true);
+            else
+                rbResolved.check(R.id.radio_false);
+        }
 
         String aDate = DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, "");
         String aTime = DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, "");
@@ -551,7 +555,8 @@ public class Activity_Main_Input extends AppCompatActivity
         if (rbTrue.isChecked()) {
             current_yn_resolve = true;
             current_site_event_reading.setYnResolved("true");
-        } else {
+        }
+        if (rbFalse.isChecked()) {
             current_yn_resolve = false;
             current_site_event_reading.setYnResolved("false");
         }

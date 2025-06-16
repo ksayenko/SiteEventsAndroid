@@ -19,6 +19,7 @@ public class SiteEvents implements Serializable, Cloneable {
     private String strSE_ID = "";
     private String strUserName = "";
 
+
     public String getStrUserUploadName() {
         return strUserUploadName;
     }
@@ -38,6 +39,16 @@ public class SiteEvents implements Serializable, Cloneable {
     private String datResDate = "01/01/2000";
     private String datResDate_NoSeconds = "01/01/2000";
     private String ynResolved = "false";
+
+    public String getYnResolved3() {
+        return ynResolved3;
+    }
+
+    public void setYnResolved3(String ynResolved3) {
+        this.ynResolved3 = ynResolved3;
+    }
+
+    private String ynResolved3 = "NA";
     //YYYY-MM-DD HH:MM:SS
     private String datetimedefault = "2000-01-01";
     private String Value = "";
@@ -174,8 +185,21 @@ public class SiteEvents implements Serializable, Cloneable {
         return rv;
     }
 
+    public int getIntResolved() {
+        int rv = -1;
+        if (Objects.equals(getYnResolved3().toLowerCase(), "true")
+                || Objects.equals(getYnResolved3(), "1"))
+            rv = 1;
+        else if (Objects.equals(getYnResolved3().toLowerCase(), "false")
+                || Objects.equals(getYnResolved3(), "0"))
+            rv = 0;
+
+        return rv;
+    }
+
     public void setYnResolved(String ynResolved) {
         this.ynResolved = ynResolved;
+        this.ynResolved3 = this.ynResolved;
     }
 
     public String getDatetimedefault() {
@@ -309,6 +333,7 @@ public class SiteEvents implements Serializable, Cloneable {
                 ", datSE_Date=" + datSE_Date +
                 ", strComment='" + strComment + '\'' +
                 ", ynResolved=" + ynResolved +
+                ", ynResolved3=" + ynResolved3 +
                 ", Value='" + Objects.toString(Value, "") + '\'' +
                 ", Unit='" + Objects.toString(Unit, "") + '\'' +
                 ", datResDate='" + datResDate + '\'' +
@@ -338,8 +363,8 @@ public class SiteEvents implements Serializable, Cloneable {
             dValue = 0.0;
         }
 
-        Log.i("codedebug","isRecordValid strEq_ID ="+strEq_ID  );
-        Log.i("codedebug","isRecordValid record ="+this.toString()  );
+        Log.i("codedebug", "isRecordValid strEq_ID =" + strEq_ID);
+        Log.i("codedebug", "isRecordValid record =" + this.toString());
 
 
         if (isNA(strEq_ID)) {
@@ -357,33 +382,54 @@ public class SiteEvents implements Serializable, Cloneable {
             isValid.setFocus(Validation.FOCUS.SITEEVENT);
             isValid.setValidation(Validation.VALIDATION.ERROR);
 
-        }
-        else if (Objects.equals(strComment, "") && measurementType == MeasurementTypes.MEASUREMENT_TYPES.PH
-                && Objects.equals(ynResolved, "true"))
-                {
+        } else if (Objects.equals(strComment, "") && measurementType == MeasurementTypes.MEASUREMENT_TYPES.PH
+                && getBoolResolved()) {
             message += "Empty Comment";
             isValid.addToValidationMessageWarning("Please Populate a comment.");
             System.out.println(message);
             isValid.setValidation(Validation.VALIDATION.WARNING);
             isValid.setFocus(Validation.FOCUS.SITEEVENT);
-        }
-        else if (dValue == 0.0 && measurementType == MeasurementTypes.MEASUREMENT_TYPES.VOC
-               && Objects.equals(ynResolved, "true")) {
+        } else if (dValue == 0.0 && measurementType == MeasurementTypes.MEASUREMENT_TYPES.VOC
+                && getBoolResolved()) {
             message += "A Reading value of 0 is detected!";
             isValid.addToValidationMessageError("Please enter a Value");
             System.out.println(message);
             isValid.setValidation(Validation.VALIDATION.ERROR);
             isValid.setFocus(Validation.FOCUS.READING);
-        }
-        else if (dValue == 0.0 && measurementType == MeasurementTypes.MEASUREMENT_TYPES.NOISE)
-           {
+        } else if (dValue == 0.0 && measurementType == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
             message += "A Reading value of 0 is detected!";
             isValid.addToValidationMessageError("Please enter a Value");
             isValid.addToValidationMessageWarning("Please enter a Value");
             System.out.println(message);
             isValid.setValidation(Validation.VALIDATION.ERROR);
             isValid.setFocus(Validation.FOCUS.READING);
+        } else if ((measurementType == MeasurementTypes.MEASUREMENT_TYPES.OTHER
+                || measurementType == MeasurementTypes.MEASUREMENT_TYPES.PH)
+                &&                getIntResolved() == -1) {
+            message += "Didn't pick resoved it not";
+            isValid.addToValidationMessageError("Please choose Resolved Y/N ");
+            isValid.addToValidationMessageWarning("Please choose Resolved Y/N ");
+            System.out.println(message);
+            isValid.setValidation(Validation.VALIDATION.ERROR);
+            isValid.setFocus(Validation.FOCUS.READING);
+        }else if (measurementType == MeasurementTypes.MEASUREMENT_TYPES.VOC
+                &&                getIntResolved() == -1) {
+            message += "Didn't pick resoved it not";
+            isValid.addToValidationMessageError("Please choose Detected Y/N ");
+            isValid.addToValidationMessageWarning("Please choose Detected Y/N ");
+            System.out.println(message);
+            isValid.setValidation(Validation.VALIDATION.ERROR);
+            isValid.setFocus(Validation.FOCUS.READING);
+        }else if (measurementType == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE
+                &&                getIntResolved() == -1) {
+            message += "Didn't pick resoved it not";
+            isValid.addToValidationMessageError("Please choose Startup or Shutdown.");
+            isValid.addToValidationMessageWarning("Please choose Startup or Shutdown");
+            System.out.println(message);
+            isValid.setValidation(Validation.VALIDATION.ERROR);
+            isValid.setFocus(Validation.FOCUS.READING);
         }
+
         Log.i("codedebug","isRecordValid isValid ="+isValid.getValidation().toString() +  message );
         return isValid;
 

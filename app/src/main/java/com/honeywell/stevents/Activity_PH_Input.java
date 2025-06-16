@@ -192,12 +192,16 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         text_resolve_date = (TextView) findViewById(R.id.text_resolve_date);
         txt_comment = (EditText) findViewById(R.id.txt_comment);
 
-        rbResolved.clearCheck();
+        if (current_site_event_reading.getIntResolved() == -1)
+            rbResolved.clearCheck();
+        else {
+            if (current_yn_resolve)
+                rbResolved.check(R.id.radio_true);
+            else
+                rbResolved.check(R.id.radio_false);
+        }
 
-        if (current_yn_resolve)
-            rbResolved.check(R.id.radio_true);
-        else
-            rbResolved.check(R.id.radio_false);
+
         rbResolved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -685,14 +689,16 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         temp2 = text_resolve_time.getText().toString();
         current_site_event_reading.setDatResDate(DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2));
 
-
         if (rbTrue.isChecked()) {
             current_yn_resolve = true;
             current_site_event_reading.setYnResolved("true");
-        } else {
+        }
+        if (rbFalse.isChecked()) {
             current_yn_resolve = false;
             current_site_event_reading.setYnResolved("false");
         }
+
+        Log.i("codedebug", "rbtrue "+String.valueOf(rbTrue.isChecked()));
 
     }
 
@@ -824,7 +830,7 @@ Wedge as keys to empty
     }
 
     public Validation saveForms(boolean bAcceptWarning, boolean bAcceptWarningDuplicate) {
-
+        SaveReadingsToSiteEventRecord();
         current_site_event_reading.setLngID((int) (new Date().getTime() / 1000));
 
           Validation isTheRecordValid = Activity_Main_Input.IsRecordValid(current_site_event_reading,
