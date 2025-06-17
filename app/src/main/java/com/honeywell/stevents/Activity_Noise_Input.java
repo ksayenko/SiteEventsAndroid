@@ -560,7 +560,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
 
     }
     private void SetAndStartIntent(Intent seintent) {
-        Log.i("Codedebug", "SetAndStartIntent - VOC");
+        Log.i("Codedebug", "SetAndStartIntent - NOISE");
 
         boolean isOnlyEquipmentChanged = true;
         if (isLastRecordSavedToTable)
@@ -578,7 +578,9 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         if (!isLastRecordSavedToTable && !isOnlyEquipmentChanged) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
-        } else {
+            SetSpinnerValue(spin_Equip_Code, array_Eq, current_site_event_reading_copy.getStrEq_ID(),1);
+            return;
+        } else{
             Log.i("codedebug", "NOISE SetAndStartIntent startActivity ->" + seintent.toString());
             startActivity(seintent);
             finish();

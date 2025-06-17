@@ -240,6 +240,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 
 
                 } else {
+                    text_Value.setText("");
                     text_Value.setEnabled(false);
                     text_Unit.setEnabled(false);
                     txt_comment.setText("VOC Monitoring - ND");
@@ -611,17 +612,13 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         Log.i("Codedebug", "SetAndStartIntent - VOC");
         boolean isOnlyEquipmentChanged = true;
 
-        Log.i("codedebug","VOC SetAndStartIntent current_site_event_reading ->" + current_site_event_reading.toString());
-        Log.i("codedebug","VOC SetAndStartIntent isLastRecordSavedToTable ->" + isLastRecordSavedToTable.toString());
-
+        if (isLastRecordSavedToTable)
+            current_site_event_reading = current_site_event_reading.ResetValues();
         if (!isLastRecordSavedToTable)
             isOnlyEquipmentChanged = current_site_event_reading.equalAllExceptEquipment(current_site_event_reading_copy);
 
-        Log.i("codedebug","VOC SetAndStartIntent isOnlyEquipmentChanged ->" + isOnlyEquipmentChanged);
         if (isOnlyEquipmentChanged || isLastRecordSavedToTable)
             current_site_event_reading = current_site_event_reading.ResetValues();
-        Log.i("codedebug","VOC SetAndStartIntent current_site_event_reading 2 ->" + current_site_event_reading.toString());
-        Log.i("codedebug","VOC SetAndStartIntent INTENT ->" + seintent.toString());
 
         seintent.putExtra("SE", current_site_event_reading);
         seintent.putExtra("SE_TABLE", se_table);
@@ -630,7 +627,9 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
         if (!isLastRecordSavedToTable && !isOnlyEquipmentChanged) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
-        } else {
+            SetSpinnerValue(spin_Equip_Code, array_Eq, current_site_event_reading_copy.getStrEq_ID(),1);
+            return;
+        } else{
             Log.i("codedebug", "VOC SetAndStartIntent startActivity ->" + seintent.toString());
             startActivity(seintent);
             finish();

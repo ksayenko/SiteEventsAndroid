@@ -503,7 +503,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
     }
 
     private void SetAndStartIntent(Intent seintent) {
-
+        Log.i("Codedebug", "SetAndStartIntent - general eq");
         boolean isOnlyEquipmentChanged = true;
         if (isLastRecordSavedToTable)
             current_site_event_reading = current_site_event_reading.ResetValues();
@@ -520,7 +520,9 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         if (!isLastRecordSavedToTable && !isOnlyEquipmentChanged) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
-        } else {
+            SetSpinnerValue(spin_Equip_Code, array_Eq, current_site_event_reading_copy.getStrEq_ID(),1);
+            return;
+        } else{
             Log.i("codedebug", "GE SetAndStartIntent startActivity ->" + seintent.toString());
             startActivity(seintent);
             finish();

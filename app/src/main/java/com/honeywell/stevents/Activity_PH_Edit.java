@@ -174,6 +174,13 @@ public class Activity_PH_Edit extends AppCompatActivity {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
+                String desc = "";
+
+                if (!current_equipment.equals("NA")) {
+                    desc = dbHelper.GetEqDescDB(db, current_equipment);
+                    if (desc == null || (!desc.equals("")))
+                        desc = current_equipment + " pH Analysis Element";
+                }
 
                 if (rb == rbTrue) {
                     txt_comment.setEnabled(true);
@@ -181,20 +188,17 @@ public class Activity_PH_Edit extends AppCompatActivity {
                     text_resolve_time.setEnabled(true);
                     text_resolve_date.setText(text_event_date.getText());
                     text_resolve_time.setText(text_event_time.getText());
-                    if (!current_equipment.equals("NA")) {
-                        String desc = dbHelper.GetEqDescDB(db,current_equipment);
-                        if(desc == null || (!desc.equals("")))
-                            desc =current_equipment + " pH Analysis Element";
-                        txt_comment.setText("Calibration of " + desc);
-                        SetSpinnerValue(spin_SE_Code, array_SE_code, "Maintain",2);
-                    }
+
+                    txt_comment.setText("Calibration of " + desc);
+                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Maintain", 2);
                 } else {
                     //txt_comment.setEnabled(false);
                     text_resolve_date.setEnabled(false);
                     text_resolve_time.setEnabled(false);
-                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Failure",2);
-                }
 
+                    txt_comment.setText("Failed Calibration of " + desc);
+                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Failure", 2);
+                }
             }
 
         });

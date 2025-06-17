@@ -13,15 +13,12 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -31,20 +28,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
-import com.honeywell.aidc.BarcodeFailureEvent;
-import com.honeywell.aidc.BarcodeReadEvent;
-import com.honeywell.aidc.BarcodeReader;
-import com.honeywell.aidc.ScannerNotClaimedException;
-import com.honeywell.aidc.ScannerUnavailableException;
-import com.honeywell.aidc.TriggerStateChangeEvent;
-import com.honeywell.aidc.UnsupportedPropertyException;
-
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 
@@ -69,7 +54,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
 
     private TextView txt_comment;
 
-    private RadioGroup rbResloved;
+    private RadioGroup rbResolved;
     private RadioButton rbND;
     private RadioButton rbDetected;
 
@@ -169,7 +154,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
 
         rbND = (RadioButton) findViewById(R.id.radio_true);
         rbDetected = (RadioButton) findViewById(R.id.radio_false);
-        rbResloved = (RadioGroup) findViewById(R.id.radio_group);
+        rbResolved = (RadioGroup) findViewById(R.id.radio_group);
 
         //define all controls first
         text_event_time = (TextView) findViewById(R.id.text_event_time);
@@ -181,14 +166,14 @@ public class Activity_VOC_Edit extends AppCompatActivity {
         text_Value= (TextView) findViewById(R.id.txtValue);
 
 
-        rbResloved.clearCheck();
+        rbResolved.clearCheck();
 
         if (current_yn_resolve)
             rbDetected.setChecked(true);
         else
             rbND.setChecked(true);
 
-        rbResloved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        rbResolved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
@@ -212,7 +197,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
 
 
                 } else {
-
+                    text_Value.setText("");
                     text_Value.setEnabled(false);
                     text_Unit.setEnabled(false);
                     if (!current_equipment.equals("NA"))

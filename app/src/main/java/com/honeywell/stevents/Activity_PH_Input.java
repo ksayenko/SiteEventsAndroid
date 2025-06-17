@@ -162,7 +162,6 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
 
         current_yn_resolve= current_site_event_reading.getBoolResolved();
 
-
         AppDataTables tables = new AppDataTables();
         tables.SetSiteEventsTablesStructure();
 
@@ -173,7 +172,6 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         if (rowsInDB < 1) {
             AlertDialogShow("The Lookup Tables aren't populated, go to Menu | Download and Populate Lookup DB", "ERROR!", "warning");
         }
-
 
         maxId = dbHelper.getMaxID_FromSiteEventsTable(db);
 
@@ -202,37 +200,40 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
                 rbResolved.check(R.id.radio_false);
         }
 
-
         rbResolved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
+                String desc = "";
+
+                if (!current_equipment.equals("NA")) {
+                    desc = dbHelper.GetEqDescDB(db, current_equipment);
+                    if (desc == null || (!desc.equals("")))
+                        desc = current_equipment + " pH Analysis Element";
+                }
 
                 if (rb == rbTrue) {
                     txt_comment.setEnabled(true);
                     text_resolve_date.setEnabled(true);
                     text_resolve_time.setEnabled(true);
                     text_resolve_date.setText(text_event_date.getText());
-                    text_resolve_time.setText(text_resolve_time.getText());
-                    if (!current_equipment.equals("NA")) {
-                        String desc = dbHelper.GetEqDescDB(db,current_equipment);
-                        if(desc == null || (!desc.equals("")))
-                            desc =current_equipment + " pH Analysis Element";
-                        txt_comment.setText("Calibration of " + desc);
-                        SetSpinnerValue(spin_SE_Code, array_SE_code, default_SE,2);
-                    }
+                    text_resolve_time.setText(text_event_time.getText());
+
+                    txt_comment.setText("Calibration of " + desc);
+                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Maintain", 2);
                 } else {
-                    txt_comment.setEnabled(false);
+                    //txt_comment.setEnabled(false);
                     text_resolve_date.setEnabled(false);
                     text_resolve_time.setEnabled(false);
-                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Failure",2);
-                }
 
+                    txt_comment.setText("Failed Calibration of " + desc);
+                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Failure", 2);
+                }
             }
 
+
+
         });
-
-
 
         //text_event_time
         text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
@@ -534,7 +535,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
     }
 
     private void SetAndStartIntent(Intent seintent) {
-        Log.i("Codedebug", "SetAndStartIntent - general eq");
+        Log.i("Codedebug", "SetAndStartIntent - general PH");
         boolean isOnlyEquipmentChanged = true;
         if (isLastRecordSavedToTable)
             current_site_event_reading = current_site_event_reading.ResetValues();
@@ -551,6 +552,8 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         if (!isLastRecordSavedToTable && !isOnlyEquipmentChanged) {
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
+            SetSpinnerValue(spin_Equip_Code, array_Eq, current_site_event_reading_copy.getStrEq_ID(),1);
+            return;
         } else{
             Log.i("codedebug", "PH SetAndStartIntent startActivity ->" + seintent.toString());
             startActivity(seintent);
