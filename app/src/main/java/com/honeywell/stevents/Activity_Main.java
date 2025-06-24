@@ -229,7 +229,7 @@ Cursor Cursor_Eq = null;
                     String response = ws1.CheckConnection();
                     boolean bConnection = true;
                     if (response.startsWith("ERROR")) {
-                        Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
                         AlertDialogShow(response, "Error", "OK", "error");
                         txtInfo.setText(response);
                         bConnection = false;
@@ -537,13 +537,13 @@ Cursor Cursor_Eq = null;
             Bundle extras = getIntent().getExtras();
             if (requestCode == REQUEST_CODE_GETMESSAGE  && resultCode  == RESULT_OK && extras != null) {
 
-                default_reading = (SiteEvents) getIntent().getSerializableExtra("GENERAL_BARCODE");
+                //default_reading = (SiteEvents) getIntent().getSerializableExtra("GENERAL_BARCODE");
                 if (default_reading == null)
                     default_reading = SiteEvents.GetDefaultReading();
                // Toast.makeText(context, default_reading.getStrSE_ID(), Toast.LENGTH_SHORT).show();
             }
         } catch (Exception ex) {
-            Toast.makeText(context, ex.toString(),
+            Toast.makeText(context, "onActivityResult"+ ex.toString(),
                     Toast.LENGTH_SHORT).show();
         }
 

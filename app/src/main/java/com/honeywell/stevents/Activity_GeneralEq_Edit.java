@@ -119,7 +119,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
 
-        Toast.makeText(ct, ct.getPackageName(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(ct, ct.getPackageName(), Toast.LENGTH_SHORT).show();
 
 
         Bundle extras = getIntent().getExtras();

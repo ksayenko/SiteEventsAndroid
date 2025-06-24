@@ -404,64 +404,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 
         }
     }
-    ///////// Get The Data
 
-//    public Cursor getLocations(SQLiteDatabase db) {
-//        String qry = "Select  rowid _id, strD_loc_id, strD_LocDesc, '1' as ord, " + DataTable_DCP_Loc_Def.strD_TypeID +
-//                " from tbl_DCP_Loc_def "
-//                + " where " + DataTable_DCP_Loc_Def.ynCurrent + " <> 0 "
-//                + " and "
-//                + DataTable_DCP_Loc_Def.strD_TypeID + " in ('BIN', 'EWL', 'FPCT', 'FR', 'FT', 'IMHF',"
-//                + " 'IMTM', 'MWL', 'NAOH', 'PD', 'PH', 'PR', 'TL',  'WFR', 'WFT', 'WL', 'WPR') "
-//                + " UNION ALL SELECT -1,'NA','NA','0','W' "
-//                + " order by ord, strD_Loc_ID ";
-//        Cursor c = db.rawQuery(qry, null);
-//        return c;
-//    }
-
-//    public String[] getElevationCodeValue(SQLiteDatabase db, String loc, String elev_code) {
-//        String[] sElevCodeValue = new String[]{"NA", "Max Depth", "NA"};
-//        String qry = "Select elev_code, elev_value, elev_code_desc from ut_elevations e inner join tbl_DCP_Loc_Def l on l.sys_loc_code = e.sys_loc_code where e.elev_code='" + elev_code + "'";
-//        qry += " and strD_Loc_ID='" + loc + "'";
-//
-//        Cursor c = db.rawQuery(qry, null);
-//        if (c.getCount() > 0) {
-//            c.moveToFirst();
-//            if (!c.isNull(0))
-//                sElevCodeValue[0] = c.getString(0);
-//            if (!c.isNull(1))
-//                sElevCodeValue[1] = c.getString(1);
-//            if (!c.isNull(2))
-//                sElevCodeValue[2] = c.getString(2);
-//        }
-//        c.close();
-//
-//        return sElevCodeValue;
-//    }
-//
-//
-//    public String[] getElevationCodeValue(SQLiteDatabase db, String loc) {
-//        String[] sElevCodeValue = new String[]{"NA", "Max Depth", "NA"};
-//        String qry = "Select elev_code, elev_value, elev_code_desc " +
-//                "from ut_elevations e inner join tbl_DCP_Loc_Def l " +
-//                " on l.sys_loc_code = e.sys_loc_code where e.wl_meas_point = 1  ";
-//        qry += "and strD_Loc_ID='" + loc + "'";
-//        qry += " and l.strD_Loc_ID like '%Wl%'";
-//        System.out.println(qry);
-//
-//        Cursor c = db.rawQuery(qry, null);
-//        if (c.getCount() > 0) {
-//            c.moveToFirst();
-//            if (!c.isNull(0))
-//                sElevCodeValue[0] = c.getString(0);
-//            if (!c.isNull(1))
-//                sElevCodeValue[1] = c.getString(1);
-//            if (!c.isNull(2))
-//                sElevCodeValue[2] = c.getString(2);
-//        }
-//        c.close();
-//        return sElevCodeValue;
-//    }
 
     public int getUpdateSiteEvent(SQLiteDatabase db, SiteEvents r) {
         String temp;
@@ -491,78 +434,6 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
 
-//    public String[] getMinMax(SQLiteDatabase db, String loc) {
-//        String[] minmax = new String[]{"", ""};
-//        String qry = "select  t1.strD_ParValue as loc_min, t2.strD_ParValue as loc_Max from tbl_DCP_Loc_Char t1 " +
-//                " join  tbl_DCP_Loc_Char t2 on t1.strD_Loc_ID = t2.strD_Loc_ID " +
-//                " where  t1.strD_Loc_ID='" + loc + "' and t1.strD_ParName = 'Loc_Min' and t2.strD_ParName = 'Loc_Max'";
-//        Cursor cminmax = db.rawQuery(qry, null);
-//        if (cminmax.getCount() > 0) {
-//            cminmax.moveToFirst();
-//            if (!cminmax.isNull(0))
-//                minmax[0] = cminmax.getString(0);
-//            if (!cminmax.isNull(1))
-//                minmax[1] = cminmax.getString(1);
-//        }
-//        cminmax.close();
-//        return minmax;
-//    }
-
-//    public Cursor getElevationCodes(SQLiteDatabase db) {
-//        String qry;
-//
-//        qry = "Select rowid as _id, elev_code,elev_code_desc, '1' as ord from ut_elevation_codes " +
-//                " UNION ALL SELECT -1,'NA','NA', '0' order by ord,  elev_code";
-//
-//        return db.rawQuery(qry, null);
-//    }
-
-//    public Cursor getUnits(SQLiteDatabase db, String loc) {
-//        String qry;
-//        if (Objects.equals(loc, "")) {
-//            qry = "Select rowid as _id, strUnitsID, '1' as ord from tbl_Unit_Def " +
-//                    " UNION ALL SELECT -1,'NA', '0' order by ord,  strUnitsID";
-//        } else {
-//            qry = "select  rowid as _id, strD_ParValue from tbl_DCP_Loc_Char where ";
-//            qry += " strD_Loc_ID='" + loc + "'";
-//            qry += " and strD_ParName ='Equip' ";
-//
-//        }
-//        Cursor c = db.rawQuery(qry, null);
-//        if (c.getCount() == 0) {
-//            qry = "select  -1,'NA'";
-//            c = db.rawQuery(qry, null);
-//        }
-//        return c;
-//    }
-
-//    public Cursor getFOS(SQLiteDatabase db) {
-//        String qry = "";
-//
-//        qry = "Select rowid as _id, strFO_StatusID, '1' as ord from tbl_Fac_Oper_Def " +
-//                //  " UNION ALL SELECT -1,'NA', '0' " +
-//                " order by ord, strFO_StatusID";
-//
-//        return db.rawQuery(qry, null);
-//    }
-//
-//    public Cursor getEOS(SQLiteDatabase db) {
-//        String qry = "";
-//
-//        qry = "Select rowid as _id, strEqO_StatusID, '1' as ord from tbl_Equip_Oper_Def " +
-//                //" UNION ALL SELECT -1,'NA', '0' " +
-//                " order by ord, strEqO_StatusID";
-//
-//        return db.rawQuery(qry, null);
-//
-//    }
-
-//    public Cursor getLocMinMax(SQLiteDatabase db, String loc) {
-//        String qry = "select  rowid as _id, strD_ParUnits from tbl_DCP_Loc_Char where ";
-//        qry += " strD_Loc_ID='" + loc + "'";
-//        qry += " UNION ALL SELECT -1,'NA'";
-//        return db.rawQuery(qry, null);
-//    }
 
     public Cursor getSE_ShortList(SQLiteDatabase db) {
         return getSE_ShortList(db, "order by " +
@@ -1046,7 +917,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             Cursor records = this.getSiteEventRecords(db);
             nRecords[0] = records.getCount();
             Integer nCol = records.getColumnCount();
-            message1 = records.toString() + "  records getting ready to upload";
+            message1 = nRecords[0].toString()+ "  records getting ready to upload";
             Toast.makeText(context, message1, Toast.LENGTH_SHORT).show();
 
             String s_strD_Loc_ID;
