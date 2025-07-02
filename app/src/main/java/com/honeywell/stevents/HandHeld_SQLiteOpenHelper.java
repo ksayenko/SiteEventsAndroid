@@ -37,7 +37,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     public static final String FACILITY_ID = "1";
 
     public static final String SITE_EVENT = "tbl_Site_Event";
-    public static final String DATA_SITE_EVENT_DEF = "tbl_Site_Event_Def";
+    public static final String SITE_EVENT_DEF = "tbl_Site_Event_Def";
      public static final String EQUIP_IDENT = "tbl_Equip_Ident";
     public static final String USERS = "tbl_Users";
     public final static String MAINTENANCE  = "tbl_MaintPersIdent";
@@ -670,8 +670,48 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     {
         String sql = "Select "+ DataTable_Equip_Ident.strEqDesc + " from " + EQUIP_IDENT
                 + "  where "+ DataTable_Equip_Ident.strEqID + " = '" + strEqId+"'";
-        Log.i("codedebug", "GetEqDescDB " + sql);
-        return GeneralQueryFirstValue(db, sql);
+
+        String eq = GeneralQueryFirstValue(db, sql);
+        if (eq == null)
+            eq = "";
+        Log.i("codedebug", "GetEqDescDB " + sql + eq);
+        return eq;
+    }
+    public String GetDefaultSiteEventByEquipment(SQLiteDatabase db, String strEqId) {
+        String defaultSe = GeneralQueryFirstValue(db, "select " + DataTable_Site_Event_Def.strSE_Desc +
+                " from " + SITE_EVENT_DEF + " where " + DataTable_Site_Event_Def.strSE_ID + " like 'misc%'");
+        String strEqType = GeneralQueryFirstValue(db, "select " + DataTable_Equip_Ident.strEqTypeID +
+                " from " + EQUIP_IDENT + " where " + DataTable_Equip_Ident.strEqID + " = '" + strEqId + "'");
+        if (strEqType == null)
+            strEqType = "";
+        MeasurementTypes.MEASUREMENT_TYPES m = MeasurementTypes.GetFrom_SE_ID(strEqId, strEqType);
+
+        String sql = "Select " + DataTable_Equip_Ident.strEqDesc + " from " + EQUIP_IDENT
+                + "  where " + DataTable_Equip_Ident.strEqID + " = '" + strEqId + "'";
+
+        if (m == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE) {
+            defaultSe = "Operate";
+        } else if (m == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
+            defaultSe = "Monitor";
+        } else if (m == MeasurementTypes.MEASUREMENT_TYPES.PH) {
+            defaultSe = "Maintain";
+        } else if (m == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
+            defaultSe = "Monitor";
+        } else if (m == MeasurementTypes.MEASUREMENT_TYPES.OTHER
+                && (strEqId.equalsIgnoreCase("F-933-01")
+                || strEqId.equalsIgnoreCase("F-933-02")
+                || strEqId.equalsIgnoreCase("F-600-04")
+                || strEqId.equalsIgnoreCase("V-971-01")
+                || strEqId.equalsIgnoreCase("V-971-02"))) {
+            defaultSe = "Media";
+        }
+          else if (m == MeasurementTypes.MEASUREMENT_TYPES.OTHER
+                    && (strEqId.equalsIgnoreCase("NA"))) {
+                defaultSe = "NA";
+            }
+
+        Log.i("codedebug", "GetDefaultSiteEventByEquipment " + defaultSe);
+        return defaultSe;
     }
 
     public String GetDefaultMaintenancePerson(SQLiteDatabase db) {

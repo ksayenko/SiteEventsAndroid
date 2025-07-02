@@ -77,7 +77,8 @@ public class Activity_Main_Input extends AppCompatActivity
     private RadioButton rbTrue;
     private RadioButton rbFalse;
 
-    private String default_site_event ="NA";
+    private String default_SE ="NA";
+
 
 
     Cursor Cursor_SE_code = null;
@@ -284,10 +285,12 @@ public class Activity_Main_Input extends AppCompatActivity
                         Cursor_SE_code, from_SE_CODE, toL, 0);
         adapter_SE_code.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_SE_Code.setAdapter(adapter_SE_code);
+        current_se = dbHelper.GetDefaultSiteEventByEquipment(db,current_equipment);
+        current_site_event_reading.setStrSE_ID(current_se);
         SetSpinnerValue(spin_SE_Code, array_SE_code, current_se);
         spin_SE_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                if (!Objects.equals(GetSpinnerValue(spin_SE_Code), default_site_event) )
+                if (!Objects.equals(GetSpinnerValue(spin_SE_Code), default_SE) )
                     isLastRecordSavedToTable = false;
                Log.i("CodeDebug","spin_se isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
 
@@ -453,6 +456,10 @@ public class Activity_Main_Input extends AppCompatActivity
         current_equipment_type = ((String[]) array_Eq.get(pos))[2];
        // prior_current_equipment=current_equipment;
         current_equipment = ((String[]) array_Eq.get(pos))[1];
+        default_SE = dbHelper.GetDefaultSiteEventByEquipment(db,current_equipment);
+        current_site_event_reading.setStrSE_ID(default_SE);
+        SetSpinnerValue(spin_SE_Code,array_SE_code,default_SE);
+
 
         current_SEDateTime = DateTimeHelper.GetDateTimeNow();
         text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
@@ -498,6 +505,11 @@ public class Activity_Main_Input extends AppCompatActivity
                 current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
                 text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
+                String desc = "";
+                if (!current_equipment.equals("NA")) {
+                    desc = dbHelper.GetEqDescDB(db, current_equipment);
+                    txt_comment.setText(desc);
+                }
 
             }
             if (seintent != null)
@@ -910,7 +922,7 @@ Wedge as keys to empty
 
         int id = getIndexFromArraylist(array_Eq, "NA", 1);
         spin_Equip_Code.setSelection(id);
-        id = getIndexFromArraylist(array_SE_code, default_site_event, 1);
+        id = getIndexFromArraylist(array_SE_code, default_SE, 1);
         spin_SE_Code.setSelection(id);
         rbFalse.setChecked(true);
         bBarcodeEquip = false;

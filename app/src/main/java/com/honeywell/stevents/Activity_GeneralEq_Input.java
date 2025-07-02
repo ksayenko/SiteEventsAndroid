@@ -51,7 +51,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         BarcodeReader.TriggerListener {
     private BarcodeReader barcodeReader;
     private ListView barcodeList;
-    private final String default_SE="Maintain";
+    private String default_SE="Maintain";
     private String current_SEDateTime;
 
     MeasurementTypes.MEASUREMENT_TYPES current_type = MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE;
@@ -159,10 +159,10 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             throw new RuntimeException(e);
         }
 
-        //current_se = default_site_event_reading.getStrSE_ID();
-
-        current_se =default_SE;
         current_equipment = current_site_event_reading.getStrEq_ID();
+        default_SE = dbHelper.GetDefaultSiteEventByEquipment(db,current_equipment);
+        current_site_event_reading.setStrSE_ID(default_SE);
+        current_se =default_SE;
         current_maintenance = current_site_event_reading.getStrM_Per_FirstLastName();
         current_comment = current_site_event_reading.getStrComment();
         current_SEDateTime = current_site_event_reading.getDatSE_Date();
@@ -200,10 +200,17 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
+                String desc = "";
+                if (!current_equipment.equals("NA")) {
+                    desc = dbHelper.GetEqDescDB(db, current_equipment);
+                    if (desc.equals(""))
+                        desc = "PCTF";
+                }
                 if (rb == rbStartup)
-                    txt_comment.setText("PCTF Startup ");
-                if (rb == rbShutdown)
-                    txt_comment.setText("PCTF Shutdown ");
+                    txt_comment.setText(new StringBuilder().append(desc).append(" Startup").toString());
+                if (rb == rbShutdown) {
+                    txt_comment.setText(String.format("%s Shutdown", desc));
+                }
                 if ((rb == rbStartup) || (rb == rbShutdown))
                     SetSpinnerValue(spin_SE_Code, array_SE_code, "Operate",2);
             }

@@ -59,6 +59,8 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
     ArrayList<String[]> array_SE_code = null;
     private String current_se = "";
 
+    private String default_SE = "";
+
 
     Cursor Cursor_Users = null;
     ArrayList<String[]> array_Users = null;
@@ -118,6 +120,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         }
         current_se = current_site_event_reading.getStrSE_ID();
         current_equipment = current_site_event_reading.getStrEq_ID();
+        default_SE = dbHelper.GetDefaultSiteEventByEquipment(db,current_equipment);
         current_maintenance = current_site_event_reading.getStrM_Per_FirstLastName();
         current_comment = current_site_event_reading.getStrComment();
         String current_SEDateTime = current_site_event_reading.getDatSE_Date();
@@ -159,12 +162,19 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
+                String desc = "";
+                if (!current_equipment.equals("NA")) {
+                    desc = dbHelper.GetEqDescDB(db, current_equipment);
+                    if (desc.equals(""))
+                        desc = "PCTF";
+                }
                 if (rb == rbStartup)
-                    txt_comment.setText("PCTF Startup ");
-                if (rb == rbShutdown)
-                    txt_comment.setText("PCTF Shutdown ");
+                    txt_comment.setText(new StringBuilder().append(desc).append(" Startup").toString());
+                if (rb == rbShutdown) {
+                    txt_comment.setText(String.format("%s Shutdown", desc));
+                }
                 if ((rb == rbStartup) || (rb == rbShutdown))
-                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Operate", 2);
+                    SetSpinnerValue(spin_SE_Code, array_SE_code, default_SE, 2);
             }
         });
 

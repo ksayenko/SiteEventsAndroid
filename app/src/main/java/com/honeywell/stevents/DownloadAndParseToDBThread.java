@@ -162,7 +162,7 @@ import java.util.concurrent.Executors;
                     tables.AddStdetDataTable(new DataTable_SiteEvent());
                     tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml"));
                     publishProgress(new Integer[]{1});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + ".xml"));                    publishProgress(new Integer[]{2});
+                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + ".xml"));                    publishProgress(new Integer[]{2});
                     publishProgress(new Integer[]{2});
                     tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml"));
                     publishProgress(new Integer[]{3});

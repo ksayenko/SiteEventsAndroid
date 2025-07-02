@@ -177,7 +177,12 @@ public class Activity_VOC_Edit extends AppCompatActivity {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
-
+                String desc = "";
+                if (!current_equipment.equals("NA")) {
+                    desc = dbHelper.GetEqDescDB(db, current_equipment);
+                    if (desc.equals(""))
+                        desc = "VOC Monitoring";
+                }
                 if (rb == rbDetected) {
 
                     text_Value.setEnabled(true);
@@ -189,9 +194,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
                     text_resolve_time.setText(   DateTimeHelper.GetStringTimeFromDateTime(current_ResDateTime, ""));
 
                     if (!current_equipment.equals("NA") && !Objects.equals(current_reading, ""))
-                        txt_comment.setText("VOC Monitoring - "
-                                + current_reading
-                                + " " + current_unit);
+                        txt_comment.setText(desc + " - " + current_reading  + " " + current_unit);
                         else
                         txt_comment.setText("");
 
@@ -201,7 +204,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
                     text_Value.setEnabled(false);
                     text_Unit.setEnabled(false);
                     if (!current_equipment.equals("NA"))
-                        txt_comment.setText("VOC Monitoring - ND");
+                        txt_comment.setText(desc+" - ND");
                     else
                         txt_comment.setText("");
                 }

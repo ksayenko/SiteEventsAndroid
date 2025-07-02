@@ -250,13 +250,13 @@ public class ParseXMLAndUploadToDBThread{
 
                 publishProgressBar(3);
 
-                AppDataTable dtSiteEventDef =f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + ".xml");
+                AppDataTable dtSiteEventDef =f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + ".xml");
                 if(dtSiteEventDef!=null){
                     tables.AddStdetDataTable(dtSiteEventDef);
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + " is reading to memory ");
+                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + " is reading to memory ");
                 }
                 else
-                    publishProgressTextView("!!! Table  " + HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + " is NOT populating ");
+                    publishProgressTextView("!!! Table  " + HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + " is NOT populating ");
                 publishProgressBar(4);
 
 

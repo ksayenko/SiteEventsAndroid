@@ -91,7 +91,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
     boolean current_yn_resolve = true;
 
     String current_comment = "";
-    private final String default_SE="Maintain";
+    private String default_SE="Maintain";
     
     String current_reading = "";
     String current_unit = "";
@@ -155,10 +155,10 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             throw new RuntimeException(e);
         }
 
-        //current_se = default_site_event_reading.getStrSE_ID();
-        current_se =default_SE;
-
         current_equipment = current_site_event_reading.getStrEq_ID();
+        default_SE = dbHelper.GetDefaultSiteEventByEquipment(db,current_equipment);
+        current_site_event_reading.setStrSE_ID(default_SE);
+        current_se =default_SE;
         current_maintenance = current_site_event_reading.getStrM_Per_FirstLastName();
         current_comment = current_site_event_reading.getStrComment();
         current_SEDateTime = current_site_event_reading.getDatSE_Date();
@@ -211,7 +211,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
 
                 if (!current_equipment.equals("NA")) {
                     desc = dbHelper.GetEqDescDB(db, current_equipment);
-                    if (desc == null || (!desc.equals("")))
+                    if (desc.equals(""))
                         desc = current_equipment + " pH Analysis Element";
                 }
 

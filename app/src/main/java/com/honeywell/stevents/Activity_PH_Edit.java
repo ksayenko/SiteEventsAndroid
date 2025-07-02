@@ -178,7 +178,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
 
                 if (!current_equipment.equals("NA")) {
                     desc = dbHelper.GetEqDescDB(db, current_equipment);
-                    if (desc == null || (!desc.equals("")))
+                    if (desc.equals(""))
                         desc = current_equipment + " pH Analysis Element";
                 }
 
@@ -505,7 +505,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
 
         current_se = GetSpinnerValue(spin_SE_Code);
         String desc = dbHelper.GetEqDescDB(db,current_equipment);
-        if(desc == null || (!desc.equals("")))
+        if(!desc.equals(""))
             current_site_event_reading.setStrEqDesc(desc);
 
         current_site_event_reading.setStrComment(current_comment);

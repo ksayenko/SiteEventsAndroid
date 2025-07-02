@@ -170,11 +170,12 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
             throw new RuntimeException(e);
         }
 
-        //current_se = default_site_event_reading.getStrSE_ID();
-        current_se = default_SE;
         current_site_event_reading.setMeasurementType(current_type);
         current_unit = "ppm";
         current_equipment = current_site_event_reading.getStrEq_ID();
+        default_SE = dbHelper.GetDefaultSiteEventByEquipment(db,current_equipment);
+        current_site_event_reading.setStrSE_ID(default_SE);
+        current_se = default_SE;
         current_maintenance = current_site_event_reading.getStrM_Per_FirstLastName();
         
         current_comment = current_site_event_reading.getStrComment();
@@ -227,6 +228,13 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
+                String desc = "";
+
+                if (!current_equipment.equals("NA")) {
+                    desc = dbHelper.GetEqDescDB(db, current_equipment);
+                    if (desc.equals(""))
+                        desc = "VOC Monitoring";
+                }
 
                 if (rb == rbDetected) {
                     txt_comment.setEnabled(true);
@@ -239,9 +247,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
                     text_resolve_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_ResDateTime, ""));
 
                     if (!current_equipment.equals("NA") && !Objects.equals(current_reading, ""))
-                        txt_comment.setText("VOC Monitoring - "
-                                + current_reading
-                                + " " + current_unit);
+                        txt_comment.setText(desc + " - " + current_reading  + " " + current_unit);
                     else
                         txt_comment.setText("");
 
@@ -250,7 +256,7 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
                     text_Value.setText("");
                     text_Value.setEnabled(false);
                     text_Unit.setEnabled(false);
-                    txt_comment.setText("VOC Monitoring - ND");
+                    txt_comment.setText(desc+" - ND");
 
                 }
 

@@ -192,8 +192,14 @@ public class Activity_Noise_Edit extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 current_reading = text_Value.getText().toString();
                 current_unit = text_Unit.getText().toString();
+                String desc = "";
+                if (!current_equipment.equals("NA")) {
+                    desc = dbHelper.GetEqDescDB(db, current_equipment);
+                    if (desc.equals(""))
+                        desc = "Noise monitoring ";
+                }
                 if (!Objects.equals(current_reading, "")) {
-                    current_comment = "Noise Monitoring - " + current_reading + " " + current_unit;
+                    current_comment = desc + " - " + current_reading + " " + current_unit;
                     txt_comment.setText(current_comment);
                 }
                 isLastRecordSavedToTable = false;
