@@ -1,5 +1,7 @@
 package com.honeywell.stevents;
 
+import android.util.Log;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -52,6 +54,7 @@ public class DataTable_SiteEvent extends AppDataTable {
     public static final String Datetime_pattern_dateonly="MM/dd/yyyy";
 
     public static final String Measurement_Type = "Measurement_Type";
+    public static final String strM_Per_FirstLastName="strM_Per_FirstLastName";
 
     public DataTable_SiteEvent(){
         super(HandHeld_SQLiteOpenHelper.SITE_EVENT);
@@ -89,6 +92,8 @@ public class DataTable_SiteEvent extends AppDataTable {
         this.AddColumnToStructure(default_datetimeformat,"String",false);
 
         this.AddColumnToStructure(Measurement_Type,"Integer",false);
+        this.AddColumnToStructure(strM_Per_FirstLastName,"String",false);
+
 
 
     }
@@ -108,16 +113,19 @@ public class DataTable_SiteEvent extends AppDataTable {
         int n = this.getColumnsNumber();
         int nRecords = this.GetNumberOfRecords();
         String sDeviceName = HandHeld_SQLiteOpenHelper.getDeviceName();
+        String sUserName = null;
 
         for (int j = 0; j < n; j++)
             reading.add("");
+        //Log.i("codedebug", "DataTable_SiteEvent.AddToTable Nrecords= " + nRecords + " columns " + n);
+        //Log.i("codedebug", "reading " + theReading.toString());
 
         reading.set(GetElementIndex(lngID), theReading.getLngID().toString());
         reading.set(GetElementIndex(facility_id), theReading.getFacility_id().toString());
         reading.set(GetElementIndex(strD_Loc_ID), theReading.getStrD_Loc_ID());
 
-        reading.set(GetElementIndex(strUserName),theReading.getStrUserName());// user);
-        reading.set(GetElementIndex(strUserUploadName),theReading.getStrUserUploadName());// user);
+        reading.set(GetElementIndex(strUserName), theReading.getStrUserName());// user);
+        reading.set(GetElementIndex(strUserUploadName), theReading.getStrUserUploadName());// user);
         reading.set(GetElementIndex(datSE_Date), theReading.getDatSE_Date().toString());//datetime1);
         reading.set(GetElementIndex(datSE_Time), theReading.getDatSE_Date().toString());
         reading.set(GetElementIndex(DateSE_NoSeconds),
@@ -125,36 +133,38 @@ public class DataTable_SiteEvent extends AppDataTable {
         reading.set(GetElementIndex(default_datetimeformat),
                 DataTable_SiteEvent.ConvertDatetimeFormat(theReading.getDatSE_Date(),
                         DataTable_SiteEvent.Datetime_pattern_with_sec,
-                        DataTable_SiteEvent.Datetime_pattern_default ));
+                        DataTable_SiteEvent.Datetime_pattern_default));
 
-        reading.set(GetElementIndex(Value),theReading.getValue());
-        reading.set(GetElementIndex(Unit),theReading.getUnit());
+        reading.set(GetElementIndex(Value), theReading.getValue());
+        reading.set(GetElementIndex(Unit), theReading.getUnit());
 
-        reading.set(GetElementIndex(strS_Loc_ID ), theReading.getStrS_Loc_ID());
+        reading.set(GetElementIndex(strS_Loc_ID), theReading.getStrS_Loc_ID());
         reading.set(GetElementIndex(strSE_ID), theReading.getStrSE_ID());
         reading.set(GetElementIndex(strTOFO_id), theReading.getStrTOFO_ID());
         reading.set(GetElementIndex(strEq_ID), theReading.getStrEq_ID());
         reading.set(GetElementIndex(strEqDesc), theReading.getStrEqDesc());
         reading.set(GetElementIndex(strComment), theReading.getStrComment());
-        reading.set(GetElementIndex(strM_Per_ID), theReading.getStrm_Per_ID());
+        reading.set(GetElementIndex(strM_Per_ID), theReading.getStrM_Per_ID());
+        reading.set(GetElementIndex(strM_Per_FirstLastName), theReading.getStrM_Per_FirstLastName());
 
         reading.set(GetElementIndex(datResDate), theReading.getDatResDate());
         reading.set(GetElementIndex(DateRes_NoSeconds),
                 DataTable_SiteEvent.RemoveSecondsFromDateTime(theReading.getDatResDate()));
         reading.set(GetElementIndex(ynResolved), theReading.getYnResolved());
 
-
         reading.set(GetElementIndex(Value), theReading.getValue());
-        reading.set(GetElementIndex(Unit),theReading.getUnit());
+        reading.set(GetElementIndex(Unit), theReading.getUnit());
 
-
-        reading.set(GetElementIndex(recordToUpload),"1");
+        reading.set(GetElementIndex(recordToUpload), "1");
         reading.set(GetElementIndex(device_name), sDeviceName);
         reading.set(GetElementIndex(Measurement_Type), theReading.getMeasurementType().valueToString());
 
+        Log.i("codedebug", "DONE: DataTable_SiteEvent.AddToTable: sql " + theReading.toString());
+
+
         this.AddRowToData(reading);
 
-        return theReading.getLngID() +1;
+        return theReading.getLngID() + 1;
     }
 
 //    public Integer AddToTable(String strUsername1

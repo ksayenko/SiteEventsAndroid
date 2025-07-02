@@ -222,10 +222,11 @@ public class StdetFiles  {
 
 
             tables.AddStdetDataTable(new DataTable_SiteEvent());
-            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml"));
+
             tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml"));
             tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml"));
             tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.DATA_SITE_EVENT_DEF + ".xml"));
+            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.MAINTENANCE + ".xml"));
 
         } catch (Exception exception) {
             exception.printStackTrace();

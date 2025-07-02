@@ -78,8 +78,8 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
 
     Cursor Cursor_Users = null;
     ArrayList<String[]> array_Users = null;
-    String current_username = "";
-    String prior_current_username = "";
+    String current_maintenance = "";
+    String prior_current_maintenance = "";
 
     Cursor Cursor_Eq = null;
     ArrayList<String[]> array_Eq = null;
@@ -128,9 +128,13 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
         ct = this;
+        AppDataTables tables = new AppDataTables();
+        tables.SetSiteEventsTablesStructure();
+        dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
+        db = dbHelper.getReadableDatabase();
 
         current_site_event_reading = SiteEvents.GetDefaultReading();
-        
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             System.out.println("we have default reading");
@@ -138,6 +142,11 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
             if (se_table == null)
                 se_table = new DataTable_SiteEvent();
+        }
+        String[] login = dbHelper.getLoginInfo(db);
+        if (login !=null && login.length >0) {
+            current_site_event_reading.setStrUserName(login[0]);
+            current_site_event_reading.setStrUserUploadName(login[0]);
         }
         current_site_event_reading.setMeasurementType(current_type);
         try {
@@ -150,23 +159,17 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         current_se =default_SE;
 
         current_equipment = current_site_event_reading.getStrEq_ID();
-        current_username = current_site_event_reading.getStrUserName();
+        current_maintenance = current_site_event_reading.getStrM_Per_FirstLastName();
         current_comment = current_site_event_reading.getStrComment();
         current_SEDateTime = current_site_event_reading.getDatSE_Date();
         String current_ResDateTime = current_site_event_reading.getDatResDate();
 
-        prior_current_username = current_username;
+        prior_current_maintenance = current_maintenance;
         prior_current_se = current_se;
         prior_current_equipment = current_equipment;
         current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.PH);
 
         current_yn_resolve= current_site_event_reading.getBoolResolved();
-
-        AppDataTables tables = new AppDataTables();
-        tables.SetSiteEventsTablesStructure();
-
-        dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
-        db = dbHelper.getReadableDatabase();
 
         int rowsInDB = dbHelper.getRowsInLookupTables(db);
         if (rowsInDB < 1) {
@@ -277,7 +280,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         });
 
         //USERS
-        Cursor_Users = dbHelper.GetCursorUsers(db);
+        Cursor_Users = dbHelper.GetCursorMaintenancePerson(db);
         array_Users = transferCursorToArrayList(Cursor_Users);
 
         String[] from_Users = new String[]{DataTable_Users.strName};
@@ -287,12 +290,12 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
                         Cursor_Users, from_Users, toL, 0);
         adapter_users.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_User_name.setAdapter(adapter_users);
-        SetSpinnerValue(spin_User_name, array_Users, current_username,1);
+        SetSpinnerValue(spin_User_name, array_Users, current_maintenance,1);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                current_username = GetSpinnerValue(spin_User_name);
-                if ((!current_username.equals("NA"))
-                        && (!current_username.equals(prior_current_username)))
+                current_maintenance = GetSpinnerValue(spin_User_name);
+                if ((!current_maintenance.equals("NA"))
+                        && (!current_maintenance.equals(prior_current_maintenance)))
                     isLastRecordSavedToTable = false;
 
             }
@@ -358,7 +361,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             @Override
             public void onClick(View view) {
                 SaveFormAndValidate();
-                prior_current_username = current_username;
+                prior_current_maintenance = current_maintenance;
                 prior_current_equipment = current_equipment;
                 prior_current_se = current_se;
 
@@ -371,13 +374,17 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SaveFormAndValidate();
+                Log.i("CodeDebug","isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+                if (!isLastRecordSavedToTable) {
+
+                    SaveFormAndValidate();
+                }
                 if (isLastRecordSavedToTable) {
                     isRecordsSavedToDB = dbHelper.getInsertTable(db, se_table);
                     int records = se_table.GetNumberOfRecords();
 
                     if (isRecordsSavedToDB) {
-                        String message = "The data (" + String.valueOf(records) + " records) is saved and ready to be uplaoded.";
+                        String message = "The data (" + String.valueOf(records) + " records) is saved and ready to be uploaded.";
                         Toast.makeText(ct, message, Toast.LENGTH_SHORT).show();
                         se_table = new DataTable_SiteEvent();
                     }
@@ -670,12 +677,12 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
         current_comment = (String) txt_comment.getText().toString();
-        current_username = GetSpinnerValue(spin_User_name);
+        current_maintenance = GetSpinnerValue(spin_User_name);
         current_equipment = GetSpinnerValue(spin_Equip_Code);
 
-        String userupload = dbHelper.GetUserUploadName(db,current_username);
-        if(userupload == null || (!userupload.equals("")))
-            current_site_event_reading.setStrUserUploadName(userupload);
+        String initials = dbHelper.GetMaintenanceInitialsByFirstLastName(db,current_maintenance);
+        if(initials == null || (!initials.equals("")))
+            current_site_event_reading.setStrM_Per_ID(initials);
 
         current_se = GetSpinnerValue(spin_SE_Code);
         String desc = dbHelper.GetEqDescDB(db,current_equipment);
@@ -683,7 +690,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             current_site_event_reading.setStrEqDesc(desc);
 
         current_site_event_reading.setStrComment(current_comment);
-        current_site_event_reading.setStrUserName(current_username);
+        current_site_event_reading.setStrM_Per_FirstLastName(current_maintenance);
         current_site_event_reading.setStrEq_ID(current_equipment);
         current_site_event_reading.setStrSE_ID(current_se);
         current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.PH);
@@ -860,7 +867,7 @@ Wedge as keys to empty
             isRecordsSavedToDB = false;
             maxId++;
             clearForms();
-            System.out.println("NEW max id " + maxId.toString());
+            Log.i("codedebug","PH INPUT SAVE FORMS NEW max id " + maxId.toString());
         }
 
         return isTheRecordValid;

@@ -35,10 +35,20 @@ public class SiteEvents implements Serializable, Cloneable {
     private String strEq_ID = "";
     private String strEqDesc = null;
     private String strComment = "";
-    private String strm_Per_ID = null;
+    private String strM_Per_ID = "NA";
     private String datResDate = "01/01/2000";
     private String datResDate_NoSeconds = "01/01/2000";
     private String ynResolved = "false";
+
+    public String getStrM_Per_FirstLastName() {
+        return strM_Per_FirstLastName;
+    }
+
+    public void setStrM_Per_FirstLastName(String strM_Per_FirstLastName) {
+        this.strM_Per_FirstLastName = strM_Per_FirstLastName;
+    }
+
+    public String strM_Per_FirstLastName="na";
 
     public String getYnResolved3() {
         return ynResolved3;
@@ -149,12 +159,12 @@ public class SiteEvents implements Serializable, Cloneable {
         this.strEqDesc = strEqDesc;
     }
 
-    public String getStrm_Per_ID() {
-        return strm_Per_ID;
+    public String getStrM_Per_ID() {
+        return strM_Per_ID;
     }
 
-    public void setStrm_Per_ID(String strm_Per_ID) {
-        this.strm_Per_ID = strm_Per_ID;
+    public void setStrM_Per_ID(String strM_Per_ID) {
+        this.strM_Per_ID = strM_Per_ID;
     }
 
     public String getDatResDate() {
@@ -240,43 +250,6 @@ public class SiteEvents implements Serializable, Cloneable {
         return r;
     }
 
-//    public SiteEvents(Integer lngID,
-//                      String strD_Loc_ID,
-//                      String strUserName,
-//                      String datSE_Date,
-//                      String strS_Loc_ID,
-//                      String strSE_ID,
-//                      String strEq_ID,
-//                      String strEqDesc,
-//                      String strTOFO_ID,
-//                      String strComment,
-//                      String strm_Per_ID,
-//                      String datRes_Date,
-//                      String ynResolved,
-//                      String Value, String Unit
-//    ) {
-//        this.lngID = lngID;
-//        this.facility_id = 1;
-//
-//        this.strD_Loc_ID = strD_Loc_ID;
-//        this.strUserName = strUserName;
-//        this.datSE_Date = datSE_Date;
-//        this.datSE_Time = datSE_Date;
-//        this.strS_Loc_ID = strS_Loc_ID;
-//
-//        this.strSE_ID = strSE_ID;
-//        this.strTOFO_ID = strTOFO_ID;
-//        this.strEq_ID = strEq_ID;
-//        this.strEqDesc = strEqDesc;
-//        this.strComment = strComment;
-//        this.strm_Per_ID = strm_Per_ID;
-//        this.datResDate = datRes_Date;
-//        this.ynResolved = ynResolved;
-//
-//        this.Value = Value;
-//        this.Unit = Unit;
-//
-//    }
 
     @Override
     public boolean equals(Object o) {
@@ -284,7 +257,8 @@ public class SiteEvents implements Serializable, Cloneable {
         if (o == null || getClass() != o.getClass()) return false;
         SiteEvents reading = (SiteEvents) o;
         return
-                        strUserName.equals(reading.strUserName) &&
+                        strM_Per_FirstLastName.equals(reading.strM_Per_FirstLastName) &&
+                        strM_Per_ID.equals(reading.strM_Per_ID) &&
                         datSE_Date.equals(reading.datSE_Date) &&
                         strSE_ID.equals(reading.strSE_ID) &&
                         strEq_ID.equals(reading.strEq_ID) &&
@@ -311,15 +285,15 @@ public class SiteEvents implements Serializable, Cloneable {
         SiteEvents reading = (SiteEvents) o;
 
         boolean rv=
-                strUserName.equals(reading.strUserName) &&
+                strM_Per_FirstLastName.equals(reading.strM_Per_FirstLastName) &&
                         //datSE_Date.equals(reading.datSE_Date) &&
                         strSE_ID.equals(reading.strSE_ID) &&
                         strComment.equals(reading.strComment) &&
                         //datResDate.equals(reading.datResDate) &&
                         ynResolved.equals(reading.ynResolved) &&
                         Value.equals(reading.Value);
-        if(!rv)
-            Log.i("CodeDebug", " equalAllExceptEquipment : 1: " +this.toString() + " 2: "+ reading.toString());
+//        if(!rv)
+//            Log.i("CodeDebug", "!EqualAllExceptEquipment : 1: " +this.toString() + " 2: "+ reading.toString());
         return rv;
     }
 
@@ -329,6 +303,8 @@ public class SiteEvents implements Serializable, Cloneable {
                 "lngID=" + lngID +
                 ", strEq_ID='" + strEq_ID + '\'' +
                 ", strUserName='" + strUserName + '\'' +
+                ", strM_Per_FirstLastName='" + strM_Per_FirstLastName + '\'' +
+                ", strM_Per_ID='" + strM_Per_ID + '\'' +
                 ", strSE_ID='" + strSE_ID + '\'' +
                 ", datSE_Date=" + datSE_Date +
                 ", strComment='" + strComment + '\'' +
@@ -364,8 +340,8 @@ public class SiteEvents implements Serializable, Cloneable {
             dValue = 0.0;
         }
 
-        Log.i("codedebug", "isRecordValid strEq_ID =" + strEq_ID);
-        Log.i("codedebug", "isRecordValid record =" + this.toString());
+//        Log.i("codedebug", "isRecordValid strEq_ID =" + strEq_ID);
+//        Log.i("codedebug", "isRecordValid record =" + this.toString());
 
 
         if (isNA(strEq_ID)) {
@@ -373,7 +349,7 @@ public class SiteEvents implements Serializable, Cloneable {
             isValid.setFocus(Validation.FOCUS.EQUIPMENT);
             isValid.setValidation(Validation.VALIDATION.ERROR);
 
-        } else if (isNA(strUserName)) {
+        } else if (isNA(strM_Per_FirstLastName)) {
             isValid.addToValidationMessageError("Please input a User Name ");
             isValid.setFocus(Validation.FOCUS.USER);
             isValid.setValidation(Validation.VALIDATION.ERROR);
@@ -443,7 +419,10 @@ public class SiteEvents implements Serializable, Cloneable {
         se.setStrEq_ID(this.getStrEq_ID());
         se.setDatSE_Date(DateTimeHelper.GetDateTimeNow());
         se.setDatResDate(se.getDatSE_Date());
-        se.setStrUserName(this.strUserName);
+        se.setStrUserName(this.getStrUserName());
+        se.setStrUserUploadName(this.getStrUserUploadName());
+        se.setStrM_Per_ID(this.getStrM_Per_ID());
+        se.setStrM_Per_FirstLastName(this.getStrM_Per_FirstLastName());
         return se;
     }
 

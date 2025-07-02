@@ -58,7 +58,7 @@
             android:label="@string/barcode"
             android:screenOrientation="portrait" >
             <intent-filter>
-                <action android:name="android.intent.action.CLIENTBARCODEACTIVITY" />
+                <action android:name="android.intent.action.SE_CHECKBARCODEACTIVITY" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

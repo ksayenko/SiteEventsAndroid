@@ -55,6 +55,8 @@ public class MeasurementTypes implements Serializable {
     }
 
     public static MEASUREMENT_TYPES GetFrom_SE_ID(String strEqID, String strEqType) {
+        if (strEqType == null)
+            strEqType = "";
         if (strEqID.toLowerCase().startsWith("ae"))
             return MEASUREMENT_TYPES.PH;
 

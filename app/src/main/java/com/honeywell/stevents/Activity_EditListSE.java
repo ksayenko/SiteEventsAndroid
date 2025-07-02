@@ -67,7 +67,6 @@ public class Activity_EditListSE extends Activity {
             AlertDialogShow("The Lookup Tables aren't populated, go to Menu | Download and Populate Lookup DB", "ERROR!");
         }
 
-
         currentRowSelected = -1;
         selectedLngID = "";
 

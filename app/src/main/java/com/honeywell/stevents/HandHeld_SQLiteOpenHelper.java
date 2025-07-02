@@ -30,7 +30,7 @@ import android.widget.Toast;
 
 public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "HandHeldSE.sqlite3";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;//increased version as we bring new table tbl_MaintPersIdent.xml
     public static String DB_PATH;
 
     //default facility names:
@@ -40,7 +40,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     public static final String DATA_SITE_EVENT_DEF = "tbl_Site_Event_Def";
      public static final String EQUIP_IDENT = "tbl_Equip_Ident";
     public static final String USERS = "tbl_Users";
-
+    public final static String MAINTENANCE  = "tbl_MaintPersIdent";
     public static final String LOGININFO = "LoginInfo";
 
     private AppDataTables tables;
@@ -96,11 +96,11 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 
     public void AlterDB(SQLiteDatabase db) {
         try {
-//            if (!checkColumnExists(db, HandHeld_SQLiteOpenHelper.s.Site, DataTable_SiteEvent.recordToUpload)) {
-//                DataTable_SiteEvent ir = new DataTable_SiteEvent();
-//                String sql = ir.alterIRTableSQLAddColumn(DataTable_SiteEvent.recordToUpload);
-//                db.execSQL(sql);
-//            }
+            if (!checkColumnExists(db, HandHeld_SQLiteOpenHelper.SITE_EVENT, DataTable_SiteEvent.strM_Per_FirstLastName)) {
+                DataTable_SiteEvent ir = new DataTable_SiteEvent();
+                String sql = ir.alterIRTableSQLAddColumn(DataTable_SiteEvent.strM_Per_FirstLastName);
+                db.execSQL(sql);
+            }
 //            if (!checkColumnExists(db, HandHeld_SQLiteOpenHelper.INST_READINGS, DataTable_SiteEvent.device_name)) {
 //                DataTable_SiteEvent ir = new DataTable_SiteEvent();
 //                String sql = ir.alterIRTableSQLAddColumn(DataTable_SiteEvent.device_name);
@@ -184,23 +184,25 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
                 DataTable_SiteEvent.ynResolved + ", " +
                 DataTable_SiteEvent.Value + ", " +
                 DataTable_SiteEvent.Unit + ", " +
-                DataTable_SiteEvent.Measurement_Type + " " +
+                DataTable_SiteEvent.Measurement_Type + ", " +
+                DataTable_SiteEvent.strM_Per_FirstLastName + " " +
                 " FROM " +
                 HandHeld_SQLiteOpenHelper.SITE_EVENT + " Where " +
                 DataTable_SiteEvent.lngID + " = " + lngId;
 
         Cursor c = db.rawQuery(qry, null);
         int index = 0;
-        if (c.getCount() > 0)
-        {
+        if (c.getCount() > 0) {
             r = new SiteEvents();
             c.moveToFirst();
             r.setLngID(Integer.parseInt(lngId));
             if (!c.isNull(index))//0
                 r.setLngID(c.getInt(index));
             index++;
-            if (!c.isNull(index))//1
+            if (!c.isNull(index)) {//1
                 r.setStrUserName(c.getString(index));
+                r.setStrUserUploadName(c.getString(index));
+            }
             index++;//
             if (!c.isNull(index))//2
                 r.setDatSE_Date(c.getString(index));
@@ -209,40 +211,40 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             {
                 r.setDatSE_Time(c.getString(index));
             }
-        index++;
+            index++;
             if (!c.isNull(index))//4
                 r.setStrSE_ID(c.getString(index));
-        index++;
+            index++;
             if (!c.isNull(index))//5
                 r.setStrTOFO_ID(c.getString(index));
-        index++;
-        if (!c.isNull(index))//5
-            r.setStrEq_ID(c.getString(index));
-        index++;
-        if (!c.isNull(index))//5
-            r.setStrEqDesc(c.getString(index));
-        index++;
-        if (!c.isNull(index))//5
-            r.setStrComment(c.getString(index));
-        index++;
-        if (!c.isNull(index))//5
-            r.setStrm_Per_ID(c.getString(index));
-        index++;
-        if (!c.isNull(index))//5
-            r.setDatResDate(c.getString(index));
-        index++;
-        if (!c.isNull(index))//5
-            r.setYnResolved(c.getString(index));
-        index++;
+            index++;
+            if (!c.isNull(index))//5
+                r.setStrEq_ID(c.getString(index));
+            index++;
+            if (!c.isNull(index))//5
+                r.setStrEqDesc(c.getString(index));
+            index++;
+            if (!c.isNull(index))//5
+                r.setStrComment(c.getString(index));
+            index++;
+            if (!c.isNull(index))//5
+                r.setStrM_Per_ID(c.getString(index));
+            index++;
+            if (!c.isNull(index))//5
+                r.setDatResDate(c.getString(index));
+            index++;
+            if (!c.isNull(index))//5
+                r.setYnResolved(c.getString(index));
+            index++;
 
-        //value
+            //value
             if (!c.isNull(index)) {
                 double dreading = c.getDouble(index);
                 //the max digits after the dot 55.9897384643555
                 DecimalFormat df = new DecimalFormat("#.################");
                 r.setValue(df.format(dreading));
             }
-        index++;
+            index++;
             if (!c.isNull(index))
                 r.setUnit(c.getString(index));
             index++;
@@ -251,6 +253,10 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
                 Integer n = c.getInt(index);
                 r.setMeasurementType(MeasurementTypes.GetTypeFromNumber(n));
             }
+            index++;
+            //Maintenance Person FirstLastName
+            if (!c.isNull(index))
+                r.setStrM_Per_FirstLastName(c.getString(index));
 
         }
         c.close();
@@ -267,12 +273,13 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         try {
             String create = table.createTableSQL();
             String tablename = table.getName();
+            Log.i("codedebug", "getInsertTable sql="+create);
             System.out.println("getInsertTable " + create);
             db.execSQL(create);
             delete = "Delete from " + tablename;
 
             if (!tablename.equalsIgnoreCase(HandHeld_SQLiteOpenHelper.SITE_EVENT)) {
-                System.out.println("getInsertTable " + delete);
+                Log.i("codedebug", "delete sql="+delete);
                 db.execSQL(delete);
             }
 
@@ -303,21 +310,28 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         System.out.println("insert BIG " + insert + ex);
+                        Log.i("codedebug", "getInsertTable error 1="+ex);
                         isInserted = false;
                     }
                     k = k + jump;
                 }
 
             } else {
+                String[] login = getLoginInfo(db);
+                if (login !=null && login.length >0) {
+                    this.updateUserNameInSiteEvents(db, login[0]);
+                }
                 for (int i = 0; i < n; i++) {
                     try {
                         insert = table.getInsertIntoDB(i);
                         System.out.println("insert " + insert);
+                        Log.i("codedebug", "getInsertTable insert 1="+insert);
                         db.execSQL(insert);
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         System.out.println("insert " + insert + ex);
+                        Log.i("codedebug", "getInsertTable insert 1="+ex);
                         isInserted =  false;
                     }
 
@@ -327,6 +341,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println("ERROR getInsertFromTable " + ex);
+            Log.i("codedebug", "getInsertTable error 1="+ex);
             return false;
 
         }
@@ -418,7 +433,10 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
        else
             values.put(DataTable_SiteEvent.strComment, temp);
 
+       Log.i("codedebug", "UPDATE "+ r.getStrM_Per_ID()+ r.toString());
+
         values.put(DataTable_SiteEvent.strSE_ID, r.getStrSE_ID());
+        values.put(DataTable_SiteEvent.strM_Per_ID, r.getStrM_Per_ID());
         values.put(DataTable_SiteEvent.datSE_Date, r.getDatSE_Date());
         values.put(DataTable_SiteEvent.datSE_Time, r.getDatSE_Time());
         values.put(DataTable_SiteEvent.datResDate, r.getDatResDate());
@@ -426,6 +444,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         values.put(DataTable_SiteEvent.strUserName, r.getStrUserName());
         values.put(DataTable_SiteEvent.strUserUploadName, r.getStrUserUploadName());
         values.put(DataTable_SiteEvent.Measurement_Type, r.getMeasurementType().value());
+        values.put(DataTable_SiteEvent.strM_Per_FirstLastName, r.getStrM_Per_FirstLastName());
 
         int rowsUpdated = db.update(HandHeld_SQLiteOpenHelper.SITE_EVENT, values, DataTable_SiteEvent.lngID + "=" + r.getLngID(), null);
 
@@ -437,7 +456,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 
     public Cursor getSE_ShortList(SQLiteDatabase db) {
         return getSE_ShortList(db, "order by " +
-                DataTable_SiteEvent.default_datetimeformat + " desc , "
+                DataTable_SiteEvent.datSE_Date + " desc , "
                 + DataTable_SiteEvent.datSE_Time + " DESC");
 
 
@@ -537,6 +556,18 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         getInsertTable(db, login);
 
     }
+    public void updateUserNameInSiteEvents(SQLiteDatabase db, String name) {
+
+        String update = "UPDATE " + HandHeld_SQLiteOpenHelper.SITE_EVENT +
+                " SET " + DataTable_SiteEvent.strUserUploadName + " = '" + name + "', " +
+                DataTable_SiteEvent.strUserName + " = '" + name + "' " +
+                " where ( " + DataTable_SiteEvent.uploaded + " is null  or " + DataTable_SiteEvent.uploaded + " = 0) " +
+                "  and  (" + DataTable_SiteEvent.recordToUpload + " = 1 or " + DataTable_SiteEvent.recordToUpload + " is null) " +
+                "  and  (" + DataTable_SiteEvent.strUserName + "  is null or  " +  DataTable_SiteEvent.strUserName + "  ='')";
+        db.execSQL(update);
+
+    }
+
 
 
     public Integer getMaxID_FromSiteEventsTable(SQLiteDatabase db) {
@@ -571,10 +602,22 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
 
-    public Cursor GetCursorUsers(SQLiteDatabase db) {
+    public Cursor GetCursorMaintenancePerson(SQLiteDatabase db) {
 
-        String sql ="Select rowid _id, Name, strUserName, domain , '1' as ord from tbl_users    "+
-                " UNION ALL SELECT -1,'NA', 'NA', 'NA', '0' order by ord, nid, Name";
+        String sql = "Select rowid _id, " +
+                "IFNULL("+ DataTable_Maint.strM_Per_FName +",'')"+  "|| ', ' ||+ " +
+                 "IFNULL("+ DataTable_Maint.strM_Per_LName +",'')"+   " as Name, "
+                + DataTable_Maint.strM_Per_ID +","
+                + DataTable_Maint.strM_Per_LName +","
+                + DataTable_Maint.strM_Per_FName +","
+                + DataTable_Maint.IsDefault + ",'1' as ord from "
+                + HandHeld_SQLiteOpenHelper.MAINTENANCE+
+                " UNION ALL SELECT -1,'NA', 'NA', 'NA', 'NA', '-1', '0' order by ord, "
+                + DataTable_Maint.IsDefault + " desc, "
+                + DataTable_Maint.strM_Per_LName + ", "
+                + DataTable_Maint.strM_Per_FName;
+        Log.i("codedebug", "GetCursorMaintenancePerson " + sql);
+
         return db.rawQuery(sql, null);
     }
 
@@ -604,10 +647,22 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         return arrayList;
     }
 
-    public String GetUserUploadName(SQLiteDatabase db, String spinUserName)
+    public String GetMaintenanceInitialsByFirstLastName(SQLiteDatabase db, String spinUserName)
     {
-        String sql = "Select "+ DataTable_Users.strUserName + " from " + USERS
-                + "  where "+ DataTable_Users.strName + " = '" + spinUserName+"'";
+        String[] flname = spinUserName.split(",");
+        if (flname.length <2) {
+            flname = new String[2];
+            flname[0] = spinUserName;
+            flname[1] = spinUserName;
+        }
+
+
+        String sql = "Select "+ DataTable_Maint.strM_Per_ID + " from " + MAINTENANCE
+                + "  where "+ DataTable_Maint.strM_Per_FName + " = '" + flname[0].trim() +"' and "
+                + DataTable_Maint.strM_Per_LName + " = '" + flname[1].trim() +"'";
+
+        Log.i("codedebug","GetMaintenanceInitialsByFirstLastName " +  sql );
+        
         return GeneralQueryFirstValue(db, sql);
     }
 
@@ -615,19 +670,25 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     {
         String sql = "Select "+ DataTable_Equip_Ident.strEqDesc + " from " + EQUIP_IDENT
                 + "  where "+ DataTable_Equip_Ident.strEqID + " = '" + strEqId+"'";
+        Log.i("codedebug", "GetEqDescDB " + sql);
         return GeneralQueryFirstValue(db, sql);
     }
 
-    public String GetDefaultUser(SQLiteDatabase db) {
+    public String GetDefaultMaintenancePerson(SQLiteDatabase db) {
         String default_user = "NA";
-        String sql = "Select " + DataTable_Users.strName + " from " + USERS
-                + "  order by " + DataTable_Users.nID + " asc LIMIT 1";
+        String sql = "Select  IFNULL(" + DataTable_Maint.strM_Per_FName + ",'')|| ', ' || IFNULL(" + DataTable_Maint.strM_Per_LName + ",'')  from " + MAINTENANCE
+                + "  order by " + DataTable_Maint.IsDefault + " desc LIMIT 1";
+
+        Log.i("codedebug", "GetDefaultMaintenancePerson: sql " + sql);
+
         try {
             default_user = GeneralQueryFirstValue(db, sql);
         } catch (Exception ex) {
-            System.out.println(ex);
-        }
+            Log.i("codedebug", "GetDefaultMaintenancePerson " + ex.toString());
 
+
+        }
+        Log.i("codedebug", "GetDefaultMaintenancePerson : " + default_user);
         return default_user;
     }
 
@@ -862,6 +923,10 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         File newCSV = null;
 
         Calendar c = Calendar.getInstance();
+        String[] login = getLoginInfo(db);
+        if (login !=null && login.length >0) {
+            this.updateUserNameInSiteEvents(db, login[0]);
+        }
         try {
             CallSoapWS ws = new CallSoapWS(directoryApp);
             String datetimeserver = ws.WS_GetServerDate(false);
@@ -1043,7 +1108,8 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
                         s_strComment + "," +
                         s_strM_Per_ID + ",";
 
-                if ((type == MeasurementTypes.MEASUREMENT_TYPES.PH  && iResolved == 0)
+                if ((type == MeasurementTypes.MEASUREMENT_TYPES.PH  &&
+                        (s_ynResolved.equalsIgnoreCase("false") || iResolved == 0))
                     || (type == MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE))
                     row += ",";
                 else
@@ -1202,6 +1268,8 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             return "NA";
         }
     }
+
+
     public static String getDeviceName() {
         String device = "NA";
         device = getDeviceName2();

@@ -197,7 +197,7 @@ Cursor Cursor_Eq = null;
         int id = item.getItemId();
 
         if (id == R.id.menu_CheckScanner) {
-            Intent barcodeIntent = new Intent("android.intent.action.CLIENTBARCODEACTIVITY");
+            Intent barcodeIntent = new Intent("android.intent.action.SE_CHECKBARCODEACTIVITY");
             startActivity(barcodeIntent);
             return true;
         }
@@ -653,7 +653,7 @@ Cursor Cursor_Eq = null;
 
                         Integer[] nrecords = new Integer[]{0};
 
-                        String message = "The data (" + nrecords[0] + " records) is ready to be uplaoded to the server.";
+                        String message = "The data (" + nrecords[0] + " records) is ready to be uploaded to the server.";
 
                         String s = null;
 

@@ -80,8 +80,8 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
     Cursor Cursor_Users = null;
     ArrayList<String[]> array_Users = null;
-    String current_username = "";
-    String prior_current_username = "";
+    String current_maintenance = "";
+    String prior_current_maintenance = "";
 
     Cursor Cursor_Eq = null;
     ArrayList<String[]> array_Eq = null;
@@ -124,7 +124,12 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_input_general_eq);
-       // Toast.makeText(ct, ct.getClass().getName(), Toast.LENGTH_SHORT).show();
+
+        AppDataTables tables = new AppDataTables();
+        tables.SetSiteEventsTablesStructure();
+        dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
+        db = dbHelper.getReadableDatabase();
+
 
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
@@ -132,7 +137,6 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
        // Toast.makeText(ct, ct.getPackageName(), Toast.LENGTH_SHORT).show();
         prior_current_equipment = "NA";
         current_site_event_reading = SiteEvents.GetDefaultReading();
-
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -144,6 +148,11 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                 se_table = new DataTable_SiteEvent();
         }
         current_site_event_reading.setMeasurementType(current_type);
+        String[] login = dbHelper.getLoginInfo(db);
+        if (login !=null && login.length >0) {
+            current_site_event_reading.setStrUserName(login[0]);
+            current_site_event_reading.setStrUserUploadName(login[0]);
+        }
         try {
             current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
         } catch (CloneNotSupportedException e) {
@@ -154,21 +163,16 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
         current_se =default_SE;
         current_equipment = current_site_event_reading.getStrEq_ID();
-        current_username = current_site_event_reading.getStrUserName();
+        current_maintenance = current_site_event_reading.getStrM_Per_FirstLastName();
         current_comment = current_site_event_reading.getStrComment();
         current_SEDateTime = current_site_event_reading.getDatSE_Date();
 
         current_yn_resolve = current_site_event_reading.getBoolResolved();
-        prior_current_username = current_username;
+        prior_current_maintenance = current_maintenance;
         //prior_current_equipment = current_equipment;
         prior_current_se = current_se;
         current_site_event_reading.setMeasurementType(current_type);
 
-        AppDataTables tables = new AppDataTables();
-        tables.SetSiteEventsTablesStructure();
-
-        dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
-        db = dbHelper.getReadableDatabase();
 
         int rowsInDB = dbHelper.getRowsInLookupTables(db);
         if (rowsInDB < 1) {
@@ -253,7 +257,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         });
 
         //USERS
-        Cursor_Users = dbHelper.GetCursorUsers(db);
+        Cursor_Users = dbHelper.GetCursorMaintenancePerson(db);
         array_Users = transferCursorToArrayList(Cursor_Users);
 
         String[] from_Users = new String[]{DataTable_Users.strName};
@@ -263,12 +267,12 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                         Cursor_Users, from_Users, toL, 0);
         adapter_users.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_User_name.setAdapter(adapter_users);
-        SetSpinnerValue(spin_User_name, array_Users, current_username,1);
+        SetSpinnerValue(spin_User_name, array_Users, current_maintenance,1);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                current_username = GetSpinnerValue(spin_User_name);
-                if ((!current_username.equals("NA"))
-                        && (!current_username.equals(prior_current_username)))
+                current_maintenance = GetSpinnerValue(spin_User_name);
+                if ((!current_maintenance.equals("NA"))
+                        && (!current_maintenance.equals(prior_current_maintenance)))
                     isLastRecordSavedToTable = false;
 
             }
@@ -346,31 +350,36 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SaveFormAndValidate();
+
+                Log.i("CodeDebug","isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+                if (!isLastRecordSavedToTable) {
+
+                    SaveFormAndValidate();
+                }
                 if (isLastRecordSavedToTable) {
                     isRecordsSavedToDB = dbHelper.getInsertTable(db, se_table);
                     int records = se_table.GetNumberOfRecords();
 
                     if (isRecordsSavedToDB) {
-                        String message = "The data (" + String.valueOf(records) + " records) is saved and ready to be uplaoded.";
+                        String message = "The data (" + String.valueOf(records) + " records) is saved and ready to be uploaded.";
                         Toast.makeText(ct, message, Toast.LENGTH_SHORT).show();
-                        System.out.println(message);
                         se_table = new DataTable_SiteEvent();
                     }
                 } else
                     isRecordsSavedToDB = false;
-                 if (isLastRecordSavedToTable && isRecordsSavedToDB) {
-                    clearForms();
 
-                   Intent intent = new Intent(ct, Activity_Main.class);
+                Log.i("isLastRecordSavedToTable", "btnDone.setOnClickListener ,isLastRecordSavedToTable " + isLastRecordSavedToTable.toString());
+                if (isLastRecordSavedToTable && isRecordsSavedToDB) {
+                    clearForms();
+                    Intent intent = new Intent(ct, Activity_Main.class);
                     startActivity(intent);
                     finish();
-                    //onBackPressed();
+                    // onBackPressed();
                 }
             }
         });
 
-   // ADD BARCODE
+        // ADD BARCODE
 // get bar code instance from MainActivity
         barcodeReader = Activity_Main.getBarcodeObject();
 
@@ -953,17 +962,17 @@ Wedge as keys to empty
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
         current_comment = (String) txt_comment.getText().toString();
-        current_username = GetSpinnerValue(spin_User_name);
+        current_maintenance = GetSpinnerValue(spin_User_name);
 
-        String userupload = dbHelper.GetUserUploadName(db, current_username);
-        if (userupload == null || (!userupload.equals("")))
-            current_site_event_reading.setStrUserUploadName(userupload);
+        String initials = dbHelper.GetMaintenanceInitialsByFirstLastName(db, current_maintenance);
+        if (initials == null || (!initials.equals("")))
+            current_site_event_reading.setStrM_Per_ID(initials);
         current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.GENERAL_BARCODE);
 
         current_se = GetSpinnerValue(spin_SE_Code);
         current_equipment = GetSpinnerValue(spin_Equip_Code);
         current_site_event_reading.setStrComment(current_comment);
-        current_site_event_reading.setStrUserName(current_username);
+        current_site_event_reading.setStrM_Per_FirstLastName(current_maintenance);
         current_site_event_reading.setStrEq_ID(current_equipment);
         current_site_event_reading.setStrSE_ID(current_se);
         String desc = dbHelper.GetEqDescDB(db, current_equipment);

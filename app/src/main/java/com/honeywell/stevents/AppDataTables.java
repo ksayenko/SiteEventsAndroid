@@ -27,6 +27,7 @@ public class AppDataTables {
         dataTables.add(new DataTable_Site_Event_Def());
         dataTables.add(new DataTable_Equip_Ident());
         dataTables.add(new DataTable_LoginInfo());
+        dataTables.add(new DataTable_Maint());
         dataTables.add(new DataTable_Users());
 
     }

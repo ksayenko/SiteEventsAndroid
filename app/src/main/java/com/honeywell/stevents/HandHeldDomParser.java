@@ -14,10 +14,12 @@ public class HandHeldDomParser {
         data = null;
         if (filename.equalsIgnoreCase(CallSoapWS.USERS + ".xml")) {
             data = new DataTable_Users();
-        } else if (filename.equalsIgnoreCase(CallSoapWS.EQUIP_IDENT     + ".xml")) {
+        } else if (filename.equalsIgnoreCase(CallSoapWS.EQUIP_IDENT + ".xml")) {
             data = new DataTable_Equip_Ident();
         } else if (filename.equalsIgnoreCase(CallSoapWS.SITE_EVENT_DEF + ".xml")) {
             data = new DataTable_Site_Event_Def();
+        } else if (filename.equalsIgnoreCase(CallSoapWS.MAINTENANCE + ".xml")) {
+            data = new DataTable_Maint();
         } else
             data = new AppDataTable();
 
@@ -29,7 +31,7 @@ public class HandHeldDomParser {
                 File inputFile = new File(fullfilename);
                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                System.out.println("Before dBuilder.parse(inputFile)"+ fullfilename);
+                System.out.println("Before dBuilder.parse(inputFile)" + fullfilename);
                 Document doc = dBuilder.parse(inputFile);
                 doc.getDocumentElement().normalize();
 

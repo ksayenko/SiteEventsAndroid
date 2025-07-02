@@ -166,6 +166,9 @@ import java.util.concurrent.Executors;
                     publishProgress(new Integer[]{2});
                     tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml"));
                     publishProgress(new Integer[]{3});
+                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.MAINTENANCE + ".xml"));
+                    publishProgress(new Integer[]{4});
+
 
 
                 } catch (Exception exception) {

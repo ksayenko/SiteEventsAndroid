@@ -116,6 +116,7 @@ public class Activity_Login extends Activity {
 
         if (!Objects.equals(name, "") && !Objects.equals(encryptedPassword, "")) {
             dbHelper.updateLoginInformationInDB(db, name, encryptedPassword);
+            dbHelper.updateUserNameInSiteEvents(db, name);
             rv = true;
         }
         return rv;

@@ -13,11 +13,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -29,20 +27,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
-import com.honeywell.aidc.BarcodeFailureEvent;
-import com.honeywell.aidc.BarcodeReadEvent;
 import com.honeywell.aidc.BarcodeReader;
-import com.honeywell.aidc.ScannerNotClaimedException;
-import com.honeywell.aidc.ScannerUnavailableException;
-import com.honeywell.aidc.TriggerStateChangeEvent;
-import com.honeywell.aidc.UnsupportedPropertyException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 
@@ -81,7 +69,7 @@ public class Activity_Noise_Edit extends AppCompatActivity {
 
     Cursor Cursor_Users = null;
     ArrayList<String[]> array_Users = null;
-    String current_username = "";
+    String current_maintenance = "";
 
     Cursor Cursor_Eq = null;
     ArrayList<String[]> array_Eq = null;
@@ -155,7 +143,7 @@ public class Activity_Noise_Edit extends AppCompatActivity {
 
         current_se = current_site_event_reading.getStrSE_ID();
         current_equipment = current_site_event_reading.getStrEq_ID();
-        current_username = current_site_event_reading.getStrUserName();
+        current_maintenance = current_site_event_reading.getStrM_Per_FirstLastName();
         current_comment = current_site_event_reading.getStrComment();
         current_SEDateTime = current_site_event_reading.getDatSE_Date();
         current_ResDateTime = current_site_event_reading.getDatResDate();
@@ -285,7 +273,7 @@ public class Activity_Noise_Edit extends AppCompatActivity {
 
 
         //USERS
-        Cursor_Users = dbHelper.GetCursorUsers(db);
+        Cursor_Users = dbHelper.GetCursorMaintenancePerson(db);
         array_Users = transferCursorToArrayList(Cursor_Users);
 
         String[] from_Users = new String[]{DataTable_Users.strName};
@@ -295,10 +283,10 @@ public class Activity_Noise_Edit extends AppCompatActivity {
                         Cursor_Users, from_Users, toL, 0);
         adapter_users.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_User_name.setAdapter(adapter_users);
-        SetSpinnerValue(spin_User_name, array_Users, current_username,1);
+        SetSpinnerValue(spin_User_name, array_Users, current_maintenance,1);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                current_username = GetSpinnerValue(spin_User_name);
+                current_maintenance = GetSpinnerValue(spin_User_name);
                             isLastRecordSavedToTable = false;
 
             }
@@ -435,7 +423,7 @@ public class Activity_Noise_Edit extends AppCompatActivity {
 //        Log.i("SetAndStartIntent", "SetAndStartIntent - VOC");
 //        seintent.putExtra("SE", current_site_event_reading);
 //        seintent.putExtra("SE_TABLE", se_table);
-//        seintent.putExtra("USER", current_username);
+//        seintent.putExtra("USER", current_maintenance);
 //        if (!isLastRecordSavedToTable) {
 //            isLastRecordSavedToTable = true;
 //            AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
@@ -471,15 +459,11 @@ public class Activity_Noise_Edit extends AppCompatActivity {
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
         current_comment = (String) txt_comment.getText().toString();
-        current_username = GetSpinnerValue(spin_User_name);
+        current_maintenance = GetSpinnerValue(spin_User_name);
         current_reading = text_Value.getText().toString()  ;
         current_site_event_reading.setValue(current_reading);
         current_site_event_reading.setUnit(text_Unit.getText().toString());
         current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.NOISE);
-
-        String userupload = dbHelper.GetUserUploadName(db,current_username);
-        if(userupload == null || (!userupload.equals("")))
-            current_site_event_reading.setStrUserUploadName(userupload);
 
         current_se = GetSpinnerValue(spin_SE_Code);
         String desc = dbHelper.GetEqDescDB(db,current_equipment);
@@ -487,7 +471,10 @@ public class Activity_Noise_Edit extends AppCompatActivity {
             current_site_event_reading.setStrEqDesc(desc);
 
         current_site_event_reading.setStrComment(current_comment);
-        current_site_event_reading.setStrUserName(current_username);
+        current_site_event_reading.setStrM_Per_FirstLastName(current_maintenance);
+        String initials = dbHelper.GetMaintenanceInitialsByFirstLastName(db,current_maintenance);
+        if(initials == null || (!initials.equals("")))
+            current_site_event_reading.setStrM_Per_ID(initials);
         current_site_event_reading.setStrEq_ID(current_equipment);
         current_site_event_reading.setStrSE_ID(current_se);
         current_site_event_reading.setYnResolved("false");

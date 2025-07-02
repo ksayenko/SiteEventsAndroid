@@ -86,9 +86,9 @@ public class Activity_Main_Input extends AppCompatActivity
 
     Cursor Cursor_Users = null;
     ArrayList<String[]> array_Users = null;
-    String current_username = "";
+    String current_maintenance = "";
 
-    String prior_current_username = "";
+    String prior_current_maintenance = "";
 
     Cursor Cursor_Eq = null;
     ArrayList<String[]> array_Eq = null;
@@ -128,11 +128,14 @@ public class Activity_Main_Input extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AppDataTables tables = new AppDataTables();
+        tables.SetSiteEventsTablesStructure();
+        dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
+        db = dbHelper.getReadableDatabase();
+
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
-
-       // Toast.makeText(ct, ct.getClass().getName(),Toast.LENGTH_SHORT).show();
-
         current_site_event_reading = SiteEvents.GetDefaultReading();
 
         try {
@@ -149,24 +152,23 @@ public class Activity_Main_Input extends AppCompatActivity
 
         }
         current_site_event_reading.setMeasurementType(current_type);
+        String[] login = dbHelper.getLoginInfo(db);
+        if (login !=null && login.length >0) {
+            current_site_event_reading.setStrUserName(login[0]);
+            current_site_event_reading.setStrUserUploadName(login[0]);
+        }
+
         try {
             current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        current_username = current_site_event_reading.getStrUserName();
+        current_maintenance = current_site_event_reading.getStrM_Per_FirstLastName();
         current_equipment = current_site_event_reading.getStrEq_ID();
         prior_current_equipment = current_site_event_reading.getStrEq_ID();
-        current_username = current_site_event_reading.getStrUserName();
         current_comment = current_site_event_reading.getStrComment();
 
         setContentView(R.layout.activity_input_main_se);
-
-        AppDataTables tables = new AppDataTables();
-        tables.SetSiteEventsTablesStructure();
-
-        dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
-        db = dbHelper.getReadableDatabase();
 
         int rowsInDB = dbHelper.getRowsInLookupTables(db);
         if (rowsInDB < 1) {
@@ -248,10 +250,10 @@ public class Activity_Main_Input extends AppCompatActivity
         });
 
         //USERS
-        Cursor_Users = dbHelper.GetCursorUsers(db);
+        Cursor_Users = dbHelper.GetCursorMaintenancePerson(db);
         array_Users = transferCursorToArrayList(Cursor_Users);
         //first value from user table will be defaut user name
-        current_username = dbHelper.GetDefaultUser(db);
+        current_maintenance = dbHelper.GetDefaultMaintenancePerson(db);
 
         String[] from_Users = new String[]{DataTable_Users.strName};
 
@@ -261,7 +263,7 @@ public class Activity_Main_Input extends AppCompatActivity
                         Cursor_Users, from_Users, toL, 0);
         adapter_users.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_User_name.setAdapter(adapter_users);
-        SetSpinnerValue(spin_User_name, array_Users, current_username);
+        SetSpinnerValue(spin_User_name, array_Users, current_maintenance);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 
@@ -309,7 +311,7 @@ public class Activity_Main_Input extends AppCompatActivity
 
             public void afterTextChanged(Editable s) {
                       isLastRecordSavedToTable = false;
-               Log.i("CodeDebug","comm isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+            //   Log.i("CodeDebug","comm isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
 
             }
         });
@@ -333,7 +335,7 @@ public class Activity_Main_Input extends AppCompatActivity
                 SaveFormAndValidate();
 
                 isRecordsSavedToDB = false;
-               Log.i("CodeDebug","btnSave.setOnClickListener isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+             //  Log.i("CodeDebug","btnSave.setOnClickListener isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
 
 
             }
@@ -344,7 +346,7 @@ public class Activity_Main_Input extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-               Log.i("CodeDebug","isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+           //    Log.i("CodeDebug","isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
                 if (!isLastRecordSavedToTable) {
 
                     SaveFormAndValidate();
@@ -354,7 +356,7 @@ public class Activity_Main_Input extends AppCompatActivity
                     int records = se_table.GetNumberOfRecords();
 
                     if (isRecordsSavedToDB) {
-                        String message = "The data (" + String.valueOf(records) + " records) is saved and ready to be uplaoded.";
+                        String message = "The data (" + String.valueOf(records) + " records) is saved and ready to be uploaded.";
                         Toast.makeText(ct, message, Toast.LENGTH_SHORT).show();
                         se_table = new DataTable_SiteEvent();
                     }
@@ -440,7 +442,7 @@ public class Activity_Main_Input extends AppCompatActivity
 
     private void spin_Equip_Code_Listener(AdapterView<?> parent, int pos) {
         Object item = parent.getItemAtPosition(pos);
-        Log.i("CodeDebug", "other -> " +  " "+ current_equipment + current_site_event_reading.getStrEq_ID() + current_site_event_reading_copy.getStrEq_ID());
+    //    Log.i("CodeDebug", "other -> " +  " "+ current_equipment + current_site_event_reading.getStrEq_ID() + current_site_event_reading_copy.getStrEq_ID());
 
         try {
             current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
@@ -456,6 +458,8 @@ public class Activity_Main_Input extends AppCompatActivity
         text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
         text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime,""));
 
+        Log.i("CodeDebug", "other ->spin_Equip_Code_Listener " + current_site_event_reading.toString());
+
         SaveReadingsToSiteEventRecord();
         boolean b = current_site_event_reading.equalAllExceptEquipmentOrEquipmentNA(current_site_event_reading_copy);
         Log.i("CodeDebug", "other -> " + b + " "+ current_equipment + current_site_event_reading.getStrEq_ID() + current_site_event_reading_copy.getStrEq_ID());
@@ -469,7 +473,7 @@ public class Activity_Main_Input extends AppCompatActivity
             bBarcodeEquip = false;
         }
          current_type = MeasurementTypes.GetFrom_SE_ID(current_equipment, current_equipment_type);
-        Log.i("CodeDebug", "MAIN ->  current_type " + current_type);
+      //  Log.i("CodeDebug", "MAIN ->  current_type " + current_type);
         current_site_event_reading.setMeasurementType(current_type);
 
         if ((!current_equipment.startsWith("NA") && !Objects.equals(prior_current_equipment, current_equipment)) ||b) {
@@ -547,18 +551,19 @@ public class Activity_Main_Input extends AppCompatActivity
     }
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
+       // Log.i("codedebug","SaveReadingsToSiteEventRecord 1 current_site_event_reading ->" + current_site_event_reading.toString());
         current_comment = (String) txt_comment.getText().toString();
-        current_username = GetSpinnerValue(spin_User_name);
+        current_maintenance = GetSpinnerValue(spin_User_name);
 
-        String userupload = dbHelper.GetUserUploadName(db,current_username);
-        if(userupload == null || (!userupload.equals("")))
-            current_site_event_reading.setStrUserUploadName(userupload);
+        String initials = dbHelper.GetMaintenanceInitialsByFirstLastName(db, current_maintenance);
+        if(initials == null || (!initials.equals("")))
+            current_site_event_reading.setStrM_Per_ID(initials);
 
         current_se = GetSpinnerValue(spin_SE_Code);
         current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.OTHER);
         current_equipment = GetSpinnerValue(spin_Equip_Code);
         current_site_event_reading.setStrComment(current_comment);
-        current_site_event_reading.setStrUserName(current_username);
+        current_site_event_reading.setStrM_Per_FirstLastName(current_maintenance);
         current_site_event_reading.setStrEq_ID(current_equipment);
         current_site_event_reading.setStrSE_ID(current_se);
         String desc = dbHelper.GetEqDescDB(db,current_equipment);
@@ -581,7 +586,7 @@ public class Activity_Main_Input extends AppCompatActivity
         temp2 = text_resolve_time.getText().toString();
         current_site_event_reading.setDatResDate(DateTimeHelper.GetStringDateTimeFromDateAndTime(temp1,temp2));
 
-
+      //  Log.i("codedebug","SaveReadingsToSiteEventRecord 2 current_site_event_reading ->" + current_site_event_reading.toString());
     }
 
     private void text_event_time_picker() {
@@ -956,7 +961,6 @@ Wedge as keys to empty
         current_site_event_reading.setLngID((int) (new Date().getTime() / 1000));
         currentDateTime = Calendar.getInstance().getTime();
 
-
         Validation isTheRecordValid = Activity_Main_Input.IsRecordValid(current_site_event_reading,
                 spin_Equip_Code,
                 spin_SE_Code, spin_User_name, null);
@@ -978,7 +982,7 @@ Wedge as keys to empty
             isRecordsSavedToDB = false;
             maxId++;
             clearForms();
-            System.out.println("NEW max id " + maxId.toString());
+          //  Log.i("codedebug","MAIN INPUT SAVE FORMS NEW max id " + maxId.toString());
         }
 
         return isTheRecordValid;

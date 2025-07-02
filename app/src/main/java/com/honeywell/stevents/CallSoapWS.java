@@ -104,6 +104,7 @@ public class CallSoapWS {
     public final static String SITE_EVENT = "tbl_Inst_Readings";
     public final static String EQUIP_IDENT = "tbl_Equip_Ident";
     public final static String USERS = "tbl_Users";
+    public final static String MAINTENANCE  = "tbl_MaintPersIdent";
     public final static String SITE_EVENT_DEF = "tbl_Site_Event_Def";
 
 
@@ -321,6 +322,9 @@ public class CallSoapWS {
         dataset1 = WS_GetDataset(CallSoapWS.EQUIP_IDENT);
         tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, CallSoapWS.EQUIP_IDENT + ".xml"));
         System.out.println("KS:: EQUIP_IDENT.XML");
+        dataset1 = WS_GetDataset(CallSoapWS.MAINTENANCE);
+        tables.AddStdetDataTable(f.WriteXMLDataAndCreateSTDETable(dataset1, CallSoapWS.MAINTENANCE + ".xml"));
+        System.out.println("KS:: tbl_MaintPersIdent.XML");
 
         // Gets the data repository in write mode
         return tables;
@@ -342,6 +346,9 @@ public class CallSoapWS {
 
         dataset1 = WS_GetDataset(CallSoapWS.EQUIP_IDENT);
         f.WriteXMLData(dataset1, CallSoapWS.EQUIP_IDENT + ".xml");
+
+        dataset1 = WS_GetDataset(CallSoapWS.MAINTENANCE);
+        f.WriteXMLData(dataset1, CallSoapWS.MAINTENANCE + ".xml");
 
     }
 
