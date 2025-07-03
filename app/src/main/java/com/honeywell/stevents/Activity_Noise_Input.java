@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 
 public class Activity_Noise_Input extends AppCompatActivity implements BarcodeReader.BarcodeListener,
@@ -144,13 +145,12 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
 
         current_site_event_reading = SiteEvents.GetDefaultReading();
 
-        current_unit = "dBa";
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             System.out.println("we have default reading");
             current_site_event_reading = (SiteEvents) getIntent().getSerializableExtra("SE");
-            Log.i("codedebug","NOISE ONCREATE current_site_event_reading ->" + current_site_event_reading.toString());
+            Log.i("codedebug", "NOISE ONCREATE current_site_event_reading ->" + current_site_event_reading.toString());
 
             se_table = (DataTable_SiteEvent) getIntent().getSerializableExtra("SE_TABLE");
             current_maintenance = current_site_event_reading.getStrM_Per_FirstLastName();
@@ -159,7 +159,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         }
         current_site_event_reading.setMeasurementType(current_type);
         String[] login = dbHelper.getLoginInfo(db);
-        if (login !=null && login.length >0) {
+        if (login != null && login.length > 0) {
             current_site_event_reading.setStrUserName(login[0]);
             current_site_event_reading.setStrUserUploadName(login[0]);
         }
@@ -170,15 +170,16 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         }
 
         current_equipment = current_site_event_reading.getStrEq_ID();
-        default_SE = dbHelper.GetDefaultSiteEventByEquipment(db,current_equipment);
+        default_SE = dbHelper.GetDefaultSiteEventByEquipment(db, current_equipment);
         current_site_event_reading.setStrSE_ID(default_SE);
-        current_se =default_SE;
+        current_se = default_SE;
 
         current_comment = current_site_event_reading.getStrComment();
         current_SEDateTime = current_site_event_reading.getDatSE_Date();
         current_ResDateTime = current_site_event_reading.getDatResDate();
-        current_yn_resolve= current_site_event_reading.getBoolResolved();
+        current_yn_resolve = current_site_event_reading.getBoolResolved();
         current_reading = current_site_event_reading.getValue();
+        current_reading = "0";
 
         prior_current_maintenance = current_maintenance;
         prior_current_equipment = current_equipment;
@@ -208,7 +209,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
 //        else
 //            rbResloved.check(R.id.radio_false);
 
-        text_Value= (TextView) findViewById(R.id.txtValue);
+        text_Value = (TextView) findViewById(R.id.txtValue);
         text_Value.setText(current_reading);
         text_Value.addTextChangedListener(new TextWatcher() {
 
@@ -218,22 +219,13 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-               /// Toast.makeText(ct, text_Value.getText(), Toast.LENGTH_SHORT).show();
+                /// Toast.makeText(ct, text_Value.getText(), Toast.LENGTH_SHORT).show();
             }
 
             public void afterTextChanged(Editable s) {
-                current_reading = text_Value.getText().toString();
-                current_unit = text_Unit.getText().toString();
-                String desc = "";
-                if (!current_equipment.equals("NA")) {
-                    desc = dbHelper.GetEqDescDB(db, current_equipment);
-                    if (desc.equals(""))
-                        desc = "Noise monitoring ";
-                }
-                if (!Objects.equals(current_reading, "")) {
-                    current_comment = desc + " - " + current_reading + " " + current_unit;
-                    txt_comment.setText(current_comment);
-                }
+                if(current_reading == text_Value.getText().toString())
+                    return;
+                SetCommentField(current_equipment, true);
                 isLastRecordSavedToTable = false;
             }
         });
@@ -250,7 +242,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
             }
         });
 
-        text_Unit =(TextView) findViewById(R.id.txtUnit);
+        text_Unit = (TextView) findViewById(R.id.txtUnit);
         text_Unit.setText(current_unit);
         text_Unit.addTextChangedListener(new TextWatcher() {
 
@@ -264,13 +256,9 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
 
             public void afterTextChanged(Editable s) {
                 Log.i("isLastRecordSavedToTable", "text_Unit.addTextChangedListener " + isLastRecordSavedToTable.toString());
-                current_reading = text_Value.getText().toString();
-                current_unit = text_Unit.getText().toString();
-                if (!Objects.equals(current_reading, "")) {
-                    current_comment = "Noise Monitoring - " + current_reading + " " + current_unit;
-                    txt_comment.setText(current_comment);
-                }
-
+                if(current_unit == text_Unit.getText().toString())
+                    return;
+                SetCommentField(current_equipment, true);
                 isLastRecordSavedToTable = false;
             }
         });
@@ -309,13 +297,14 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         adapter_Eq.setDropDownViewResource(android.R.layout.simple_spinner_item);
         prior_current_equipment = current_equipment;
         spin_Equip_Code.setAdapter(adapter_Eq);
-        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment,1);
+        SetSpinnerValue(spin_Equip_Code, array_Eq, current_equipment, 1);
         spin_Equip_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 //CUSTOM METHOD
                 spin_Equip_Code_Listener(parent, pos);
 
             }
+
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
@@ -331,7 +320,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
                         Cursor_Users, from_Users, toL, 0);
         adapter_users.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_User_name.setAdapter(adapter_users);
-        SetSpinnerValue(spin_User_name, array_Users, current_maintenance,1);
+        SetSpinnerValue(spin_User_name, array_Users, current_maintenance, 1);
         spin_User_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 current_maintenance = GetSpinnerValue(spin_User_name);
@@ -356,7 +345,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
                         Cursor_SE_code, from_SE_CODE, toL, 0);
         adapter_SE_code.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spin_SE_Code.setAdapter(adapter_SE_code);
-        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se,2);
+        SetSpinnerValue(spin_SE_Code, array_SE_code, current_se, 2);
         spin_SE_Code.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 current_se = GetSpinnerValue(spin_SE_Code);
@@ -364,6 +353,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
                         (!current_se.equals(prior_current_se))))
                     isLastRecordSavedToTable = false;
             }
+
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
@@ -382,7 +372,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
             }
 
             public void afterTextChanged(Editable s) {
-                          if (!txt_comment.getText().toString().equals(""))
+                if (txt_comment.getText().toString() != current_site_event_reading.getStrComment())
                     isLastRecordSavedToTable = false;
             }
         });
@@ -407,7 +397,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
             @Override
             public void onClick(View view) {
                 SaveFormAndValidate();
-                Log.i("codedebug", "NOISE btnDone isLastRecordSavedToTable="+isLastRecordSavedToTable);
+                Log.i("codedebug", "NOISE btnDone isLastRecordSavedToTable=" + isLastRecordSavedToTable);
 
                 if (isLastRecordSavedToTable) {
                     isRecordsSavedToDB = dbHelper.getInsertTable(db, se_table);
@@ -432,7 +422,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
             }
         });
 
-      //ADD BARCODE
+        //ADD BARCODE
 // get bar code instance from MainActivity
         barcodeReader = Activity_Main.getBarcodeObject();
 
@@ -479,6 +469,15 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        /* !!!!!!!!!!!!!!!!!!!!!!!!*/
+
+        SetCommentField(current_equipment, true);
+        try {
+            current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -537,6 +536,14 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
                 current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime,""));
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime,""));
+                current_site_event_reading.setValue("0");
+                current_site_event_reading.setUnit("dBA");
+                current_reading = "0";
+                current_unit = "dBA";
+                current_site_event_reading.setStrSE_ID(default_SE);
+
+                current_se = default_SE;
+                SetCommentField(current_equipment, true);
 
             }
             if (current_type == MeasurementTypes.MEASUREMENT_TYPES.VOC) {
@@ -1065,7 +1072,23 @@ Wedge as keys to empty
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
         }
     }
+    public void SetCommentField(String strEquipment, boolean bResolved) {
 
+        current_reading = text_Value.getText().toString();
+        current_unit = text_Unit.getText().toString();
+        current_site_event_reading.setUnit(current_unit);
+        String desc = "";
+        if (!current_equipment.equals("NA")) {
+            desc = dbHelper.GetEqDescDB(db, current_equipment);
+            if (desc.equals(""))
+                desc = "Noise monitoring ";
+        }
+        if (!Objects.equals(current_reading, "")) {
+            current_comment = desc + " - " + current_reading + " " + current_unit;
+            txt_comment.setText(current_comment);
+        }
+        current_site_event_reading.setStrComment(txt_comment.getText().toString());
+    }
     public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue, int iDataColumn ) {
         int index = GetIndexFromArraylist(strValues, strValue, iDataColumn);
         spinner.setSelection(index);

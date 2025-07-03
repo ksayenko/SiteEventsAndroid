@@ -202,40 +202,18 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             else
                 rbResolved.check(R.id.radio_false);
         }
-
         rbResolved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
-                String desc = "";
-
-                if (!current_equipment.equals("NA")) {
-                    desc = dbHelper.GetEqDescDB(db, current_equipment);
-                    if (desc.equals(""))
-                        desc = current_equipment + " pH Analysis Element";
-                }
-
                 if (rb == rbTrue) {
-                    txt_comment.setEnabled(true);
-                    text_resolve_date.setEnabled(true);
-                    text_resolve_time.setEnabled(true);
-                    text_resolve_date.setText(text_event_date.getText());
-                    text_resolve_time.setText(text_event_time.getText());
-
-                    txt_comment.setText("Calibration of " + desc);
-                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Maintain", 2);
+                    SetCommentField(current_equipment,true);
+                    current_site_event_reading.setYnResolved("true");
                 } else {
-                    //txt_comment.setEnabled(false);
-                    text_resolve_date.setEnabled(false);
-                    text_resolve_time.setEnabled(false);
-
-                    txt_comment.setText("Failed Calibration of " + desc);
-                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Failure", 2);
+                    SetCommentField(current_equipment, false);
+                    current_site_event_reading.setYnResolved("false");
                 }
             }
-
-
-
         });
 
         //text_event_time
@@ -452,6 +430,17 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        /* !!!!!!!!!!!!!!!!!!!!!!!!*/
+        current_site_event_reading.setYnResolved("true");
+        current_yn_resolve = true;
+        rbTrue.setChecked(current_yn_resolve);
+
+        try {
+            current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
     private void spin_Equip_Code_Listener(AdapterView<?> parent, int pos) {
         Object item = parent.getItemAtPosition(pos);
@@ -500,6 +489,9 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
                 current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
                 text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
+                rbTrue.setChecked(true);
+                SetCommentField(current_equipment,true);
+
             }
             if (current_type == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
                 seintent = new Intent("android.intent.action.INPUT_NOISE_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
@@ -517,6 +509,30 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         bAcceptWarningValid = false;
         bAcceptWarningDuplicate = false;
 
+    }
+
+    public void SetCommentField(String strEquipment, boolean bResolved) {
+        String desc = "";
+        if (!strEquipment.equals("NA")) {
+            desc = dbHelper.GetEqDescDB(db, strEquipment);
+            if (desc.equals(""))
+                desc = strEquipment + " pH Analysis Element";
+        }
+        if (bResolved && !strEquipment.equalsIgnoreCase("NA")) {
+            txt_comment.setText("Calibration of " + desc);
+            txt_comment.setEnabled(true);
+            text_resolve_date.setEnabled(true);
+            text_resolve_time.setEnabled(true);
+            text_resolve_date.setText(text_event_date.getText());
+            text_resolve_time.setText(text_event_time.getText());
+            SetSpinnerValue(spin_SE_Code, array_SE_code, default_SE, 2);
+        } else if (!bResolved && !strEquipment.equalsIgnoreCase("NA")) {
+            txt_comment.setText("Failed Calibration of " + desc);
+            text_resolve_date.setEnabled(false);
+            text_resolve_time.setEnabled(false);
+            SetSpinnerValue(spin_SE_Code, array_SE_code, "Failure", 2);
+        }
+        current_site_event_reading.setStrComment(txt_comment.getText().toString());
     }
 
     public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue, int iDataColumn ) {

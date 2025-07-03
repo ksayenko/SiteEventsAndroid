@@ -228,38 +228,12 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
-                String desc = "";
-
-                if (!current_equipment.equals("NA")) {
-                    desc = dbHelper.GetEqDescDB(db, current_equipment);
-                    if (desc.equals(""))
-                        desc = "VOC Monitoring";
-                }
-
-                if (rb == rbDetected) {
-                    txt_comment.setEnabled(true);
-                    text_Value.setEnabled(true);
-                    text_Unit.setEnabled(true);
-                    current_ResDateTime = DateTimeHelper.GetDateTimeNow();
-                    text_resolve_date.setText(
-                            DateTimeHelper.GetStringDateFromDateTime(current_ResDateTime, ""));
-
-                    text_resolve_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_ResDateTime, ""));
-
-                    if (!current_equipment.equals("NA") && !Objects.equals(current_reading, ""))
-                        txt_comment.setText(desc + " - " + current_reading  + " " + current_unit);
-                    else
-                        txt_comment.setText("");
-
-
-                } else {
-                    text_Value.setText("");
-                    text_Value.setEnabled(false);
-                    text_Unit.setEnabled(false);
-                    txt_comment.setText(desc+" - ND");
-
-                }
-
+                Log.i("codedebug", "VOC setOnCheckedChangeListener");
+                SetCommentField(current_equipment, rb == rbDetected);
+                if (rb == rbDetected)
+                current_site_event_reading.setYnResolved("true");
+                else
+                 current_site_event_reading.setYnResolved("false");
             }
 
         });
@@ -277,13 +251,14 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
             }
 
             public void afterTextChanged(Editable s) {
+                if (current_reading ==   text_Value.getText().toString())
+                    return;
                 current_reading = text_Value.getText().toString();
                 current_unit = text_Unit.getText().toString();
-                if (rbDetected.isChecked() && (!current_reading.equals(""))) {
-                    current_comment = "VOC Monitoring - " + current_reading + " " + current_unit;
-                    txt_comment.setText(current_comment);
-                    isLastRecordSavedToTable = false;
-                }
+                Log.i("codedebug", "VOC txt_value");
+
+              SetCommentField(current_equipment, rbDetected.isChecked());
+                isLastRecordSavedToTable = false;
             }
         });
         text_Value.setOnKeyListener(new View.OnKeyListener() {
@@ -312,10 +287,12 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
             }
 
             public void afterTextChanged(Editable s) {
-                 current_reading = text_Value.getText().toString();
+                if (current_unit == text_Unit.getText().toString())
+                    return;
+                current_reading = text_Value.getText().toString();
                 current_unit = text_Unit.getText().toString();
-                current_comment = "VOC Monitoring - " + current_reading + " " + current_unit;
-                txt_comment.setText(current_comment);
+                Log.i("codedebug", "VOC unit");
+                SetCommentField(current_equipment, rbDetected.isChecked());
                 isLastRecordSavedToTable = false;
             }
         });
@@ -552,6 +529,18 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+
+        /* !!!!!!!!!!!!!!!!!!!!!!!!*/
+        current_site_event_reading.setYnResolved("false");
+        current_yn_resolve = false;
+        rbND.setChecked(true);
+
+        try {
+            current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void spin_Equip_Code_Listener(AdapterView<?> parent, int pos) {
@@ -609,8 +598,10 @@ public class Activity_VOC_Input extends AppCompatActivity implements BarcodeRead
                 current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
                 text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
+                text_Value.setText("0");
+                text_Unit.setText("ppm");
+                rbND.setChecked(true);
 
-                //seintent = new Intent("android.intent.action.INPUT_VOC_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
             }
             if (current_type == MeasurementTypes.MEASUREMENT_TYPES.OTHER) {
                 seintent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
@@ -869,9 +860,9 @@ Wedge as keys to empty
 
         //rbDetected.setChecked(false);
         //rbND.setChecked(true);
-        text_Value.setText("");
+        text_Value.setText("0");
         text_Unit.setText("ppm");
-        rbND.setChecked(true);
+        rbND.setChecked(false);
         txt_comment.setText("");
 
         bBarcodeEquip = false;
@@ -1154,6 +1145,41 @@ Wedge as keys to empty
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
         }
 
+    }
+
+    public void SetCommentField(String strEquipment, boolean bDetected) {
+        String desc = "";
+        Log.i("codedebug", "SetCommentField VOC " + strEquipment);
+        if (!strEquipment.equals("NA")) {
+            desc = dbHelper.GetEqDescDB(db, strEquipment);
+            Log.i("codedebug", "SetCommentField VOC " + desc);
+            if (desc.equals(""))
+                desc = "VOC Monitoring";
+        }
+
+        if (bDetected) {
+            txt_comment.setEnabled(true);
+            text_Value.setEnabled(true);
+            text_Unit.setEnabled(true);
+            current_ResDateTime = DateTimeHelper.GetDateTimeNow();
+            text_resolve_date.setText(
+                    DateTimeHelper.GetStringDateFromDateTime(current_ResDateTime, ""));
+
+            text_resolve_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_ResDateTime, ""));
+
+            if (!strEquipment.equals("NA") && !Objects.equals(current_reading, ""))
+                txt_comment.setText(desc + " - " + current_reading + " " + current_unit);
+            else
+                txt_comment.setText("");
+
+
+        } else {
+            text_Value.setEnabled(false);
+            text_Unit.setEnabled(false);
+            txt_comment.setText(desc + " - ND");
+
+        }
+        current_site_event_reading.setStrComment(txt_comment.getText().toString());
     }
     public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue, int iDataColumn) {
         int index = GetIndexFromArraylist(strValues, strValue, iDataColumn);

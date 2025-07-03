@@ -427,6 +427,20 @@ public class Activity_Main_Input extends AppCompatActivity
         // get initial list
         barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
 
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        /* !!!!!!!!!!!!!!!!!!!!!!!!*/
+        current_site_event_reading.setYnResolved("true");
+        current_yn_resolve = true;
+        rbTrue.setChecked(current_yn_resolve);
+        SetCommentField(current_equipment,true);
+
+        try {
+            current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void SaveFormAndValidate() {
@@ -505,11 +519,7 @@ public class Activity_Main_Input extends AppCompatActivity
                 current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
                 text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
-                String desc = "";
-                if (!current_equipment.equals("NA")) {
-                    desc = dbHelper.GetEqDescDB(db, current_equipment);
-                    txt_comment.setText(desc);
-                }
+               SetCommentField(current_equipment, true);
 
             }
             if (seintent != null)
@@ -549,6 +559,15 @@ public class Activity_Main_Input extends AppCompatActivity
             startActivity(seintent);
             finish();
         }
+    }
+    public void SetCommentField(String strEquipment, boolean bResolved) {
+        String desc = "";
+        if (!strEquipment.equals("NA")) {
+            desc = dbHelper.GetEqDescDB(db, strEquipment);
+
+        }
+        txt_comment.setText(desc);
+        current_site_event_reading.setStrComment(txt_comment.getText().toString());
     }
     public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue) {
         int index = GetIndexFromArraylist(strValues, strValue, 1);

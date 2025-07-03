@@ -369,14 +369,14 @@ public class SiteEvents implements Serializable, Cloneable {
         } else if (dValue == 0.0 && measurementType == MeasurementTypes.MEASUREMENT_TYPES.VOC
                 && getBoolResolved()) {
             message += "A Reading value of 0 is detected!";
-            isValid.addToValidationMessageError("Please enter a Value");
+            isValid.addToValidationMessageError("Please enter a Value >0");
             System.out.println(message);
             isValid.setValidation(Validation.VALIDATION.ERROR);
             isValid.setFocus(Validation.FOCUS.READING);
         } else if (dValue == 0.0 && measurementType == MeasurementTypes.MEASUREMENT_TYPES.NOISE) {
             message += "A Reading value of 0 is detected!";
-            isValid.addToValidationMessageError("Please enter a Value");
-            isValid.addToValidationMessageWarning("Please enter a Value");
+            isValid.addToValidationMessageError("Please enter a Value >0");
+            isValid.addToValidationMessageWarning("Please enter a Value>0");
             System.out.println(message);
             isValid.setValidation(Validation.VALIDATION.ERROR);
             isValid.setFocus(Validation.FOCUS.READING);

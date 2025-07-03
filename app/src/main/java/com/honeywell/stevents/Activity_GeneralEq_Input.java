@@ -200,19 +200,15 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) findViewById(checkedId);
-                String desc = "";
-                if (!current_equipment.equals("NA")) {
-                    desc = dbHelper.GetEqDescDB(db, current_equipment);
-                    if (desc.equals(""))
-                        desc = "PCTF";
+
+                if (rb == rbStartup) {
+                    SetCommentField(current_equipment, true);
+                    current_site_event_reading.setYnResolved("true");
                 }
-                if (rb == rbStartup)
-                    txt_comment.setText(new StringBuilder().append(desc).append(" Startup").toString());
                 if (rb == rbShutdown) {
-                    txt_comment.setText(String.format("%s Shutdown", desc));
+                    SetCommentField(current_equipment, false);
+                    current_site_event_reading.setYnResolved("false");
                 }
-                if ((rb == rbStartup) || (rb == rbShutdown))
-                    SetSpinnerValue(spin_SE_Code, array_SE_code, "Operate",2);
             }
         });
 
@@ -434,6 +430,17 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        /* !!!!!!!!!!!!!!!!!!!!!!!!*/
+        current_site_event_reading.setYnResolved("true");
+        current_yn_resolve = true;
+        rbStartup.setChecked(current_yn_resolve);
+
+        try {
+            current_site_event_reading_copy = (SiteEvents) current_site_event_reading.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
     private void spin_Equip_Code_Listener(AdapterView<?> parent, int pos) {
         Object item = parent.getItemAtPosition(pos);
@@ -471,7 +478,8 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                 current_SEDateTime = DateTimeHelper.GetDateTimeNow();
                 text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
                 text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
-                //seintent = new Intent("android.intent.action.INPUT_GENERAL_EQ_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
+                rbStartup.setChecked(true);
+                SetCommentField(current_equipment,true);
             }
             if (current_type == MeasurementTypes.MEASUREMENT_TYPES.PH) {
                 seintent = new Intent("android.intent.action.INPUT_PH_BARCODEACTIVITY");//Activity_GeneralEq_Input.class);
@@ -495,7 +503,24 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         if (!Objects.equals(current_equipment, "NA") )
             isLastRecordSavedToTable = false;
     }
+    public void SetCommentField(String strEquipment, boolean bStartup) {
+        String desc = "";
 
+        if (!current_equipment.equals("NA")) {
+            desc = dbHelper.GetEqDescDB(db, current_equipment);
+            if (desc.equals(""))
+                desc = "PCTF";
+        }
+
+        if (bStartup && !strEquipment.equalsIgnoreCase("NA")) {
+            txt_comment.setText(new StringBuilder().append(desc).append(" Startup").toString());
+            SetSpinnerValue(spin_SE_Code, array_SE_code, default_SE, 2);
+        } else if (!bStartup && !strEquipment.equalsIgnoreCase("NA")) {
+            txt_comment.setText(String.format("%s Shutdown", desc));
+            SetSpinnerValue(spin_SE_Code, array_SE_code,  default_SE,  2);
+        }
+        current_site_event_reading.setStrComment(txt_comment.getText().toString());
+    }
     public void SetSpinnerValue(Spinner spinner, ArrayList<String[]> strValues, String strValue, int iDataColumn ) {
         int index = GetIndexFromArraylist(strValues, strValue, iDataColumn);
         spinner.setSelection(index);
