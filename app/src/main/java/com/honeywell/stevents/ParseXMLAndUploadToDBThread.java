@@ -22,6 +22,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.io.File;
 
+import okhttp3.Response;
+
 
 public class ParseXMLAndUploadToDBThread{
     Context context;
@@ -175,12 +177,15 @@ public class ParseXMLAndUploadToDBThread{
         //final AlertDialog ad = new AlertDialog.Builder(context).create();
         try {
             System.out.println("KS:: doInBackground");
-            String resp = "LookUp Tables Loadeding";
+            String resp = "LookUp Tables Loading";
 
             if (bDownloadFromWS) {
                 //CHECK CONNECTION
                 CallSoapWS ws1 = new CallSoapWS(null);
                 String response = ws1.CheckConnection();
+                CallWebServices2 cs2 =  new CallWebServices2( null);
+                response=cs2.WS_GetServerDateResponse(true);
+
                 bConnection= true;
 
                 if (response.startsWith("ERROR")) {
@@ -199,12 +204,14 @@ public class ParseXMLAndUploadToDBThread{
                     //btnUploadDataToServer.setEnabled(true);
                 }
                 if (bConnection) {
-                    CallSoapWS cs = new CallSoapWS(directoryApp);
+                    //CallSoapWS cs = new CallSoapWS(directoryApp);
+                    cs2 =  new CallWebServices2(directoryApp);
                     try {
                         publishProgressTextView(" Starting bringing data from the webservice");
                         publishProgressBar(1);
-                        resp = cs.WS_GetServerDate(true);
-                        tables = cs.WS_GetALLDatasets();
+                        resp = cs2.WS_GetServerDateResponse(true);
+                        tables = cs2.WS_GetALLDatasets();
+                        //tables = cs.WS_GetALLDatasets();
                         publishProgressTextView(resp);
                     } catch (Exception ex) {
                         publishProgressTextView(ex.toString());

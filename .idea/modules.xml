@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SiteEventsAndroid.iml" filepath="$PROJECT_DIR$/.idea/modules/SiteEventsAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/DataCollectionLib/SiteEventsAndroid.DataCollectionLib.iml" filepath="$PROJECT_DIR$/.idea/modules/DataCollectionLib/SiteEventsAndroid.DataCollectionLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SiteEventsAndroid.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SiteEventsAndroid.app.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SiteEventsAndroid.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SiteEventsAndroid.app.androidTest.iml" />

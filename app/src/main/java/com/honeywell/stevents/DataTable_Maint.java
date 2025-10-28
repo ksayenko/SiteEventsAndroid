@@ -1,5 +1,7 @@
 package com.honeywell.stevents;
 
+import java.util.ArrayList;
+
 public class DataTable_Maint extends AppDataTable {
 
 
@@ -18,5 +20,6 @@ public class DataTable_Maint extends AppDataTable {
         this.AddColumnToStructure(IsDefault,"Integer",false);
 
     }
+
 
 }

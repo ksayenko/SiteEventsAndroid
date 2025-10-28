@@ -225,8 +225,9 @@ Cursor Cursor_Eq = null;
                     File pathToDB = new File(directoryApp.getParentFile() + "//databases");
                     ArrayList<File> sqlFiles = getListFiles(pathToDB, "sqlite3");
 
-                    CallSoapWS ws1 = new CallSoapWS(null);
-                    String response = ws1.CheckConnection();
+                    //CallSoapWS ws1 = new CallSoapWS(null);
+                    CallWebServices2 ws1 =  new CallWebServices2(null);
+                    String response = ws1.WS_GetServerDate(false);
                     boolean bConnection = true;
                     if (response.startsWith("ERROR")) {
                         //Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
@@ -248,7 +249,7 @@ Cursor Cursor_Eq = null;
                     if (bConnection) {
                         try {
 
-                            CallSoapWS ws = new CallSoapWS(directoryApp);
+                            ws1 = new CallWebServices2(directoryApp);
                             Path pathtodb1 = Paths.get(sqlFiles.get(0).getPath());
 
                             byte[] dataUpload = Files.readAllBytes(pathtodb1);
@@ -262,7 +263,7 @@ Cursor Cursor_Eq = null;
                             String pwd = Application_Encrypt.decrypt(encryptedPassword);
                             String[] errormessage = new String[]{""};
 
-                            Boolean bCanUpload = ws.WS_GetLogin(name, pwd, errormessage);
+                            Boolean bCanUpload = ws1.WS_GetLogin(name, pwd, errormessage);
                             Boolean bUploaded;
                             if (bCanUpload) {
                                 String filename = sqlFiles.get(0).getName();
@@ -277,7 +278,7 @@ Cursor Cursor_Eq = null;
                                 }
                                 filename = filenamenoext + timeStamp + '.' + extension;
 
-                                bUploaded = ws.WS_UploadFile2(dataUpload, filename, name, pwd);
+                                bUploaded = ws1.WS_UploadFile(dataUpload, "CSV", filename, name, pwd);
 
 
                                 if (bUploaded) {
@@ -639,8 +640,8 @@ Cursor Cursor_Eq = null;
                     bAcceptWarningDuplicate = true;
                     db.close();
                 } else {
-                    CallSoapWS ws1 = new CallSoapWS(null);
-                    String response = ws1.CheckConnection();
+                    CallWebServices2 ws1 = new CallWebServices2(null);
+                    String response = ws1.WS_GetServerDate(false);
                     boolean bConnection = true;
                     if (response.startsWith("ERROR")) {
                         Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
@@ -668,7 +669,7 @@ Cursor Cursor_Eq = null;
 
                             try {
                                 Path path = Paths.get(s);
-                                CallSoapWS ws = new CallSoapWS(directoryApp);
+                                CallWebServices2 ws = new CallWebServices2(directoryApp);
                                 byte[] dataUpload = Files.readAllBytes(path);
                                 String[] credentials = dbHelper.getLoginInfo(db);
 
@@ -685,7 +686,7 @@ Cursor Cursor_Eq = null;
                                 if (bCanUpload) {
 //                                    bUploaded = ws.WS_UploadFile2(dataUpload, s, name, pwd);
 //                                    if (!bUploaded)
-                                    bUploaded=  ws.WS_UploadFile2(dataUpload, path.getFileName().toString(), name, pwd);
+                                    bUploaded=  ws.WS_UploadFile(dataUpload,path.getFileName().toString(), name, pwd, "CSV");
                                     if (bUploaded) {
                                         db.execSQL(DataTable_SiteEvent.UpdateUploadedData());
                                         AlertDialogShow(nrecords[0] + " Records Has Been Uploaded to the Server",

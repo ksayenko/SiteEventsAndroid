@@ -7,13 +7,20 @@ import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
+
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Activity_Login extends Activity {
     private EditText txt_UserName;
@@ -24,7 +31,7 @@ public class Activity_Login extends Activity {
     Button btnDone;
     Button btnCheck;
     Button btnLogout;
-    CallSoapWS soap;
+    CallWebServices2 restFull;
 
     DataTable_LoginInfo loginInfo = new DataTable_LoginInfo();
     public HandHeld_SQLiteOpenHelper dbHelper;
@@ -70,15 +77,14 @@ public class Activity_Login extends Activity {
         txt_UserName.setText(name);
         txt_Password.setText(pwd);
 
-        soap = new CallSoapWS(null);
+        restFull = new CallWebServices2(null);
 
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean bSave = false;
                 name = txt_UserName.getText().toString();
                 pwd = txt_Password.getText().toString();
-                bSaveLoginInfo();
+                CheckLogin(false, true);
 
             }
         });
@@ -87,10 +93,10 @@ public class Activity_Login extends Activity {
         btnCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean bCheck = bCheckLogin();
-                if (!bCheck)
-                    txt_Password.setText("");
+                CheckLogin(true, false);
             }
+
+
         });
 
 
@@ -102,6 +108,108 @@ public class Activity_Login extends Activity {
         });
 
     }
+
+    private boolean CheckLogin(boolean ShowMessage, boolean BSave) {
+        final boolean[] bReturnValue = {false};
+        final String[] sResult = {""};
+        final boolean[] bSaveLogin = {BSave};
+        final boolean[] bShowMessage = {ShowMessage};
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+        final Handler handler = new Handler(Looper.getMainLooper());
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                //Background work here
+                try {
+                    sResult[0] = doInBackground();
+                    if (sResult[0].toLowerCase() == "true")
+                        bReturnValue[0] = true;
+                    Log.i("Rest API", "KS :: After  doInBackground();" + sResult[0]);
+
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            //UI Thread work here
+                            onPostExecute(sResult[0]);
+                        }
+
+                        private void onPostExecute(String result) {
+                            Log.i("Rest API", "onPostExecute" + result);
+
+                            ///  DECLARE DIALOGS -----------------------------------------
+
+                            final AlertDialog.Builder adError = new AlertDialog.Builder(ct, R.style.AlertDialogWarning)
+                                    .setTitle("error")
+                                    .setMessage("The Login Info is incorrect. Can't save. Try again.")
+                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+
+                                        }
+                                    });
+                            final AlertDialog.Builder adSaved = new AlertDialog.Builder(ct, R.style.AlertDialogTheme)
+                                    .setTitle("Do You Want To Save Login Info?")
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            Boolean b = updateDBWithNewInformation();
+                                            if (b) {
+                                                Toast.makeText(ct, "Updated ", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            dialog.cancel();
+                                        }
+                                    });
+
+                            final AlertDialog.Builder adOK = new AlertDialog.Builder(ct, R.style.AlertDialogWarning)
+                                    .setTitle("OK")
+                                    .setMessage("The Login Info is Correct.")
+                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                        }
+                                    });
+                            //-------------------------------------------------------------------//
+                            if (bShowMessage[0]) {
+                                if (sResult[0].toLowerCase() == "true") {
+                                    AlertDialog dialog = adOK.create();
+                                    dialog.show();
+                                    dialog.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
+                                } else {
+                                    AlertDialog dialog = adError.create();
+                                    dialog.show();
+                                    dialog.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
+                                }
+                            }
+
+                            if (sResult[0].toLowerCase() == "true") {
+                                bReturnValue[0] = true;
+                                if (bSaveLogin[0]) {
+                                    AlertDialog dialog = adSaved.create();
+                                    dialog.show();
+                                    dialog.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
+
+                                }
+                                //Boolean b = updateDBWithNewInformation();
+                            } else
+                                bReturnValue[0] = false;
+                        }
+                    }, 1000);
+
+                } catch (Exception e) {
+                    System.out.println("KS :: Error FROM THE APP 1 : " + e.fillInStackTrace());
+                }
+            }
+        });
+        Log.i("Rest API", " Check Login returns :" + bReturnValue[0]);
+        return bReturnValue[0];
+    }
+
+
 
     private Boolean updateDBWithNewInformation() {
         boolean rv = false;
@@ -123,69 +231,36 @@ public class Activity_Login extends Activity {
     }
 
     private void bSaveLoginInfo() {
-        boolean bCheck = bCheckLogin();
-        if (bCheck) {
-            AlertDialog ad = new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                    .setTitle("Do You Want To Save Login Info?")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            Boolean b = updateDBWithNewInformation();
-                            if (b) {
-                                Toast.makeText(ct, "Updated ", Toast.LENGTH_SHORT).show();
-                            }
 
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            dialog.cancel();
-                        }
-                    })
-                    .show();
-            ad.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
-        } else {
-            AlertDialog ad = new AlertDialog.Builder(this,R.style.AlertDialogWarning)
-                    .setTitle("error")
-                    .setMessage("The Login Info is incorrect. Can't save. Try again.")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            Boolean b = updateDBWithNewInformation();
-                            if (b) {
-                                Toast.makeText(ct, "Wrong Credentials ", Toast.LENGTH_SHORT).show();
-                            }
 
-                        }
-                    })
+    }
 
-                    .show();
-            ad.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
+    private String doInBackground() {
+
+        String sReturnValue = "false";
+        Boolean bReturnValue = false;
+
+        try {
+           String[] errormessage = {""};
+           String sName = txt_UserName.getText().toString();
+           String sPassword = txt_Password.getText().toString();
+           bReturnValue = restFull.WS_GetLogin(sName, sPassword, errormessage);
+           Log.i("rest API", "bReturnValue "+String.valueOf(bReturnValue));
+           if(bReturnValue){
+               name = sName;
+           pwd = sPassword;
+           sReturnValue = "true";}
+           else
+               sReturnValue = "False";
+
+            //ad.setMessage(resp);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.out.println("KS ::"+ex.toString());
+            return "ERROR: " + ex.toString();
         }
 
-
-    }
-
-    private boolean bCheckLogin(){
-        return bCheckLogin(true);
-    }
-    private boolean bCheckLogin(boolean bDisplay) {
-        Boolean bReturnValue;
-        name = txt_UserName.getText().toString();
-        pwd = txt_Password.getText().toString();
-        String[] errormessage = new String[]{""};
-        bReturnValue = soap.WS_GetLogin(name, pwd, errormessage);
-        if (bDisplay) {
-            if (bReturnValue) {
-                AlertDialogShow("Connection tested", "Success!", "OK", "");
-            } else {
-                String mess = "Please try one more time. : " + errormessage[0];
-                AlertDialogShow(mess, "ERROR!", "OK", "error");
-
-            }
-           }
-        return bReturnValue;
+        return sReturnValue;
     }
 
     private void bLogout() {

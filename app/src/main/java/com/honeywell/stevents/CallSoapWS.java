@@ -394,12 +394,12 @@ public class CallSoapWS {
     }
 
     public Boolean WS_GetLogin(String username, String Pasword)
-    {
-        String[] errormessage =  new String[]{""};
-        return WS_GetLogin(username, Pasword,errormessage);
-    }
+        {
+            String[] errormessage =  new String[]{""};
+            return WS_GetLogin(username, Pasword,errormessage);
+        }
 
-    public Boolean WS_GetLogin(String username, String Pasword, String[] errormessage) {
+        public Boolean WS_GetLogin(String username, String Pasword, String[] errormessage) {
         String sUploadResponse = "";
         boolean bResponse = false;
         String addr = getSoapAction(METHOD_NAME_LOGIN);

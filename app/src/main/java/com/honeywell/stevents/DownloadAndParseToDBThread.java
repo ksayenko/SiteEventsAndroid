@@ -12,11 +12,13 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-    public class DownloadAndParseToDBThread extends Activity  {
+    public class DownloadAndParseToDBThread extends AppCompatActivity  {
         Context context;
         //public Handler mHandler;
         TextView txtInfo;
@@ -214,17 +216,19 @@ import java.util.concurrent.Executors;
         */
 
             //View v = findViewById(R.id.btnDownloadData);
-            CallSoapWS cs=new CallSoapWS(directoryApp);
+            //CallSoapWS cs=new CallSoapWS(directoryApp);
+            CallWebServices2 cs2 =  new CallWebServices2(directoryApp);
 
 
             try
             {
-                String resp=cs.WS_GetServerDate(true);
-                AppDataTables tables= cs.WS_GetALLDatasets();
+                //String resp=cs.WS_GetServerDate(true);
+                String resp2=cs2.WS_GetServerDate(true);
+                AppDataTables tables= cs2.WS_GetALLDatasets();
                 dbHelper =  new HandHeld_SQLiteOpenHelper(context,tables);
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
                 dbHelper.getInsertFromTables(db);
-                ad.setMessage(resp);
+                ad.setMessage(resp2);
                 db.close();
 
                 // p =  new ParseXMLAndUploadToDBThread((Activity) context);

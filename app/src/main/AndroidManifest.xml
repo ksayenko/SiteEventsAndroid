@@ -193,7 +193,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activity_Login"
+            android:name="com.honeywell.stevents.Activity_Login"
             android:label="@string/Login"
             android:screenOrientation="portrait"
             android:exported="true">
@@ -205,10 +205,10 @@
 
 
         <activity
-            android:name=".ScannerSelectionBarcodeActivity"
+            android:name="com.honeywell.stevents.ScannerSelectionBarcodeActivity"
             android:exported="true"
             android:label="@string/barcode"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="fullSensor" >
             <intent-filter>
                 <action android:name="android.intent.action.SCANNERSELECTBARCODEACTIVITY" />
 
@@ -217,10 +217,10 @@
         </activity>
 
         <activity
-            android:name=".DownloadDataActivity"
+            android:name="com.honeywell.stevents.DownloadDataActivity"
             android:exported="true"
             android:label="DownloadDataActivity"
-            android:parentActivityName=".Activity_Main" >
+            android:parentActivityName="com.honeywell.stevents.Activity_Main" >
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOADACTIVITY" />
 
@@ -232,10 +232,10 @@
                 android:value="com.honeywell.stevents.Activity_Main" />
         </activity>
         <activity
-            android:name=".ParseXMLAndUploadToDBActivity"
+            android:name="com.honeywell.stevents.ParseXMLAndUploadToDBActivity"
             android:exported="true"
             android:label="ParseXMLAndUploadToDBActivity"
-            android:parentActivityName=".Activity_Main" >
+            android:parentActivityName="com.honeywell.stevents.Activity_Main" >
             <intent-filter>
                 <action android:name="android.intent.action.PARSEXMLACTIVITY" />
 

@@ -64,6 +64,7 @@ public class StdetFiles  {
         return true;
     }
 
+
     public AppDataTable WriteXMLDataAndCreateSTDETable(String data, String filename) {
         File newXml = null;
         AppDataTable table = null;
@@ -83,7 +84,6 @@ public class StdetFiles  {
             data = data.replace("</soap:Envelope>","");
             data = data.replace("<xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">","");
             XmlPullParserHandler parser = new XmlPullParserHandler();
-
 
 
             fos = new FileOutputStream(fullfilename);

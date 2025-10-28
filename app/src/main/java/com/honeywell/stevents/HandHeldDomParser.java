@@ -1,12 +1,64 @@
 package com.honeywell.stevents;
+import static java.util.Collections.list;
+
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HandHeldDomParser {
 
 
+    public static AppDataTable JSONParse(String dataset, List<Object> l) {
+        AppDataTable data;
+        String sName = "";
+        String sValue = "";
+        data = null;
+        if (dataset.equalsIgnoreCase(CallWebServices2.USERS)) {
+            data = new DataTable_Users();
+        } else if (dataset.equalsIgnoreCase(CallWebServices2.EQUIP_IDENT)) {
+            data = new DataTable_Equip_Ident();
+        } else if (dataset.equalsIgnoreCase(CallWebServices2.SITE_EVENT_DEF)) {
+            data = new DataTable_Site_Event_Def();
+        } else if (dataset.equalsIgnoreCase(CallWebServices2.MAINTENANCE)) {
+            data = new DataTable_Maint();
+        } else
+            data = new AppDataTable();
+
+        ArrayList list = (ArrayList) l.get(0);
+        int nRows = 0;
+        int nCols = 0;
+
+        if (data != null) {
+            try {
+                nRows = list.size();
+                for (Integer i = 0; i < nRows; i++) {
+                    ArrayList row = new ArrayList();
+                    Object o = list.get(i);
+                    if (dataset.equalsIgnoreCase(CallWebServices2.USERS)) {
+                        row = ((Users) o).CreateArrayListForInsert();
+                    } else if (dataset.equalsIgnoreCase(CallWebServices2.EQUIP_IDENT)) {
+                        row = ((Equip_Ident) o).CreateArrayListForInsert();
+                    } else if (dataset.equalsIgnoreCase(CallWebServices2.SITE_EVENT_DEF)) {
+                        row = ((Site_Event_Def) o).CreateArrayListForInsert();
+                    } else if (dataset.equalsIgnoreCase(CallWebServices2.MAINTENANCE)) {
+                        MaintPersIdent o1 = (MaintPersIdent) o;
+                        row = ((MaintPersIdent) o).CreateArrayListForInsert();
+                    }
+                    data.AddRowToData(row);
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Error: System.out.println(e.toString());or inside the Row : " + e.toString());
+
+            }
+        }
+
+
+        return data;
+    }
     public static AppDataTable XMLParse(String fullfilename, String filename) {
         AppDataTable data;
         String sName = "";
