@@ -161,15 +161,15 @@ public class Activity_Other_Edit extends AppCompatActivity
             AlertDialogShow("The Lookup Tables aren't populated, go to Menu | Download and Populate Lookup DB", "ERROR!", "warning");
         }
 
-        spin_SE_Code = (Spinner) findViewById(R.id.txt_Site_Event_Code);
-        spin_Equip_Code = (Spinner) findViewById(R.id.txt_equip_id);
+        spin_SE_Code = findViewById(R.id.txt_Site_Event_Code);
+        spin_Equip_Code = findViewById(R.id.txt_equip_id);
         spin_Equip_Code.setEnabled(false);
-        spin_User_name = (Spinner) findViewById(R.id.txt_User_name);
+        spin_User_name = findViewById(R.id.txt_User_name);
 
 
-        rbTrue = (RadioButton) findViewById(R.id.radio_true);
-        rbFalse = (RadioButton) findViewById(R.id.radio_false);
-        rbResloved = (RadioGroup) findViewById(R.id.radio_group);
+        rbTrue = findViewById(R.id.radio_true);
+        rbFalse = findViewById(R.id.radio_false);
+        rbResloved = findViewById(R.id.radio_group);
         rbResloved.clearCheck();
 
         if (current_yn_resolve)
@@ -181,11 +181,11 @@ public class Activity_Other_Edit extends AppCompatActivity
         String aTime = DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, "");
 
         //text_event_time
-        text_event_time = (TextView) findViewById(R.id.text_event_time);
+        text_event_time = findViewById(R.id.text_event_time);
         text_event_time.setText(aTime);
         text_event_time_picker();
         //text_event_date
-        text_event_date = (TextView) findViewById(R.id.text_event_date);
+        text_event_date = findViewById(R.id.text_event_date);
         text_event_date.setText(aDate);
         text_event_date_picker();
 
@@ -193,11 +193,11 @@ public class Activity_Other_Edit extends AppCompatActivity
         aTime = DateTimeHelper.GetStringTimeFromDateTime(current_ResDateTime, "");
         //////////////////////
         //resolve date
-        text_resolve_date = (TextView) findViewById(R.id.text_resolve_date);
+        text_resolve_date = findViewById(R.id.text_resolve_date);
         text_resolve_date.setText(aDate);
         text_resolve_date_picker();
         //text_resolve_time
-        text_resolve_time = (TextView) findViewById(R.id.text_resolve_time);
+        text_resolve_time = findViewById(R.id.text_resolve_time);
         text_resolve_time.setText(aTime);
         text_resolve_time_picker();
 
@@ -264,7 +264,7 @@ public class Activity_Other_Edit extends AppCompatActivity
         });
 
         //comment
-        txt_comment = (EditText) findViewById(R.id.txt_comment);
+        txt_comment = findViewById(R.id.txt_comment);
         txt_comment.setText(current_comment);
         txt_comment.addTextChangedListener(new TextWatcher() {
 
@@ -285,7 +285,7 @@ public class Activity_Other_Edit extends AppCompatActivity
 
 
         //BUTTONS
-        btnClear = (Button) findViewById(R.id.btn_clear);
+        btnClear = findViewById(R.id.btn_clear);
         btnClear.setText("Delete");
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -317,7 +317,7 @@ public class Activity_Other_Edit extends AppCompatActivity
 
         });
 
-        btnSave = (Button) findViewById(R.id.btn_save);
+        btnSave = findViewById(R.id.btn_save);
         btnSave.setText("Update");
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -348,7 +348,7 @@ public class Activity_Other_Edit extends AppCompatActivity
         });
 
 
-        btnDone = (Button) findViewById(R.id.btn_done);
+        btnDone = findViewById(R.id.btn_done);
         btnDone.setText("Cancel");
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -389,7 +389,7 @@ public class Activity_Other_Edit extends AppCompatActivity
     }
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
-        current_comment = (String) txt_comment.getText().toString();
+        current_comment = txt_comment.getText().toString();
         current_maintenance = GetSpinnerValue(spin_User_name);
         current_equipment = GetSpinnerValue(spin_Equip_Code);
         current_se = GetSpinnerValue(spin_SE_Code);
@@ -700,7 +700,7 @@ Wedge as keys to empty
             // The Cursor is now set to the right position
             String[] strs = new String[nCol];
             for (int i = 0; i < nCol; i++) {
-                strs[i] = (String) cursor.getString(i);
+                strs[i] = cursor.getString(i);
             }
             arrayList.add(strs);
         }
@@ -881,10 +881,10 @@ Wedge as keys to empty
     private void AlertDialogShow(String message, String title, String button, String theme) {
         int themeResId = R.style.AlertDialogTheme;
         try {
-            if (theme.toLowerCase().equals("warning")) {
+            if (theme.equalsIgnoreCase("warning")) {
                 themeResId = R.style.AlertDialogWarning;
             }
-            if (theme.toLowerCase().equals("error")) {
+            if (theme.equalsIgnoreCase("error")) {
                 themeResId = R.style.AlertDialogError;
             }
 

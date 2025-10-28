@@ -162,11 +162,11 @@ public class Equip_Ident {
     {
         DataTable_Equip_Ident table =  new DataTable_Equip_Ident();
         ArrayList<String> row = table.getEmptyDataRow();
-        row.set(table.GetElementIndex(table.strEqID), strEqID);
-        row.set(table.GetElementIndex(table.strEqMfg), strEqMfg);
-        row.set(table.GetElementIndex(table.strEqDesc), strEqDesc);
-        row.set(table.GetElementIndex(table.strEqTypeID), strEqTypeID);
-        row.set(table.GetElementIndex(table.lngID), String.valueOf(lngID));
+        row.set(table.GetElementIndex(DataTable_Equip_Ident.strEqID), strEqID);
+        row.set(table.GetElementIndex(DataTable_Equip_Ident.strEqMfg), strEqMfg);
+        row.set(table.GetElementIndex(DataTable_Equip_Ident.strEqDesc), strEqDesc);
+        row.set(table.GetElementIndex(DataTable_Equip_Ident.strEqTypeID), strEqTypeID);
+        row.set(table.GetElementIndex(DataTable_Equip_Ident.lngID), String.valueOf(lngID));
         return   row;
     }
 }

@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
             activity = _activity;
             context = activity;
             directoryApp = context.getFilesDir();
-            txtInfo = (TextView) activity.findViewById(R.id.txtInfo);
+            txtInfo = activity.findViewById(R.id.txtInfo);
             //txtInfo.setText("In the DownloadAndParseToDBThread");
             populateDB();
 
@@ -124,11 +124,11 @@ import java.util.concurrent.Executors;
 
         private void AlertDialogShow(String message, String title, String button, String theme) {
             int themeResId =R.style.AlertDialogTheme;
-            if (theme.toLowerCase().equals("warning"))
+            if (theme.equalsIgnoreCase("warning"))
             {
                 themeResId = R.style.AlertDialogWarning;
             }
-            if (theme.toLowerCase().equals("error"))
+            if (theme.equalsIgnoreCase("error"))
             {
                 themeResId = R.style.AlertDialogError;
             }
@@ -187,7 +187,7 @@ import java.util.concurrent.Executors;
                 //ad.setMessage(resp);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                System.out.println(ex.toString());
+                System.out.println(ex);
                 return -1;
             }
             //ad.show();

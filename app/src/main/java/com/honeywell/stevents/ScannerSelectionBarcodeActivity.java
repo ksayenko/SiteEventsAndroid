@@ -42,9 +42,9 @@ public class ScannerSelectionBarcodeActivity extends Activity implements
         setContentView(R.layout.activity_selection_barcode);
 
         // get initial list
-        barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
+        barcodeList = findViewById(R.id.listViewBarcodeData);
 
-        mSwitchScannersButton = (Button) findViewById(R.id.buttonSwitchScanners);
+        mSwitchScannersButton = findViewById(R.id.buttonSwitchScanners);
         mSwitchScannersButton.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -190,7 +190,7 @@ public class ScannerSelectionBarcodeActivity extends Activity implements
             public void run() {
                 final Dialog scannerSelectDialog = new Dialog(mContext);
                 scannerSelectDialog.setContentView(R.layout.scanner_select_dialog);
-                Button dialogButton = (Button) scannerSelectDialog
+                Button dialogButton = scannerSelectDialog
                         .findViewById(R.id.dialogButtonOK);
 
                 // If there are scanners, just show the list, must select one
@@ -202,7 +202,7 @@ public class ScannerSelectionBarcodeActivity extends Activity implements
                         scannerNames.put(i.getFriendlyName(), i.getName());
                     }
 
-                    final ListView list = (ListView) scannerSelectDialog
+                    final ListView list = scannerSelectDialog
                             .findViewById(R.id.listScanners);
                     ArrayAdapter<String> scannerNameAdapter = new ArrayAdapter<String>(mContext,
                             android.R.layout.simple_list_item_1, android.R.id.text1,

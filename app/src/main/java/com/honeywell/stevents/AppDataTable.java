@@ -35,7 +35,7 @@ public class AppDataTable implements Serializable {
     private ArrayList<String> ColumnTypes;
     private ArrayList<Boolean> isColumnPK;
 
-    private ArrayList<ArrayList<String>> dataTable;
+    private final ArrayList<ArrayList<String>> dataTable;
 
     public int GetRowsCount()
     {

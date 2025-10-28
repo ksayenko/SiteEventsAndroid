@@ -160,7 +160,7 @@ public class Activity_EditListSE extends Activity {
                 } else {
 
                     alert.setMessage("Are you sure you want to delete a record "
-                            + String.valueOf(currentRowSelected + 1) + "? ");
+                            + (currentRowSelected + 1) + "? ");
                     alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 
                         public void onClick(DialogInterface dialog, int which) {
@@ -295,9 +295,7 @@ public class Activity_EditListSE extends Activity {
 
     private void fillData(Cursor list) {
         int i = 0;
-        bDataExists = false;
-        if (list.getCount() > 0)
-            bDataExists = true;
+        bDataExists = list.getCount() > 0;
         for (list.moveToFirst(); !list.isAfterLast(); list.moveToNext()) {
             {
                 rowData = new TableRow(this);

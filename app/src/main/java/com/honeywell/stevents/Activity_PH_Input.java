@@ -179,20 +179,20 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         maxId = dbHelper.getMaxID_FromSiteEventsTable(db);
 
         ///Log.i("------------onCreate", Locs.getColumnName(1));
-        spin_SE_Code = (Spinner) findViewById(R.id.txt_Site_Event_Code);
-        spin_Equip_Code = (Spinner) findViewById(R.id.txt_equip_id);
-        spin_User_name = (Spinner) findViewById(R.id.txt_User_name);
+        spin_SE_Code = findViewById(R.id.txt_Site_Event_Code);
+        spin_Equip_Code = findViewById(R.id.txt_equip_id);
+        spin_User_name = findViewById(R.id.txt_User_name);
 
-        rbTrue = (RadioButton) findViewById(R.id.radio_true);
-        rbFalse = (RadioButton) findViewById(R.id.radio_false);
-        rbResolved = (RadioGroup) findViewById(R.id.radio_group);
+        rbTrue = findViewById(R.id.radio_true);
+        rbFalse = findViewById(R.id.radio_false);
+        rbResolved = findViewById(R.id.radio_group);
 
         //define all controls first
-        text_event_time = (TextView) findViewById(R.id.text_event_time);
-        text_event_date = (TextView) findViewById(R.id.text_event_date);
-        text_resolve_time = (TextView) findViewById(R.id.text_resolve_time);
-        text_resolve_date = (TextView) findViewById(R.id.text_resolve_date);
-        txt_comment = (EditText) findViewById(R.id.txt_comment);
+        text_event_time = findViewById(R.id.text_event_time);
+        text_event_date = findViewById(R.id.text_event_date);
+        text_resolve_time = findViewById(R.id.text_resolve_time);
+        text_resolve_date = findViewById(R.id.text_resolve_date);
+        txt_comment = findViewById(R.id.txt_comment);
 
         if (current_site_event_reading.getIntResolved() == -1)
             rbResolved.clearCheck();
@@ -205,7 +205,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
         rbResolved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                RadioButton rb = (RadioButton) findViewById(checkedId);
+                RadioButton rb = findViewById(checkedId);
                 if (rb == rbTrue) {
                     SetCommentField(current_equipment,true);
                     current_site_event_reading.setYnResolved("true");
@@ -325,7 +325,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             }
         });
 
-        btnClear = (Button) findViewById(R.id.btn_clear);
+        btnClear = findViewById(R.id.btn_clear);
 
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -334,7 +334,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             }
         });
 
-        btnSave = (Button) findViewById(R.id.btn_save);
+        btnSave = findViewById(R.id.btn_save);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -348,11 +348,11 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             }
         });
 
-        btnDone = (Button) findViewById(R.id.btn_done);
+        btnDone = findViewById(R.id.btn_done);
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i("CodeDebug","isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+                Log.i("CodeDebug","isLastRecordSavedToTable "+ isLastRecordSavedToTable);
                 if (!isLastRecordSavedToTable) {
 
                     SaveFormAndValidate();
@@ -362,7 +362,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
                     int records = se_table.GetNumberOfRecords();
 
                     if (isRecordsSavedToDB) {
-                        String message = "The data (" + String.valueOf(records) + " records) is saved and ready to be uploaded.";
+                        String message = "The data (" + records + " records) is saved and ready to be uploaded.";
                         Toast.makeText(ct, message, Toast.LENGTH_SHORT).show();
                         se_table = new DataTable_SiteEvent();
                     }
@@ -426,7 +426,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
 
 
         // get initial list
-        ListView barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
+        ListView barcodeList = findViewById(R.id.listViewBarcodeData);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -576,9 +576,8 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
             SetSpinnerValue(spin_Equip_Code, array_Eq, current_site_event_reading_copy.getStrEq_ID(),1);
-            return;
         } else{
-            Log.i("codedebug", "PH SetAndStartIntent startActivity ->" + seintent.toString());
+            Log.i("codedebug", "PH SetAndStartIntent startActivity ->" + seintent);
             startActivity(seintent);
             finish();
         }
@@ -592,7 +591,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             // The Cursor is now set to the right position
             String[] strs = new String[nCol];
             for (int i = 0; i < nCol; i++) {
-                strs[i] = (String) cursor.getString(i);
+                strs[i] = cursor.getString(i);
             }
             arrayList.add(strs);
         }
@@ -692,7 +691,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
     }
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
-        current_comment = (String) txt_comment.getText().toString();
+        current_comment = txt_comment.getText().toString();
         current_maintenance = GetSpinnerValue(spin_User_name);
         current_equipment = GetSpinnerValue(spin_Equip_Code);
 
@@ -727,7 +726,7 @@ public class Activity_PH_Input extends AppCompatActivity implements BarcodeReade
             current_site_event_reading.setYnResolved("false");
         }
 
-        Log.i("codedebug", "rbtrue "+String.valueOf(rbTrue.isChecked()));
+        Log.i("codedebug", "rbtrue "+ rbTrue.isChecked());
 
     }
 

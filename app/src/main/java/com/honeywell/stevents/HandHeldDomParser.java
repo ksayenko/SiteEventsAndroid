@@ -51,7 +51,7 @@ public class HandHeldDomParser {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Error: System.out.println(e.toString());or inside the Row : " + e.toString());
+                System.out.println("Error: System.out.println(e.toString());or inside the Row : " + e);
 
             }
         }
@@ -139,7 +139,7 @@ public class HandHeldDomParser {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println(e.toString());
+                System.out.println(e);
             }
         }
         return data;

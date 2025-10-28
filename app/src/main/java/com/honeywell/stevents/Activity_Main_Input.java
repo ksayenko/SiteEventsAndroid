@@ -178,17 +178,17 @@ public class Activity_Main_Input extends AppCompatActivity
 
         maxId = dbHelper.getMaxID_FromSiteEventsTable(db);
 
-        spin_SE_Code = (Spinner) findViewById(R.id.txt_Site_Event_Code);
-        spin_Equip_Code = (Spinner) findViewById(R.id.txt_equip_id);
-        spin_User_name = (Spinner) findViewById(R.id.txt_User_name);
+        spin_SE_Code = findViewById(R.id.txt_Site_Event_Code);
+        spin_Equip_Code = findViewById(R.id.txt_equip_id);
+        spin_User_name = findViewById(R.id.txt_User_name);
 
         current_SEDateTime = DateTimeHelper.GetDateTimeNow();
         current_site_event_reading.setDatResDate(current_SEDateTime);
         current_site_event_reading.setDatSE_Date(current_SEDateTime);
 
-        rbTrue = (RadioButton) findViewById(R.id.radio_true);
-        rbFalse = (RadioButton) findViewById(R.id.radio_false);
-        rbResloved = (RadioGroup) findViewById(R.id.radio_group);
+        rbTrue = findViewById(R.id.radio_true);
+        rbFalse = findViewById(R.id.radio_false);
+        rbResloved = findViewById(R.id.radio_group);
         rbResloved.clearCheck();
         current_yn_resolve = false;
         current_yn_resolve= Objects.equals(current_site_event_reading.getYnResolved(), "true")
@@ -207,21 +207,21 @@ public class Activity_Main_Input extends AppCompatActivity
         String aTime = DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, "");
 
         //text_event_time
-        text_event_time = (TextView) findViewById(R.id.text_event_time);
+        text_event_time = findViewById(R.id.text_event_time);
         text_event_time.setText(aTime);
         text_event_time_picker();
         //text_event_date
-        text_event_date = (TextView) findViewById(R.id.text_event_date);
+        text_event_date = findViewById(R.id.text_event_date);
         text_event_date.setText(aDate);
         text_event_date_picker();
 
         //////////////////////
         //resolve date
-        text_resolve_date = (TextView) findViewById(R.id.text_resolve_date);
+        text_resolve_date = findViewById(R.id.text_resolve_date);
         text_resolve_date.setText(aDate);
         text_resolve_date_picker();
         //text_resolve_time
-        text_resolve_time = (TextView) findViewById(R.id.text_resolve_time);
+        text_resolve_time = findViewById(R.id.text_resolve_time);
         text_resolve_time.setText(aTime);
         text_resolve_time_picker();
 
@@ -292,7 +292,7 @@ public class Activity_Main_Input extends AppCompatActivity
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 if (!Objects.equals(GetSpinnerValue(spin_SE_Code), default_SE) )
                     isLastRecordSavedToTable = false;
-               Log.i("CodeDebug","spin_se isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+               Log.i("CodeDebug","spin_se isLastRecordSavedToTable "+ isLastRecordSavedToTable);
 
             }
             public void onNothingSelected(AdapterView<?> parent) {
@@ -300,7 +300,7 @@ public class Activity_Main_Input extends AppCompatActivity
         });
 
         //comment
-        txt_comment = (EditText) findViewById(R.id.txt_comment);
+        txt_comment = findViewById(R.id.txt_comment);
         txt_comment.setText(current_site_event_reading.getStrComment());
         txt_comment.addTextChangedListener(new TextWatcher() {
 
@@ -321,7 +321,7 @@ public class Activity_Main_Input extends AppCompatActivity
 
 
         //BUTTONS
-        btnClear = (Button) findViewById(R.id.btn_clear);
+        btnClear = findViewById(R.id.btn_clear);
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -329,7 +329,7 @@ public class Activity_Main_Input extends AppCompatActivity
             }
         });
 
-        btnSave = (Button) findViewById(R.id.btn_save);
+        btnSave = findViewById(R.id.btn_save);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -344,7 +344,7 @@ public class Activity_Main_Input extends AppCompatActivity
             }
         });
 
-        btnDone = (Button) findViewById(R.id.btn_done);
+        btnDone = findViewById(R.id.btn_done);
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -359,7 +359,7 @@ public class Activity_Main_Input extends AppCompatActivity
                     int records = se_table.GetNumberOfRecords();
 
                     if (isRecordsSavedToDB) {
-                        String message = "The data (" + String.valueOf(records) + " records) is saved and ready to be uploaded.";
+                        String message = "The data (" + records + " records) is saved and ready to be uploaded.";
                         Toast.makeText(ct, message, Toast.LENGTH_SHORT).show();
                         se_table = new DataTable_SiteEvent();
                     }
@@ -425,7 +425,7 @@ public class Activity_Main_Input extends AppCompatActivity
 
 
         // get initial list
-        barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
+        barcodeList = findViewById(R.id.listViewBarcodeData);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -530,7 +530,7 @@ public class Activity_Main_Input extends AppCompatActivity
 
         if (!Objects.equals(current_equipment, "NA")  && !b)
             isLastRecordSavedToTable = false;
-       Log.i("CodeDebug","MAIN spin_Equip_Code_Listener isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+       Log.i("CodeDebug","MAIN spin_Equip_Code_Listener isLastRecordSavedToTable "+ isLastRecordSavedToTable);
 
     }
 
@@ -553,9 +553,8 @@ public class Activity_Main_Input extends AppCompatActivity
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
             SetSpinnerValue(spin_Equip_Code, array_Eq, current_site_event_reading_copy.getStrEq_ID(),1);
-            return;
         } else{
-            Log.i("codedebug", "MAIN SetAndStartIntent startActivity ->" + seintent.toString());
+            Log.i("codedebug", "MAIN SetAndStartIntent startActivity ->" + seintent);
             startActivity(seintent);
             finish();
         }
@@ -583,7 +582,7 @@ public class Activity_Main_Input extends AppCompatActivity
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
        // Log.i("codedebug","SaveReadingsToSiteEventRecord 1 current_site_event_reading ->" + current_site_event_reading.toString());
-        current_comment = (String) txt_comment.getText().toString();
+        current_comment = txt_comment.getText().toString();
         current_maintenance = GetSpinnerValue(spin_User_name);
 
         String initials = dbHelper.GetMaintenanceInitialsByFirstLastName(db, current_maintenance);
@@ -786,7 +785,7 @@ public class Activity_Main_Input extends AppCompatActivity
 
                 int id = getIndexFromArraylist(array_Eq, current_equipment, 1);
 
-                Log.i("onBarcodeEvent", "onBarcodeEvent id: " + Integer.toString(id));
+                Log.i("onBarcodeEvent", "onBarcodeEvent id: " + id);
                 if (id > 0) {
                     bBarcodeEquip = true;
                 }
@@ -900,7 +899,7 @@ Wedge as keys to empty
             // The Cursor is now set to the right position
             String[] strs = new String[nCol];
             for (int i = 0; i < nCol; i++) {
-                strs[i] = (String) cursor.getString(i);
+                strs[i] = cursor.getString(i);
             }
             arrayList.add(strs);
         }
@@ -1086,10 +1085,10 @@ Wedge as keys to empty
     private void AlertDialogShow(String message, String title, String button, String theme) {
         int themeResId = R.style.AlertDialogTheme;
         try {
-            if (theme.toLowerCase().equals("warning")) {
+            if (theme.equalsIgnoreCase("warning")) {
                 themeResId = R.style.AlertDialogWarning;
             }
-            if (theme.toLowerCase().equals("error")) {
+            if (theme.equalsIgnoreCase("error")) {
                 themeResId = R.style.AlertDialogError;
             }
 

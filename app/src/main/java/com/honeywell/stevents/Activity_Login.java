@@ -51,12 +51,12 @@ public class Activity_Login extends Activity {
         dbHelper = new HandHeld_SQLiteOpenHelper(ct, tables);
         db = dbHelper.getReadableDatabase();
 
-        btnDone = (Button) findViewById(R.id.btnSaveLogin);
-        btnCheck = (Button) findViewById(R.id.btnCheckConnectivity);
-        btnLogout = (Button) findViewById(R.id.btnLogOut);
+        btnDone = findViewById(R.id.btnSaveLogin);
+        btnCheck = findViewById(R.id.btnCheckConnectivity);
+        btnLogout = findViewById(R.id.btnLogOut);
 
-        txt_Password = (EditText) findViewById(R.id.editTextPassword);
-        txt_UserName = (EditText) findViewById(R.id.editName);
+        txt_Password = findViewById(R.id.editTextPassword);
+        txt_UserName = findViewById(R.id.editName);
 
 
         String[] credentials = dbHelper.getLoginInfo(db);
@@ -245,7 +245,7 @@ public class Activity_Login extends Activity {
            String sName = txt_UserName.getText().toString();
            String sPassword = txt_Password.getText().toString();
            bReturnValue = restFull.WS_GetLogin(sName, sPassword, errormessage);
-           Log.i("rest API", "bReturnValue "+String.valueOf(bReturnValue));
+           Log.i("rest API", "bReturnValue "+ bReturnValue);
            if(bReturnValue){
                name = sName;
            pwd = sPassword;
@@ -256,8 +256,8 @@ public class Activity_Login extends Activity {
             //ad.setMessage(resp);
         } catch (Exception ex) {
             ex.printStackTrace();
-            System.out.println("KS ::"+ex.toString());
-            return "ERROR: " + ex.toString();
+            System.out.println("KS ::"+ ex);
+            return "ERROR: " + ex;
         }
 
         return sReturnValue;
@@ -276,10 +276,10 @@ public class Activity_Login extends Activity {
     private void AlertDialogShow(String message, String title, String button,  String theme) {
         int themeResId = R.style.AlertDialogTheme;
         try {
-            if (theme.toLowerCase().equals("warning")) {
+            if (theme.equalsIgnoreCase("warning")) {
                 themeResId = R.style.AlertDialogWarning;
             }
-            if (theme.toLowerCase().equals("error")) {
+            if (theme.equalsIgnoreCase("error")) {
                 themeResId = R.style.AlertDialogError;
             }
 

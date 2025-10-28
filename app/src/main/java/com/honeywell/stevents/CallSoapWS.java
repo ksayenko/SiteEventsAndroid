@@ -129,7 +129,7 @@ public class CallSoapWS {
 
     public final String SOAP_ADDRESS = "https://api.limstor.com/stdet/wsstdet.asmx";
 
-    private File directoryApp;
+    private final File directoryApp;
     private Object response;
 
     public File GetDirectory() {
@@ -289,14 +289,14 @@ public class CallSoapWS {
             response = envelope.getResponse();
         } catch (UnknownHostException exception) {
             Log.i("SOAP", exception.toString());
-            System.out.println("WS_GetServerDate " + exception.toString());
+            System.out.println("WS_GetServerDate " + exception);
             exception.printStackTrace();
-            response = "ERROR! WS_GetServerDate Check Your Connection"+ exception.toString();
+            response = "ERROR! WS_GetServerDate Check Your Connection"+ exception;
         } catch (Exception exception) {
             Log.i("SOAP", exception.toString());
-            System.out.println("WS_GetServerDate " + exception.toString());
+            System.out.println("WS_GetServerDate " + exception);
             exception.printStackTrace();
-            response = "ERROR! Check Your Connection " + exception.toString();
+            response = "ERROR! Check Your Connection " + exception;
 
         }
         return response.toString();
@@ -331,9 +331,9 @@ public class CallSoapWS {
             response = envelope.getResponse();
         } catch (Exception exception) {
             Log.i("SOAP", exception.toString());
-            System.out.println("WS_GetServerDate " + exception.toString());
+            System.out.println("WS_GetServerDate " + exception);
             exception.printStackTrace();
-            response = "ERROR In Webserver Connection "+exception.toString();
+            response = "ERROR In Webserver Connection "+ exception;
 
         }
 
@@ -433,7 +433,7 @@ public class CallSoapWS {
         //envelope.setAddAdornments(false);
         envelope.setOutputSoapObject(request);
 
-        Log.i("soap", "WS_GetLogin envelope: " + envelope.toString());
+        Log.i("soap", "WS_GetLogin envelope: " + envelope);
 
 
 
@@ -566,12 +566,12 @@ public class CallSoapWS {
 
     public String WS_GetDataset(String DatasetName)
     {
-        String errormessage[] =  new String[]{""};
+        String[] errormessage =  new String[]{""};
         return WS_GetDataset (DatasetName,errormessage);
         //return WS_GetDataset(DatasetName,errormessage);
     }
 
-    public String WS_GetDataset(String DatasetName, String errormessage[]) {
+    public String WS_GetDataset(String DatasetName, String[] errormessage) {
         String responseString = "";
         String addr = getSoapAction(METHOD_NAME_DATATABLES);
         String xmlData = "";
@@ -605,7 +605,7 @@ public class CallSoapWS {
             Log.i("soap", "WS_GetDataset Request: " + httpTransport.requestDump);
             Log.i("soap", "WS_GetDataset Response: " + httpTransport.responseDump);
 
-            xmlData1 = httpTransport.responseDump.toString();
+            xmlData1 = httpTransport.responseDump;
             xmlData = xmlData1.replace(
                     "soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" ",
                     "");
@@ -685,7 +685,7 @@ public class CallSoapWS {
 
     }
 
-    public String WS_GetDatasetold(String DatasetName, String errormessage[]) {
+    public String WS_GetDatasetold(String DatasetName, String[] errormessage) {
         String responseString = "";
         String addr = getSoapAction(METHOD_NAME_DATATABLES);
         String xmlData = "";
@@ -719,7 +719,7 @@ public class CallSoapWS {
             Log.i("soap", "WS_GetDataset Request: " + httpTransport.requestDump);
             Log.i("soap", "WS_GetDataset Response: " + httpTransport.responseDump);
 
-            xmlData1 = httpTransport.responseDump.toString();
+            xmlData1 = httpTransport.responseDump;
             xmlData = xmlData1.replace(
                     "soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" ",
                     "");

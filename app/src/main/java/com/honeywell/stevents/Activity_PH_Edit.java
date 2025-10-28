@@ -147,21 +147,21 @@ public class Activity_PH_Edit extends AppCompatActivity {
         maxId = dbHelper.getMaxID_FromSiteEventsTable(db);
 
         ///Log.i("------------onCreate", Locs.getColumnName(1));
-        spin_SE_Code = (Spinner) findViewById(R.id.txt_Site_Event_Code);
-        spin_Equip_Code = (Spinner) findViewById(R.id.txt_equip_id);
+        spin_SE_Code = findViewById(R.id.txt_Site_Event_Code);
+        spin_Equip_Code = findViewById(R.id.txt_equip_id);
         spin_Equip_Code.setEnabled(false);
-        spin_User_name = (Spinner) findViewById(R.id.txt_User_name);
+        spin_User_name = findViewById(R.id.txt_User_name);
 
-        rbTrue = (RadioButton) findViewById(R.id.radio_true);
-        rbFalse = (RadioButton) findViewById(R.id.radio_false);
-        rbResolved = (RadioGroup) findViewById(R.id.radio_group);
+        rbTrue = findViewById(R.id.radio_true);
+        rbFalse = findViewById(R.id.radio_false);
+        rbResolved = findViewById(R.id.radio_group);
 
         //define all controls first
-        text_event_time = (TextView) findViewById(R.id.text_event_time);
-        text_event_date = (TextView) findViewById(R.id.text_event_date);
-        text_resolve_time = (TextView) findViewById(R.id.text_resolve_time);
-        text_resolve_date = (TextView) findViewById(R.id.text_resolve_date);
-        txt_comment = (EditText) findViewById(R.id.txt_comment);
+        text_event_time = findViewById(R.id.text_event_time);
+        text_event_date = findViewById(R.id.text_event_date);
+        text_resolve_time = findViewById(R.id.text_resolve_time);
+        text_resolve_date = findViewById(R.id.text_resolve_date);
+        txt_comment = findViewById(R.id.txt_comment);
 
         rbResolved.clearCheck();
 
@@ -173,7 +173,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
         rbResolved.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                RadioButton rb = (RadioButton) findViewById(checkedId);
+                RadioButton rb = findViewById(checkedId);
                 String desc = "";
 
                 if (!current_equipment.equals("NA")) {
@@ -302,7 +302,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
         });
 
 
-        btnClear = (Button) findViewById(R.id.btn_clear);
+        btnClear = findViewById(R.id.btn_clear);
         btnClear.setText("Delete");
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -334,7 +334,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
 
         });
 
-        btnSave = (Button) findViewById(R.id.btn_save);
+        btnSave = findViewById(R.id.btn_save);
         btnSave.setText("Update");
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -366,7 +366,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
         });
 
 
-        btnDone = (Button) findViewById(R.id.btn_done);
+        btnDone = findViewById(R.id.btn_done);
         btnDone.setText("Cancel");
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -428,7 +428,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
             // The Cursor is now set to the right position
             String[] strs = new String[nCol];
             for (int i = 0; i < nCol; i++) {
-                strs[i] = (String) cursor.getString(i);
+                strs[i] = cursor.getString(i);
             }
             arrayList.add(strs);
         }
@@ -490,7 +490,7 @@ public class Activity_PH_Edit extends AppCompatActivity {
     }
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
-        current_comment = (String) txt_comment.getText().toString();
+        current_comment = txt_comment.getText().toString();
         current_maintenance = GetSpinnerValue(spin_User_name);
         current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.PH);
         current_equipment = GetSpinnerValue(spin_Equip_Code);

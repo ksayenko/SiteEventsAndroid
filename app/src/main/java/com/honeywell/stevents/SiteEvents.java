@@ -240,7 +240,7 @@ public class SiteEvents implements Serializable, Cloneable {
     private String datSE_Date_NoSeconds = "01/01/2000";
 
 
-    private double UNDEFINED = -99999.999;
+    private final double UNDEFINED = -99999.999;
 
     public SiteEvents() {
     }

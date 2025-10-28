@@ -56,10 +56,10 @@ public class Users {
     {
         DataTable_Users table =  new DataTable_Users();
         ArrayList<String> row = table.getEmptyDataRow();
-        row.set(table.GetElementIndex(table.strUserName), strUserName);
-        row.set(table.GetElementIndex(table.strName), Name);
-        row.set(table.GetElementIndex(table.strDomain), Domain);
-        row.set(table.GetElementIndex(table.nID), "-1");
+        row.set(table.GetElementIndex(DataTable_Users.strUserName), strUserName);
+        row.set(table.GetElementIndex(DataTable_Users.strName), Name);
+        row.set(table.GetElementIndex(DataTable_Users.strDomain), Domain);
+        row.set(table.GetElementIndex(DataTable_Users.nID), "-1");
         return   row;
     }
 

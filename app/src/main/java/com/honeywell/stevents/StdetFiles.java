@@ -13,7 +13,7 @@ import android.util.Xml;
 
 public class StdetFiles  {
 
-    private File directoryApp;
+    private final File directoryApp;
     //View view;
     public File GetDirectory(){
         return directoryApp;
@@ -37,7 +37,7 @@ public class StdetFiles  {
             newXml = new File(directoryApp + "/" + filename);
 
             FileOutputStream fos;
-            String fullfilename = newXml.getAbsolutePath().toString();
+            String fullfilename = newXml.getAbsolutePath();
             fos = new FileOutputStream(fullfilename);
 
             XmlSerializer serializer = Xml.newSerializer();
@@ -54,11 +54,11 @@ public class StdetFiles  {
             serializer.flush();
             fos.close();
         } catch (IOException exception) {
-            System.out.println(exception.toString());
+            System.out.println(exception);
 
             return false;
         } catch (Exception exception) {
-            System.out.println(exception.toString());
+            System.out.println(exception);
             return false;
         }
         return true;
@@ -77,7 +77,7 @@ public class StdetFiles  {
             newXml = new File(directoryApp + "/" + filename);
 
             FileOutputStream fos;
-            String fullfilename = newXml.getAbsolutePath().toString();
+            String fullfilename = newXml.getAbsolutePath();
             data = "<?xml version='1.0' encoding='UTF-8' ?>" + data;
             data = data.replace("</soap:Body>","");
             data = data.replace("<soap:Body>","");
@@ -111,12 +111,12 @@ public class StdetFiles  {
 
         } catch (IOException exception) {
             exception.printStackTrace();
-            System.out.println(exception.toString());
+            System.out.println(exception);
 
             return null;
         } catch (Exception exception) {
             exception.printStackTrace();
-            System.out.println(exception.toString());
+            System.out.println(exception);
             return null;
         }
         return table;
@@ -134,7 +134,7 @@ public class StdetFiles  {
             newXml = new File(directoryApp + "/" + filename);
 
             FileOutputStream fos;
-            String fullfilename = newXml.getAbsolutePath().toString();
+            String fullfilename = newXml.getAbsolutePath();
             data = "<?xml version='1.0' encoding='UTF-8' ?>" + data;
             data = data.replace("</soap:Body>","");
             data = data.replace("<soap:Body>","");
@@ -169,11 +169,11 @@ public class StdetFiles  {
 
         } catch (IOException exception) {
             exception.printStackTrace();
-            System.out.println(exception.toString());
+            System.out.println(exception);
 
         } catch (Exception exception) {
             exception.printStackTrace();
-            System.out.println(exception.toString());
+            System.out.println(exception);
 
         }
 
@@ -191,7 +191,7 @@ public class StdetFiles  {
             newXml = new File(directoryApp + "/" + filename);
 
 
-            String fullfilename = newXml.getAbsolutePath().toString();
+            String fullfilename = newXml.getAbsolutePath();
 
             FileInputStream input = new FileInputStream(fullfilename);
             table = HandHeldDomParser.XMLParse(fullfilename, filename);
@@ -200,12 +200,12 @@ public class StdetFiles  {
 
         } catch (IOException exception) {
             exception.printStackTrace();
-            System.out.println(exception.toString());
+            System.out.println(exception);
 
             return null;
         } catch (Exception exception) {
             exception.printStackTrace();
-            System.out.println(exception.toString());
+            System.out.println(exception);
             return null;
         }
         return table;
@@ -230,7 +230,7 @@ public class StdetFiles  {
 
         } catch (Exception exception) {
             exception.printStackTrace();
-            System.out.println(exception.toString());
+            System.out.println(exception);
             return null;
         }
         return tables;

@@ -126,10 +126,10 @@ public class DataTable_SiteEvent extends AppDataTable {
 
         reading.set(GetElementIndex(strUserName), theReading.getStrUserName());// user);
         reading.set(GetElementIndex(strUserUploadName), theReading.getStrUserUploadName());// user);
-        reading.set(GetElementIndex(datSE_Date), theReading.getDatSE_Date().toString());//datetime1);
-        reading.set(GetElementIndex(datSE_Time), theReading.getDatSE_Date().toString());
+        reading.set(GetElementIndex(datSE_Date), theReading.getDatSE_Date());//datetime1);
+        reading.set(GetElementIndex(datSE_Time), theReading.getDatSE_Date());
         reading.set(GetElementIndex(DateSE_NoSeconds),
-                DataTable_SiteEvent.RemoveSecondsFromDateTime(theReading.getDatSE_Date().toString()));
+                DataTable_SiteEvent.RemoveSecondsFromDateTime(theReading.getDatSE_Date()));
         reading.set(GetElementIndex(default_datetimeformat),
                 DataTable_SiteEvent.ConvertDatetimeFormat(theReading.getDatSE_Date(),
                         DataTable_SiteEvent.Datetime_pattern_with_sec,
@@ -159,7 +159,7 @@ public class DataTable_SiteEvent extends AppDataTable {
         reading.set(GetElementIndex(device_name), sDeviceName);
         reading.set(GetElementIndex(Measurement_Type), theReading.getMeasurementType().valueToString());
 
-        Log.i("codedebug", "DONE: DataTable_SiteEvent.AddToTable: sql " + theReading.toString());
+        Log.i("codedebug", "DONE: DataTable_SiteEvent.AddToTable: sql " + theReading);
 
 
         this.AddRowToData(reading);
@@ -287,7 +287,6 @@ public class DataTable_SiteEvent extends AppDataTable {
                 "strM_Per_ID," +
                 "datresdate," +
                 "ynresolved," +
-                "" +
                 " value, unit, device_name  "
                 + " from "+HandHeld_SQLiteOpenHelper.SITE_EVENT +
                 " where uploaded is null and recordToUpload=1";
@@ -332,8 +331,7 @@ public class DataTable_SiteEvent extends AppDataTable {
                 + DataTable_SiteEvent.strSE_ID + ","
                 + DataTable_SiteEvent.strS_Loc_ID + ","
                 + DataTable_SiteEvent.strEq_ID + ","
-                + DataTable_SiteEvent.DateSE_NoSeconds + ""
-                + " having count(*) > 1 ";
+                + DataTable_SiteEvent.DateSE_NoSeconds + " having count(*) > 1 ";
         return select;
     }
 
@@ -356,8 +354,7 @@ public class DataTable_SiteEvent extends AppDataTable {
                 + DataTable_SiteEvent.strS_Loc_ID + ","
                 + DataTable_SiteEvent.strEq_ID + ","
                 + DataTable_SiteEvent.strUserUploadName + ","
-                + DataTable_SiteEvent.DateSE_NoSeconds + ""
-                + " having count(*) > 1 ";
+                + DataTable_SiteEvent.DateSE_NoSeconds + " having count(*) > 1 ";
         return select;
     }
 

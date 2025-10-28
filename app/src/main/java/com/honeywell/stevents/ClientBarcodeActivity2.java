@@ -37,7 +37,7 @@ public class ClientBarcodeActivity2 extends Activity implements BarcodeReader.Ba
         setContentView(R.layout.activity_barcode);
 
         ((TextView)findViewById(R.id.txtActivityTitle)).setText("ClientBarcodeActivity2");
-        btnClient21=(Button)findViewById(R.id.btnClientActivity21);
+        btnClient21= findViewById(R.id.btnClientActivity21);
         btnClient21.setVisibility(View.VISIBLE);
         btnClient21.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +94,7 @@ public class ClientBarcodeActivity2 extends Activity implements BarcodeReader.Ba
         }
 
         // get initial list
-        barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
+        barcodeList = findViewById(R.id.listViewBarcodeData);
     }
 
     @Override

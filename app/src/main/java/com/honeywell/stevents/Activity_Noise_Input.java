@@ -196,9 +196,9 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         maxId = dbHelper.getMaxID_FromSiteEventsTable(db);
 
         ///Log.i("------------onCreate", Locs.getColumnName(1));
-        spin_SE_Code = (Spinner) findViewById(R.id.txt_Site_Event_Code);
-        spin_Equip_Code = (Spinner) findViewById(R.id.txt_equip_id);
-        spin_User_name = (Spinner) findViewById(R.id.txt_User_name);
+        spin_SE_Code = findViewById(R.id.txt_Site_Event_Code);
+        spin_Equip_Code = findViewById(R.id.txt_equip_id);
+        spin_User_name = findViewById(R.id.txt_User_name);
 
 //        rbTrue = (RadioButton) findViewById(R.id.radio_true);
 //        rbFalse = (RadioButton) findViewById(R.id.radio_false);
@@ -209,7 +209,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
 //        else
 //            rbResloved.check(R.id.radio_false);
 
-        text_Value = (TextView) findViewById(R.id.txtValue);
+        text_Value = findViewById(R.id.txtValue);
         text_Value.setText(current_reading);
         text_Value.addTextChangedListener(new TextWatcher() {
 
@@ -242,7 +242,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
             }
         });
 
-        text_Unit = (TextView) findViewById(R.id.txtUnit);
+        text_Unit = findViewById(R.id.txtUnit);
         text_Unit.setText(current_unit);
         text_Unit.addTextChangedListener(new TextWatcher() {
 
@@ -264,22 +264,22 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         });
 
         //text_event_time
-        text_event_time = (TextView) findViewById(R.id.text_event_time);
+        text_event_time = findViewById(R.id.text_event_time);
         text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
         text_event_time_picker();
         //text_event_date
-        text_event_date = (TextView) findViewById(R.id.text_event_date);
+        text_event_date = findViewById(R.id.text_event_date);
         text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
         text_event_date_picker();
 
         //////////////////////
         //resolve date
-        text_resolve_date = (TextView) findViewById(R.id.text_resolve_date);
+        text_resolve_date = findViewById(R.id.text_resolve_date);
         text_resolve_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_ResDateTime, ""));
         text_resolve_date_picker();
         //text_resolve_time
 
-        text_resolve_time = (TextView) findViewById(R.id.text_resolve_time);
+        text_resolve_time = findViewById(R.id.text_resolve_time);
         text_resolve_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_ResDateTime, ""));
         text_resolve_time_picker();
 
@@ -359,7 +359,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         });
 
         //COMMENTS
-        txt_comment = (EditText) findViewById(R.id.txt_comment);
+        txt_comment = findViewById(R.id.txt_comment);
         txt_comment.setText(current_comment);
         txt_comment.addTextChangedListener(new TextWatcher() {
 
@@ -378,11 +378,11 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
         });
 
 
-        btnClear = (Button) findViewById(R.id.btn_clear);
+        btnClear = findViewById(R.id.btn_clear);
 
         btnClear.setOnClickListener(view -> clearForms());
 
-        btnSave = (Button) findViewById(R.id.btn_save);
+        btnSave = findViewById(R.id.btn_save);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -392,7 +392,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
             }
         });
 
-        btnDone = (Button) findViewById(R.id.btn_done);
+        btnDone = findViewById(R.id.btn_done);
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -404,7 +404,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
                     int records = se_table.GetNumberOfRecords();
 
                     if (isRecordsSavedToDB) {
-                        String message = "The data (" + String.valueOf(records) + " records) is saved and ready to be uploaded.";
+                        String message = "The data (" + records + " records) is saved and ready to be uploaded.";
                         Toast.makeText(ct, message, Toast.LENGTH_SHORT).show();
                         se_table = new DataTable_SiteEvent();
                     }
@@ -466,7 +466,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
 
 
         // get initial list
-        barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
+        barcodeList = findViewById(R.id.listViewBarcodeData);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -599,9 +599,8 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
             SetSpinnerValue(spin_Equip_Code, array_Eq, current_site_event_reading_copy.getStrEq_ID(),1);
-            return;
         } else{
-            Log.i("codedebug", "NOISE SetAndStartIntent startActivity ->" + seintent.toString());
+            Log.i("codedebug", "NOISE SetAndStartIntent startActivity ->" + seintent);
             startActivity(seintent);
             finish();
         }
@@ -668,7 +667,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
 
-        current_comment = (String) txt_comment.getText().toString();
+        current_comment = txt_comment.getText().toString();
         current_maintenance = GetSpinnerValue(spin_User_name);
         current_reading = text_Value.getText().toString()  ;
         current_site_event_reading.setValue(current_reading);
@@ -800,7 +799,7 @@ Wedge as keys to empty
             // The Cursor is now set to the right position
             String[] strs = new String[nCol];
             for (int i = 0; i < nCol; i++) {
-                strs[i] = (String) cursor.getString(i);
+                strs[i] = cursor.getString(i);
             }
             arrayList.add(strs);
         }
@@ -834,7 +833,7 @@ Wedge as keys to empty
 
         boolean bAcceptDup = isTheRecordDup.isValid() || (isTheRecordDup.isWarningDuplicate() && bAcceptWarningDuplicate);
         boolean bAcceptRecord = isTheRecordValid.isValid() || (isTheRecordValid.isWarning() && bAcceptWarning);
-        Log.i("CodeDebug", "NOISE safe forms validation " + isTheRecordValid.toString() );
+        Log.i("CodeDebug", "NOISE safe forms validation " + isTheRecordValid);
 
         if (isTheRecordValid.isError()) {
             AlertDialogShowError(isTheRecordValid.getValidationMessage(), "ERROR");

@@ -334,7 +334,7 @@ Cursor Cursor_Eq = null;
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    System.out.println(ex.toString());
+                    System.out.println(ex);
                 }
             }
 
@@ -348,10 +348,10 @@ Cursor Cursor_Eq = null;
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    System.out.println(ex.toString());
+                    System.out.println(ex);
                 }
-                Toast.makeText(context, String.valueOf(iMoved) + " files have been moved and " +
-                        String.valueOf(iCopied) + " files have been copied ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, iMoved + " files have been moved and " +
+                        iCopied + " files have been copied ", Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -365,7 +365,7 @@ Cursor Cursor_Eq = null;
             // The Cursor is now set to the right position
             String[] strs = new String[nCol];
             for (int i = 0; i < nCol; i++) {
-                strs[i] = (String) cursor.getString(i);
+                strs[i] = cursor.getString(i);
             }
             arrayList.add(strs);
         }
@@ -484,7 +484,7 @@ Cursor Cursor_Eq = null;
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
         switch (requestCode) {
             case WRITE_REQUEST_CODE:
@@ -524,12 +524,8 @@ Cursor Cursor_Eq = null;
             mExternalStorageAvailable = mExternalStorageWriteable = false;
         }
 
-        if (mExternalStorageAvailable == true
-                && mExternalStorageWriteable == true) {
-            return true;
-        } else {
-            return false;
-        }
+        return mExternalStorageAvailable
+                && mExternalStorageWriteable;
     }
 
     @Override
@@ -544,7 +540,7 @@ Cursor Cursor_Eq = null;
                // Toast.makeText(context, default_reading.getStrSE_ID(), Toast.LENGTH_SHORT).show();
             }
         } catch (Exception ex) {
-            Toast.makeText(context, "onActivityResult"+ ex.toString(),
+            Toast.makeText(context, "onActivityResult"+ ex,
                     Toast.LENGTH_SHORT).show();
         }
 
@@ -630,7 +626,7 @@ Cursor Cursor_Eq = null;
                 SQLiteDatabase db = dbHelper.getReadableDatabase();
 
                 String messageDup = dbHelper.PotentialDuplicatesMesssage(db);
-                System.out.println("Possible Duplicates Message " + messageDup + "bAcceptWarningDuplicate " + Boolean.toString(bAcceptWarningDuplicate));
+                System.out.println("Possible Duplicates Message " + messageDup + "bAcceptWarningDuplicate " + bAcceptWarningDuplicate);
 
                 if (messageDup != "" && !bAcceptWarningDuplicate) {
                     isDuplicate.setValidation(Validation.VALIDATION.WARNING_DUPLICATE);
@@ -718,10 +714,10 @@ Cursor Cursor_Eq = null;
     private void AlertDialogShow(String message, String title, String button, String theme) {
         int themeResId = R.style.AlertDialogTheme;
         try {
-            if (theme.toLowerCase().equals("warning")) {
+            if (theme.equalsIgnoreCase("warning")) {
                 themeResId = R.style.AlertDialogWarning;
             }
-            if (theme.toLowerCase().equals("error")) {
+            if (theme.equalsIgnoreCase("error")) {
                 themeResId = R.style.AlertDialogError;
             }
 

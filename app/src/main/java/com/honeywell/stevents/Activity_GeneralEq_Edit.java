@@ -145,13 +145,13 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         maxId = dbHelper.getMaxID_FromSiteEventsTable(db);
 
         ///Log.i("------------onCreate", Locs.getColumnName(1));
-        spin_SE_Code = (Spinner) findViewById(R.id.txt_Site_Event_Code);
-        spin_Equip_Code = (Spinner) findViewById(R.id.txt_equip_id);
-        spin_User_name = (Spinner) findViewById(R.id.txt_User_name);
+        spin_SE_Code = findViewById(R.id.txt_Site_Event_Code);
+        spin_Equip_Code = findViewById(R.id.txt_equip_id);
+        spin_User_name = findViewById(R.id.txt_User_name);
 
-        rbStartup = (RadioButton) findViewById(R.id.radio_true);
-        rbShutdown = (RadioButton) findViewById(R.id.radio_false);
-        RadioGroup rbResloved = (RadioGroup) findViewById(R.id.radio_group);
+        rbStartup = findViewById(R.id.radio_true);
+        rbShutdown = findViewById(R.id.radio_false);
+        RadioGroup rbResloved = findViewById(R.id.radio_group);
         rbResloved.clearCheck();
         if (current_yn_resolve)
             rbStartup.setChecked(true);
@@ -161,7 +161,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                RadioButton rb = (RadioButton) findViewById(checkedId);
+                RadioButton rb = findViewById(checkedId);
                 String desc = "";
                 if (!current_equipment.equals("NA")) {
                     desc = dbHelper.GetEqDescDB(db, current_equipment);
@@ -169,7 +169,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
                         desc = "PCTF";
                 }
                 if (rb == rbStartup)
-                    txt_comment.setText(new StringBuilder().append(desc).append(" Startup").toString());
+                    txt_comment.setText(desc + " Startup");
                 if (rb == rbShutdown) {
                     txt_comment.setText(String.format("%s Shutdown", desc));
                 }
@@ -180,11 +180,11 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
 
 
         //text_event_time
-        text_event_time = (TextView) findViewById(R.id.text_event_time);
+        text_event_time = findViewById(R.id.text_event_time);
         text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
         text_event_time_picker();
         //text_event_date
-        text_event_date = (TextView) findViewById(R.id.text_event_date);
+        text_event_date = findViewById(R.id.text_event_date);
         text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
         text_event_date_picker();
 
@@ -260,7 +260,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
             }
         });
 
-        txt_comment = (EditText) findViewById(R.id.txt_comment);
+        txt_comment = findViewById(R.id.txt_comment);
         txt_comment.setText(current_comment);
         txt_comment.addTextChangedListener(new TextWatcher() {
 
@@ -280,7 +280,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         });
 
 
-        btnClear = (Button) findViewById(R.id.btn_clear);
+        btnClear = findViewById(R.id.btn_clear);
         btnClear.setText("Delete");
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -311,7 +311,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
 
 
         });
-        btnSave = (Button) findViewById(R.id.btn_save);
+        btnSave = findViewById(R.id.btn_save);
         btnSave.setText("Update");
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -343,7 +343,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         });
 
 
-        btnDone = (Button) findViewById(R.id.btn_done);
+        btnDone = findViewById(R.id.btn_done);
         btnDone.setText("Cancel");
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -393,7 +393,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
             // The Cursor is now set to the right position
             String[] strs = new String[nCol];
             for (int i = 0; i < nCol; i++) {
-                strs[i] = (String) cursor.getString(i);
+                strs[i] = cursor.getString(i);
             }
             arrayList.add(strs);
         }
@@ -457,10 +457,10 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
     private void AlertDialogShow(String message, String title, String button, String theme) {
         int themeResId = R.style.AlertDialogTheme;
         try {
-            if (theme.toLowerCase().equals("warning")) {
+            if (theme.equalsIgnoreCase("warning")) {
                 themeResId = R.style.AlertDialogWarning;
             }
-            if (theme.toLowerCase().equals("error")) {
+            if (theme.equalsIgnoreCase("error")) {
                 themeResId = R.style.AlertDialogError;
             }
 
@@ -658,7 +658,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
 
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
-        current_comment = (String) txt_comment.getText().toString();
+        current_comment = txt_comment.getText().toString();
         current_maintenance = GetSpinnerValue(spin_User_name);
 
 

@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import java.io.Serializable;
 public class MeasurementTypes implements Serializable {
 
-    public static enum MEASUREMENT_TYPES {
+    public enum MEASUREMENT_TYPES {
          PH, VOC, NOISE, GENERAL_BARCODE,OTHER;
 
    

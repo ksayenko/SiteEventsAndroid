@@ -112,27 +112,19 @@ public class Validation implements Serializable {
 
     public boolean isError()
     {
-        if (validation == VALIDATION.ERROR)
-            return true;
-        else return false;
+        return validation == VALIDATION.ERROR;
     }
     public boolean isWarning()
     {
-        if (validation == VALIDATION.WARNING)
-            return true;
-        else return false;
+        return validation == VALIDATION.WARNING;
     }
     public boolean isWarningDuplicate()
     {
-        if (validation == VALIDATION.WARNING_DUPLICATE)
-            return true;
-        else return false;
+        return validation == VALIDATION.WARNING_DUPLICATE;
     }
     public boolean isValid()
     {
-        if (validation == VALIDATION.VALID)
-            return true;
-        else return false;
+        return validation == VALIDATION.VALID;
     }
 
 }

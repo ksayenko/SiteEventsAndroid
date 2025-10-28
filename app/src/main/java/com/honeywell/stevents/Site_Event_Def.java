@@ -88,10 +88,10 @@ public class Site_Event_Def {
     {
         DataTable_Site_Event_Def table =  new DataTable_Site_Event_Def();
         ArrayList<String> row = table.getEmptyDataRow();
-        row.set(table.GetElementIndex(table.strSE_Desc), strSE_Desc);
-        row.set(table.GetElementIndex(table.strSE_ID), strSE_ID);
-        row.set(table.GetElementIndex(table.strSE_Desc), strSE_Desc);
-        row.set(table.GetElementIndex(table.ynCurrent), String.valueOf(ynCurrent));
+        row.set(table.GetElementIndex(DataTable_Site_Event_Def.strSE_Desc), strSE_Desc);
+        row.set(table.GetElementIndex(DataTable_Site_Event_Def.strSE_ID), strSE_ID);
+        row.set(table.GetElementIndex(DataTable_Site_Event_Def.strSE_Desc), strSE_Desc);
+        row.set(table.GetElementIndex(DataTable_Site_Event_Def.ynCurrent), String.valueOf(ynCurrent));
         return   row;
     }
 }

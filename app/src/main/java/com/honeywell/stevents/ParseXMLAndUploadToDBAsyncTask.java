@@ -25,12 +25,12 @@
             activity = _activity;
             context = activity;
             directoryApp = context.getFilesDir();
-            txtInfo =    (TextView) activity. findViewById(R.id.txtInfo);
+            txtInfo = activity. findViewById(R.id.txtInfo);
             txtInfo.setText("In the ParseXMLAndUploadToDBAsyncTask");
             onPostExecute(1);
         }
 
-        private File directoryApp;
+        private final File directoryApp;
 
         public File GetDirectory() {
             return directoryApp;
@@ -83,7 +83,7 @@
 
                 } catch (Exception exception) {
                     exception.printStackTrace();
-                    System.out.println(exception.toString());
+                    System.out.println(exception);
                     return null;
                 }
                 dbHelper = new HandHeld_SQLiteOpenHelper(context, tables);
@@ -95,7 +95,7 @@
                 //ad.setMessage(resp);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                System.out.println(ex.toString());
+                System.out.println(ex);
                 return -1;
             }
             //ad.show();

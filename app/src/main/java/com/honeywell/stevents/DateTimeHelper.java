@@ -173,7 +173,7 @@ public class DateTimeHelper {
             catch(Exception ex)   {
                 selectedDate = sdfJustTime.format(stringDate2.getTime());
 
-                Log.i("DateTimeHelper", " ex " + ex.toString());
+                Log.i("DateTimeHelper", " ex " + ex);
                 Log.i("DateTimeHelper", " stringDate2 " + stringDate2);
                 Log.i("DateTimeHelper", " selectedDate " + selectedDate);
 

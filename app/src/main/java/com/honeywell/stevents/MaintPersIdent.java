@@ -63,10 +63,10 @@ public class MaintPersIdent {
     {
         DataTable_Maint table =  new DataTable_Maint();
         ArrayList<String> row = table.getEmptyDataRow();
-        row.set(table.GetElementIndex(table.strM_Per_FName), strM_Per_FName);
-        row.set(table.GetElementIndex(table.strM_Per_LName), strM_Per_LName);
-        row.set(table.GetElementIndex(table.strM_Per_ID), strM_Per_ID);
-        row.set(table.GetElementIndex(table.IsDefault), String.valueOf(IsDefault));
+        row.set(table.GetElementIndex(DataTable_Maint.strM_Per_FName), strM_Per_FName);
+        row.set(table.GetElementIndex(DataTable_Maint.strM_Per_LName), strM_Per_LName);
+        row.set(table.GetElementIndex(DataTable_Maint.strM_Per_ID), strM_Per_ID);
+        row.set(table.GetElementIndex(DataTable_Maint.IsDefault), String.valueOf(IsDefault));
         return   row;
     }
 

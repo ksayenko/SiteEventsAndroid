@@ -183,13 +183,13 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         maxId = dbHelper.getMaxID_FromSiteEventsTable(db);
 
         ///Log.i("------------onCreate", Locs.getColumnName(1));
-        spin_SE_Code = (Spinner) findViewById(R.id.txt_Site_Event_Code);
-        spin_Equip_Code = (Spinner) findViewById(R.id.txt_equip_id);
-        spin_User_name = (Spinner) findViewById(R.id.txt_User_name);
+        spin_SE_Code = findViewById(R.id.txt_Site_Event_Code);
+        spin_Equip_Code = findViewById(R.id.txt_equip_id);
+        spin_User_name = findViewById(R.id.txt_User_name);
 
-        rbStartup = (RadioButton) findViewById(R.id.radio_true);
-        rbShutdown = (RadioButton) findViewById(R.id.radio_false);
-        rbResloved = (RadioGroup) findViewById(R.id.radio_group);
+        rbStartup = findViewById(R.id.radio_true);
+        rbShutdown = findViewById(R.id.radio_false);
+        rbResloved = findViewById(R.id.radio_group);
         rbResloved.clearCheck();
 //        if (current_yn_resolve)
 //            rbResloved.check(R.id.radio_true);
@@ -199,7 +199,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                RadioButton rb = (RadioButton) findViewById(checkedId);
+                RadioButton rb = findViewById(checkedId);
 
                 if (rb == rbStartup) {
                     SetCommentField(current_equipment, true);
@@ -214,11 +214,11 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
 
         //text_event_time
-        text_event_time = (TextView) findViewById(R.id.text_event_time);
+        text_event_time = findViewById(R.id.text_event_time);
         text_event_time.setText(DateTimeHelper.GetStringTimeFromDateTime(current_SEDateTime, ""));
         text_event_time_picker();
         //text_event_date
-        text_event_date = (TextView) findViewById(R.id.text_event_date);
+        text_event_date = findViewById(R.id.text_event_date);
         text_event_date.setText(DateTimeHelper.GetStringDateFromDateTime(current_SEDateTime, ""));
         text_event_date_picker();
 
@@ -307,7 +307,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             }
         });
 
-        txt_comment = (EditText) findViewById(R.id.txt_comment);
+        txt_comment = findViewById(R.id.txt_comment);
         txt_comment.setText(current_comment);
         txt_comment.addTextChangedListener(new TextWatcher() {
 
@@ -326,7 +326,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         });
 
 
-        btnClear = (Button) findViewById(R.id.btn_clear);
+        btnClear = findViewById(R.id.btn_clear);
 
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -335,7 +335,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             }
         });
 
-        btnSave = (Button) findViewById(R.id.btn_save);
+        btnSave = findViewById(R.id.btn_save);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -349,12 +349,12 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             }
         });
 
-        btnDone = (Button) findViewById(R.id.btn_done);
+        btnDone = findViewById(R.id.btn_done);
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Log.i("CodeDebug","isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+                Log.i("CodeDebug","isLastRecordSavedToTable "+ isLastRecordSavedToTable);
                 if (!isLastRecordSavedToTable) {
 
                     SaveFormAndValidate();
@@ -364,7 +364,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
                     int records = se_table.GetNumberOfRecords();
 
                     if (isRecordsSavedToDB) {
-                        String message = "The data (" + String.valueOf(records) + " records) is saved and ready to be uploaded.";
+                        String message = "The data (" + records + " records) is saved and ready to be uploaded.";
                         Toast.makeText(ct, message, Toast.LENGTH_SHORT).show();
                         se_table = new DataTable_SiteEvent();
                     }
@@ -426,7 +426,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
 
 
         // get initial list
-        barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
+        barcodeList = findViewById(R.id.listViewBarcodeData);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -513,7 +513,7 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
         }
 
         if (bStartup && !strEquipment.equalsIgnoreCase("NA")) {
-            txt_comment.setText(new StringBuilder().append(desc).append(" Startup").toString());
+            txt_comment.setText(desc + " Startup");
             SetSpinnerValue(spin_SE_Code, array_SE_code, default_SE, 2);
         } else if (!bStartup && !strEquipment.equalsIgnoreCase("NA")) {
             txt_comment.setText(String.format("%s Shutdown", desc));
@@ -562,9 +562,8 @@ public class Activity_GeneralEq_Input extends AppCompatActivity implements Barco
             isLastRecordSavedToTable = true;
             AlertDialogHighWarning("The record has not been saved." + "\n" + "Hit Done or Back button again to exit without saving.", "Warning!");
             SetSpinnerValue(spin_Equip_Code, array_Eq, current_site_event_reading_copy.getStrEq_ID(),1);
-            return;
         } else{
-            Log.i("codedebug", "GE SetAndStartIntent startActivity ->" + seintent.toString());
+            Log.i("codedebug", "GE SetAndStartIntent startActivity ->" + seintent);
             startActivity(seintent);
             finish();
         }
@@ -681,7 +680,7 @@ Wedge as keys to empty
             // The Cursor is now set to the right position
             String[] strs = new String[nCol];
             for (int i = 0; i < nCol; i++) {
-                strs[i] = (String) cursor.getString(i);
+                strs[i] = cursor.getString(i);
             }
             arrayList.add(strs);
         }
@@ -792,10 +791,10 @@ Wedge as keys to empty
     private void AlertDialogShow(String message, String title, String button, String theme) {
         int themeResId = R.style.AlertDialogTheme;
         try {
-            if (theme.toLowerCase().equals("warning")) {
+            if (theme.equalsIgnoreCase("warning")) {
                 themeResId = R.style.AlertDialogWarning;
             }
-            if (theme.toLowerCase().equals("error")) {
+            if (theme.equalsIgnoreCase("error")) {
                 themeResId = R.style.AlertDialogError;
             }
 
@@ -993,7 +992,7 @@ Wedge as keys to empty
 
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
-        current_comment = (String) txt_comment.getText().toString();
+        current_comment = txt_comment.getText().toString();
         current_maintenance = GetSpinnerValue(spin_User_name);
 
         String initials = dbHelper.GetMaintenanceInitialsByFirstLastName(db, current_maintenance);

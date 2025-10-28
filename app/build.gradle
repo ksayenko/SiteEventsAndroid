@@ -13,9 +13,12 @@ android {
         applicationId "com.honeywell.stevents"
         minSdk 30
         //noinspection ExpiredTargetSdkVersion
-        targetSdk 32
+         targetSdk 32
         versionCode 1
-        versionName "1.0"
+        versionName "1.1"
+        setProperty("archivesBaseName", applicationId + "-v" + versionCode + "(" + versionName + ")")
+        archivesBaseName = "$applicationId-v$versionCode($versionName)"
+
 
     }
     buildTypes {
@@ -25,20 +28,20 @@ android {
 
 
         }}
-//        applicationVariants.all{
-//                // this method is use to rename your all apk weather
-//                // it may be signed or unsigned(debug apk)
-//            variant ->
-//                variant.outputs.each{
-//                        // on below line we are setting a
-//                        // name to our apk as SiteEvents-Android.apk
-//                    output->
-//                        def name = "SiteEvents-Android.apk"
-//                        // on below line we are setting the
-//                        // outputFile Name to our apk file.
-//                        output.outputFileName = name
-//                }
-//        }
+        applicationVariants.all{
+                // this method is use to rename your all apk weather
+                // it may be signed or unsigned(debug apk)
+            variant ->
+                variant.outputs.each{
+                        // on below line we are setting a
+                        // name to our apk as SiteEvents-Android.apk
+                    output->
+                        def name = "SiteEvents-Android.apk"
+                        // on below line we are setting the
+                        // outputFile Name to our apk file.
+                        output.outputFileName = name
+                }
+        }
 
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8

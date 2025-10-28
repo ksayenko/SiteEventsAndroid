@@ -32,20 +32,20 @@ public class ParseXMLAndUploadToDBThread{
     ProgressBar progressBar;
     public AppCompatActivity activity;
     boolean bDownloadFromWS;
-    private Button btnInputForms;
-    private Button btnReviewForms;
-    private Button btnUploadDataToServer;
+    private final Button btnInputForms;
+    private final Button btnReviewForms;
+    private final Button btnUploadDataToServer;
 
     public ParseXMLAndUploadToDBThread(AppCompatActivity _activity, boolean _bDownloadFromWS) {
 
         activity = _activity;
         context = activity;
         directoryApp = context.getFilesDir();
-        txtInfo =    (TextView) activity. findViewById(R.id.txtInfo);
-        progressBar = (ProgressBar) activity. findViewById(R.id.progressBar);
-        btnInputForms = (Button) activity.findViewById(R.id.btnInputSEs);
-        btnUploadDataToServer = (Button) activity.findViewById(R.id.btnUploadSEs);
-        btnReviewForms = (Button) activity.findViewById(R.id.btnEditSEs);
+        txtInfo = activity. findViewById(R.id.txtInfo);
+        progressBar = activity. findViewById(R.id.progressBar);
+        btnInputForms = activity.findViewById(R.id.btnInputSEs);
+        btnUploadDataToServer = activity.findViewById(R.id.btnUploadSEs);
+        btnReviewForms = activity.findViewById(R.id.btnEditSEs);
         txtInfo.setText(" Start");
         bDownloadFromWS = _bDownloadFromWS;
 
@@ -53,7 +53,7 @@ public class ParseXMLAndUploadToDBThread{
 
     }
 
-    private File directoryApp;
+    private final File directoryApp;
 
     public File GetDirectory() {
         return directoryApp;
@@ -77,7 +77,7 @@ public class ParseXMLAndUploadToDBThread{
         final Handler handler = new Handler(Looper.getMainLooper());
         executor.execute(new Runnable() {
 
-            int count = 0;
+            final int count = 0;
 
             @Override
             public void run() {
@@ -122,7 +122,7 @@ public class ParseXMLAndUploadToDBThread{
         btnUploadDataToServer.setEnabled(true);
 
         //txtInfo.setText(" Done");
-        Log.i("Codedebug", "onPostExecute : "+String.valueOf(result));
+        Log.i("Codedebug", "onPostExecute : "+ result);
 
         final AlertDialog ad = new AlertDialog.Builder(context).create();
         ad.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
@@ -141,11 +141,11 @@ public class ParseXMLAndUploadToDBThread{
 
     private void AlertDialogShow(String message, String title, String button, String theme) {
         int themeResId =R.style.AlertDialogTheme;
-        if (theme.toLowerCase().equals("warning"))
+        if (theme.equalsIgnoreCase("warning"))
         {
             themeResId = R.style.AlertDialogWarning;
         }
-        if (theme.toLowerCase().equals("error"))
+        if (theme.equalsIgnoreCase("error"))
         {
             themeResId = R.style.AlertDialogError;
         }
@@ -269,7 +269,7 @@ public class ParseXMLAndUploadToDBThread{
 
             } catch (Exception exception) {
                 exception.printStackTrace();
-                System.out.println("KS :: "+exception.toString());
+                System.out.println("KS :: "+ exception);
                 return -1;
             }
             publishProgressTextView(" Start Uploading to DB");
@@ -278,7 +278,7 @@ public class ParseXMLAndUploadToDBThread{
             //dbHelper.getInsertFromTables(db);
 
             int n = tables.getDataTables().size();
-            System.out.println("KS :: !!!!!!!In getInsertFromTables : " + String.valueOf(n));
+            System.out.println("KS :: !!!!!!!In getInsertFromTables : " + n);
 
             for (int i = 0; i < n; i++) {
 
@@ -286,7 +286,7 @@ public class ParseXMLAndUploadToDBThread{
                 if (tables != null && tables.getDataTables().get(i).getName() != null) {
                     String tbName = tables.getDataTables().get(i).getName();
                     publishProgressBar(11 + i);
-                    publishProgressTextView("Inserting Data for table " + String.valueOf(i + 1) + ": " + tbName);
+                    publishProgressTextView("Inserting Data for table " + (i + 1) + ": " + tbName);
 
                     if (!tbName.equalsIgnoreCase("NA")
                             && tables.getDataTables().get(i).getTableType() == AppDataTable.TABLE_TYPE.LOOKUP) {
@@ -301,7 +301,7 @@ public class ParseXMLAndUploadToDBThread{
             //ad.setMessage(resp);
         } catch (Exception ex) {
             ex.printStackTrace();
-            System.out.println("KS ::"+ex.toString());
+            System.out.println("KS ::"+ ex);
             return -1;
         }
         //ad.show();
@@ -311,7 +311,7 @@ public class ParseXMLAndUploadToDBThread{
 
     private void publishProgressBar(Integer progress) {
         progressBar.setProgress(progress*5);
-        Log.i("codedebug", "------------onProgressUpdate " + progress.toString());
+        Log.i("codedebug", "------------onProgressUpdate " + progress);
     }
     private void publishProgressTextView(String progress) {
         txtInfo.setText(progress);

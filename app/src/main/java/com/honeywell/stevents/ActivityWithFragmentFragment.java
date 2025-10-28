@@ -84,7 +84,7 @@ public class ActivityWithFragmentFragment extends Fragment implements BarcodeRea
         }
         View fragmentView=inflater.inflate(R.layout.fragment_activity_with_fragment, container, false);
         // get initial list
-        barcodeList = (ListView) fragmentView.findViewById(R.id.listViewBarcodeData);
+        barcodeList = fragmentView.findViewById(R.id.listViewBarcodeData);
         Log.d(TAG, "onCreateView done");
         return fragmentView;
     }

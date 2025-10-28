@@ -34,7 +34,7 @@ public class CallWebServices2 {
     public final Integer PORT = 443;
     public final Integer TIMEOUT = 1000;
 
-    private File directoryApp;
+    private final File directoryApp;
 
 
     public CallWebServices2(File dir) {
@@ -66,7 +66,7 @@ public class CallWebServices2 {
 
 
     public List<Object> WS_GetDatasetAndWriteToTheFileSystem(String DatasetName, File directoryApp) throws IOException {
-        String errormessage[] =  new String[]{""};
+        String[] errormessage =  new String[]{""};
         File newJson;
         StdetWeb_Lists thelist = new StdetWeb_Lists();
         newJson = new File(directoryApp + "/" + DatasetName+".json");
@@ -113,7 +113,7 @@ public class CallWebServices2 {
             return null;
         }
         } catch (Exception e) {
-            Log.i("Rest API", " Exception for WS_GetDataSet_Users_Response   " + e.toString());
+            Log.i("Rest API", " Exception for WS_GetDataSet_Users_Response   " + e);
             return users;
         }
         //return "ERROR";
@@ -142,7 +142,7 @@ public class CallWebServices2 {
                 return null;
             }
         } catch (Exception e) {
-            Log.i("Rest API", " Exception for WS_GetDataSet_Equip_Ident_Response   " + e.toString());
+            Log.i("Rest API", " Exception for WS_GetDataSet_Equip_Ident_Response   " + e);
             return array;
         }
     }
@@ -193,7 +193,7 @@ public class CallWebServices2 {
 
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i("Rest API", " Exception for WS_CallLogin   " + e.toString());
+            Log.i("Rest API", " Exception for WS_CallLogin   " + e);
             return bLogin[0];
         }
         return bLogin[0];
@@ -237,7 +237,7 @@ public class CallWebServices2 {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i("Rest API", " Exception for WS_GetLogin   " + e.toString());
+            Log.i("Rest API", " Exception for WS_GetLogin   " + e);
             return bLogin;
         }
     }
@@ -267,7 +267,7 @@ public class CallWebServices2 {
                 return array;
             }
         } catch (Exception e) {
-            Log.i("Rest API", " ERROR for WS_GetDataSet_Site_Event_Def_Response  SITE_EVENT_DEF " + e.toString());
+            Log.i("Rest API", " ERROR for WS_GetDataSet_Site_Event_Def_Response  SITE_EVENT_DEF " + e);
             return array;
         }
 
@@ -297,7 +297,7 @@ public class CallWebServices2 {
                   return null;
               }
           } catch (Exception e) {
-              Log.i("Rest API", " ERROR for WS_GetDataSet_MaintPersIdent_Response   " + e.toString());
+              Log.i("Rest API", " ERROR for WS_GetDataSet_MaintPersIdent_Response   " + e);
               return array;
           }
       }
@@ -352,7 +352,7 @@ public class CallWebServices2 {
              Log.i("Rest API","Response errorBody: " + response.errorBody());
 //            }
         } catch (Exception e) {
-            Log.i("Rest API", " Exception for WS_UploadFile   " + e.toString());
+            Log.i("Rest API", " Exception for WS_UploadFile   " + e);
             return false;
         }
 

@@ -43,7 +43,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     public final static String MAINTENANCE  = "tbl_MaintPersIdent";
     public static final String LOGININFO = "LoginInfo";
 
-    private AppDataTables tables;
+    private final AppDataTables tables;
     public static SQLiteDatabase db;
 
 
@@ -158,7 +158,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 
             if (tables != null && tables.getDataTables().get(i).getName() != null) {
                 String tbName = tables.getDataTables().get(i).getName();
-                System.out.println("In getInsertFromTables " + String.valueOf(i) + " " + tbName);
+                System.out.println("In getInsertFromTables " + i + " " + tbName);
                 if (!tbName.equalsIgnoreCase("NA")) {
                     getInsertFromTable(db, tables.getDataTables().get(i));
                 }
@@ -433,7 +433,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
        else
             values.put(DataTable_SiteEvent.strComment, temp);
 
-       Log.i("codedebug", "UPDATE "+ r.getStrM_Per_ID()+ r.toString());
+       Log.i("codedebug", "UPDATE "+ r.getStrM_Per_ID()+ r);
 
         values.put(DataTable_SiteEvent.strSE_ID, r.getStrSE_ID());
         values.put(DataTable_SiteEvent.strM_Per_ID, r.getStrM_Per_ID());
@@ -640,7 +640,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             // The Cursor is now set to the right position
             String[] strs = new String[nCol];
             for (int i = 0; i < nCol; i++) {
-                strs[i] = (String) cursor.getString(i);
+                strs[i] = cursor.getString(i);
             }
             arrayList.add(strs);
         }
@@ -724,7 +724,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         try {
             default_user = GeneralQueryFirstValue(db, sql);
         } catch (Exception ex) {
-            Log.i("codedebug", "GetDefaultMaintenancePerson " + ex.toString());
+            Log.i("codedebug", "GetDefaultMaintenancePerson " + ex);
 
 
         }
@@ -1004,7 +1004,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
 
         String dattime_addon = sy + sm + sd + "_" + sh + smm + ssec;
         String filename =
-                HandHeld_SQLiteOpenHelper.FILEPREFIX + "" + dattime_addon + ".csv";
+                HandHeld_SQLiteOpenHelper.FILEPREFIX + dattime_addon + ".csv";
         newCSV = new File(directoryApp + "/" + filename);
         FileOutputStream fos;
         String fullfilename = newCSV.getAbsolutePath();
@@ -1187,7 +1187,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         if (df == null)
             df = new DecimalFormat("#.################");
         if (records.getString(i) != null && df == null)
-            s = (String) records.getString(i);
+            s = records.getString(i);
         if (records.getString(i) != null && df != null) {
             double dValue = records.getDouble(i);
             s = df.format(dValue);
@@ -1203,7 +1203,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         SimpleDateFormat sdf = null;
         try {
             if (records.getString(i) != null) {
-                s = (String) records.getString(i);
+                s = records.getString(i);
                 sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a", Locale.US);
                 dt = sdf.parse(s);
                 timeStamp = new SimpleDateFormat("MM/dd/yyyy hh:mm a").format(dt);
@@ -1219,7 +1219,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         String e = "\"";
         String s = "";
         if (records.getString(i) != null)
-            s = (String) records.getString(i);
+            s = records.getString(i);
         return e + s.trim() + e;
     }
 
@@ -1233,7 +1233,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         String e = "\"";
         String s = "";
         if (records.getString(i) != null)
-            s = (String) records.getString(i);
+            s = records.getString(i);
         else
             return "NULL";
         return e + s.trim() + e;

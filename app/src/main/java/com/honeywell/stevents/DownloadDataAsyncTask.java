@@ -12,7 +12,7 @@ import java.io.File;
 public class DownloadDataAsyncTask extends AsyncTask {
 
         public Handler mHandler;
-        private File directoryApp;
+        private final File directoryApp;
 
         public File GetDirectory() {
                 return directoryApp;
@@ -54,7 +54,7 @@ public class DownloadDataAsyncTask extends AsyncTask {
                         //ad.setMessage(resp);
                 } catch (Exception ex) {
                         ex.printStackTrace();
-                        System.out.println(ex.toString());
+                        System.out.println(ex);
                         return -1;
                 }
                 //ad.show();

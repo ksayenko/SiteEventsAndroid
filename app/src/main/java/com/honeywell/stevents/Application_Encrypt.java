@@ -2,6 +2,7 @@ package com.honeywell.stevents;
 
 import android.util.Base64;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 
 import javax.crypto.Cipher;
@@ -16,7 +17,7 @@ public class Application_Encrypt {
             Key key = generateKey();
             Cipher cipher = Cipher.getInstance(Application_Encrypt.ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, key);
-            byte [] encryptedByteValue = cipher.doFinal(value.getBytes("utf-8"));
+            byte [] encryptedByteValue = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
             String encryptedValue64 = Base64.encodeToString(encryptedByteValue, Base64.DEFAULT);
             return encryptedValue64;
 
@@ -31,7 +32,7 @@ public class Application_Encrypt {
                 cipher.init(Cipher.DECRYPT_MODE, key);
                 byte[] decryptedValue64 = Base64.decode(value, Base64.DEFAULT);
                 byte[] decryptedByteValue = cipher.doFinal(decryptedValue64);
-                decryptedValue = new String(decryptedByteValue, "utf-8");
+                decryptedValue = new String(decryptedByteValue, StandardCharsets.UTF_8);
             } catch (Exception exception) {
                 exception.printStackTrace();
             }

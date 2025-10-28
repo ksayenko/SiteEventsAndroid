@@ -31,7 +31,7 @@ public class ClientBarcodeActivity extends Activity implements BarcodeReader.Bar
         setContentView(R.layout.activity_barcode);
 
         ((TextView)findViewById(R.id.txtActivityTitle)).setText("Check Barcode");
-        btnClient21=(Button)findViewById(R.id.btnClientActivity21);
+        btnClient21= findViewById(R.id.btnClientActivity21);
         btnClient21.setVisibility(View.GONE);
 
         // set lock the orientation
@@ -81,7 +81,7 @@ public class ClientBarcodeActivity extends Activity implements BarcodeReader.Bar
         }
 
         // get initial list
-        barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
+        barcodeList = findViewById(R.id.listViewBarcodeData);
         Log.i("------------barcodeList",barcodeList.toString());
     }
 
