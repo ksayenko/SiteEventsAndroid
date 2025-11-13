@@ -492,6 +492,7 @@ public class Activity_VOC_Edit extends AppCompatActivity {
         current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.VOC);
         current_maintenance =GetSpinnerValue(spin_User_name);
         current_se =GetSpinnerValue(spin_SE_Code);
+
         String desc = dbHelper.GetEqDescDB(db,current_equipment);
         if(desc == null || (!desc.equals("")))
             current_site_event_reading.setStrEqDesc(desc);

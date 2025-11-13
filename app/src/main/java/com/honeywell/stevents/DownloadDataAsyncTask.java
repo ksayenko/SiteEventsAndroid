@@ -36,7 +36,7 @@ public class DownloadDataAsyncTask extends AsyncTask {
         protected Integer doInBackground(Object... objects) {
                 //final AlertDialog ad = new AlertDialog.Builder(context).create();
                 try {
-                        CallSoapWS cs = new CallSoapWS(directoryApp);
+                        CallWebServices2 cs = new CallWebServices2(directoryApp);
 
                         System.out.println("do in backgroind");
                         String resp = "Download of LookUp Tables has been Completed";

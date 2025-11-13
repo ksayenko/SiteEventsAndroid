@@ -357,6 +357,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         System.out.println("getInsertFromTable " + create);
         Log.i("db", " getInsertFromTable " + create);
         db.execSQL(create);
+        String insertUpdate = "";
         String insert = "", delete;
         try {
 
@@ -401,13 +402,14 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
                 for (int i = 0; i < n; i++) {
                     try {
                         insert = table.getInsertIntoDB(i);
+                        System.out.println("insert " + insert);
                         SQLiteStatement statement = db.compileStatement(insert);
                         statement.execute();
                         statement.close();
                         //db.execSQL(insert);
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        System.out.println("insert " + insert + ex);
+                        System.out.println("insert ERROR " + insert + ex);
                     }
 
                 }
@@ -486,12 +488,12 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getSiteEventRecords(SQLiteDatabase db, String orderby) {
-        String qry = "select  rowid as _id, " + DataTable_SiteEvent.strD_Loc_ID + ", " +
+        String qry = "select " + HandHeld_SQLiteOpenHelper.SITE_EVENT + ".rowid as _id, " + DataTable_SiteEvent.strD_Loc_ID + ", " +
                 DataTable_SiteEvent.strUserUploadName + ", " +
                 DataTable_SiteEvent.datSE_Date + ", " +
                 DataTable_SiteEvent.datSE_Time + ", " +
                 DataTable_SiteEvent.strS_Loc_ID + ", " +
-                DataTable_SiteEvent.strSE_ID + ", " +
+                HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + "." + DataTable_Site_Event_Def.strSE_ID + ", " +
                 DataTable_SiteEvent.strTOFO_id + ", " +
                 DataTable_SiteEvent.strEq_ID + ", " +
                 DataTable_SiteEvent.strEqDesc + ", " +
@@ -502,11 +504,14 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
                 DataTable_SiteEvent.Value + ", " +
                 DataTable_SiteEvent.Unit + ", " +
 
-                DataTable_SiteEvent.device_name +","+
+                DataTable_SiteEvent.device_name + "," +
                 DataTable_SiteEvent.Measurement_Type +
                 " from " +
-                HandHeld_SQLiteOpenHelper.SITE_EVENT +
+                HandHeld_SQLiteOpenHelper.SITE_EVENT + " LEFT JOIN " + HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF +
+                " ON " + HandHeld_SQLiteOpenHelper.SITE_EVENT + "." + DataTable_SiteEvent.strSE_ID + " = " + HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + "." + DataTable_Site_Event_Def.strSE_ID +
+                " OR " + HandHeld_SQLiteOpenHelper.SITE_EVENT + "." + DataTable_SiteEvent.strSE_ID + " = " + HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + "." + DataTable_Site_Event_Def.strSE_Desc +
                 " where (uploaded is null or uploaded =0) and (" + DataTable_SiteEvent.recordToUpload + " = 1 or " + DataTable_SiteEvent.recordToUpload + " is null) " + orderby;
+        Log.i("codedebug", qry);
         return db.rawQuery(qry, null);
     }
 
@@ -664,6 +669,19 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
         Log.i("codedebug","GetMaintenanceInitialsByFirstLastName " +  sql );
         
         return GeneralQueryFirstValue(db, sql);
+    }
+
+    public String GetSEID_DB(SQLiteDatabase db, String strSE_ID)
+    {
+        String sql = "Select "+ DataTable_Site_Event_Def.strSE_ID + " from " + SITE_EVENT_DEF
+
+                + "  where "+ DataTable_Site_Event_Def.strSE_ID + " = '" + strSE_ID+"' or " +
+                DataTable_Site_Event_Def.strSE_Desc+ " = '" + strSE_ID+"'";
+
+        String se = GeneralQueryFirstValue(db, sql);
+        if (se == null)
+       Log.i("codedebug", "GetSEID_DB " + sql + se);
+        return se;
     }
 
     public String GetEqDescDB(SQLiteDatabase db, String strEqId)
@@ -968,7 +986,7 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             this.updateUserNameInSiteEvents(db, login[0]);
         }
         try {
-            CallSoapWS ws = new CallSoapWS(directoryApp);
+            CallWebServices2 ws = new CallWebServices2(directoryApp);
             String datetimeserver = ws.WS_GetServerDate(false);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
             c.setTime(sdf.parse(datetimeserver));
@@ -1023,7 +1041,8 @@ public class HandHeld_SQLiteOpenHelper extends SQLiteOpenHelper {
             nRecords[0] = records.getCount();
             Integer nCol = records.getColumnCount();
             message1 = nRecords[0].toString()+ "  records getting ready to upload";
-            Toast.makeText(context, message1, Toast.LENGTH_SHORT).show();
+            Log.i("rest api", message1);
+            //Toast.makeText(context, message1, Toast.LENGTH_SHORT).show();
 
             String s_strD_Loc_ID;
             String s_strUserName;

@@ -67,15 +67,16 @@ public class Validation implements Serializable {
     }
 
     public enum VALIDATION {
-        VALID, WARNING, WARNING_DUPLICATE, ERROR;
+        VALID, WARNING, WARNING_DUPLICATE, ERROR, NORECORD;//NO RECORD WHEN EQUIPMENT AND SITEEVENT ==NA
 
         public int value() {
 
             if (this.toString().equals("VALID")) return 0;
             if (this.toString().equals("WARNING")) return 1;
             if (this.toString().equals("WARNING_DUPLICATE")) return 2;
-
-            else return 4;
+            if (this.toString().equals("ERROR")) return 3;
+            if (this.toString().equals("NORECORD")) return 4;
+            else return 3;
         }
     }
     public enum FOCUS {
@@ -125,6 +126,10 @@ public class Validation implements Serializable {
     public boolean isValid()
     {
         return validation == VALIDATION.VALID;
+    }
+    public boolean isNoRecord()
+    {
+        return validation == VALIDATION.NORECORD;
     }
 
 }

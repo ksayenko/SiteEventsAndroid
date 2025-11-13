@@ -12,7 +12,7 @@ public class DataTable_Site_Event_Def extends AppDataTable {
         super(HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF);
 
         this.AddColumnToStructure(lngID,"Integer",true);
-        this.AddColumnToStructure(strSE_ID,"String",false);
+        this.AddColumnToStructure(strSE_ID,"String",true);
         this.AddColumnToStructure(strSE_Desc,"String",false);
         this.AddColumnToStructure(ynCurrent,"String",false);
 

@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 
 import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -49,7 +48,7 @@ public class CallWebServices2 {
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        Log.i("Rest API", " WS_GetServerDate ");
+        Log.i("Rest API", " WS_GetServerDateResponse ");
 
         RestApiService service = retrofit.create(RestApiService.class);
 
@@ -231,6 +230,7 @@ public class CallWebServices2 {
                 return bLogin;
                 // Process data in the background
             } else {
+                assert respDataSet.errorBody() != null;
                 String error = respDataSet.errorBody().toString();
                 Log.i("Rest API", " ERROR for WS_GetLogin   " + error);
                 return bLogin;
@@ -241,9 +241,54 @@ public class CallWebServices2 {
             return bLogin;
         }
     }
+    public Boolean WS_GetLoginCall(String username, String password, String[] errormessage) {
+        final Boolean[] bLogin = {false};
+        String passwordNew = java.net.URLEncoder.encode(password);
+        Log.i("Rest API", " passwordNew " + password + " " + passwordNew);
+        String usernameNew = java.net.URLEncoder.encode(username);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        Log.i("Rest API", " in WS_GetLogin ");
+
+        final String[] ResponseLogin = {""};
 
 
-    //https://api.limstor.com/stdetweb/Data/GetDataset?datasetName=tbl_Site_Event_Def
+        try {
+            RestApiService service = retrofit.create(RestApiService.class);
+            Call<String> respDataSet = service.GetLogin(username, password);
+
+            respDataSet.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    Log.i("Rest API", "WS_GetLoginCall " + response.message() + response.body() + response.errorBody());
+                    if (response.isSuccessful()) {
+                        ResponseLogin[0] = response.body();
+                        Log.i("Rest API", "WS_GetLoginCall " + ResponseLogin[0] + " ");
+                        if (ResponseLogin[0].equalsIgnoreCase("true"))
+                            bLogin[0] = true;
+
+                    } else {
+                        // might need to inspect the error body
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.i("Rest API", "onFailure WS_GetLoginCall ");
+                }
+            });
+
+
+
+        } catch (Exception e) {
+            Log.i("Rest API", "Exception WS_GetLoginCall ");
+        }
+
+        return bLogin[0];
+    }
+        //https://api.limstor.com/stdetweb/Data/GetDataset?datasetName=tbl_Site_Event_Def
     public List<Site_Event_Def> WS_GetDataSet_Site_Event_Def_Response() throws IOException {
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -258,6 +303,7 @@ public class CallWebServices2 {
             Response<List<Site_Event_Def>> respDataSet = service.getDataSetSite_Event_Def(SITE_EVENT_DEF).execute();
             if (respDataSet.isSuccessful()) {
                 array = (ArrayList<Site_Event_Def>) respDataSet.body();
+                assert array != null;
                 Log.i("Rest API", " OK SITE_EVENT_DEF WS_GetDataSet_Site_Event_Def_Response " + array.toString());
                 return array;
                 // Process data in the background
@@ -270,9 +316,7 @@ public class CallWebServices2 {
             Log.i("Rest API", " ERROR for WS_GetDataSet_Site_Event_Def_Response  SITE_EVENT_DEF " + e);
             return array;
         }
-
     }
-
 
     //https://api.limstor.com/stdetweb/Data/GetDataset?datasetName=tbl_Equip_Ident
       public List<MaintPersIdent> WS_GetDataSet_MaintPersIdent_Response() throws IOException {
@@ -311,27 +355,71 @@ public class CallWebServices2 {
         boolean brv;
 
         dataset1 = WS_GetDatasetAndWriteToTheFileSystem(USERS,directoryApp);
-        tables.AddStdetDataTable(HandHeldDomParser.JSONParse(USERS, dataset1));
+        tables.AddStdetDataTable(HandHeldFileParser.JSONParse(USERS, dataset1));
         Log.i("Rest API",dataset1.toString());
         dataset1 = WS_GetDatasetAndWriteToTheFileSystem(SITE_EVENT_DEF,directoryApp);
-        tables.AddStdetDataTable(HandHeldDomParser.JSONParse(SITE_EVENT_DEF, dataset1));
+        tables.AddStdetDataTable(HandHeldFileParser.JSONParse(SITE_EVENT_DEF, dataset1));
         dataset1 = WS_GetDatasetAndWriteToTheFileSystem(MAINTENANCE,directoryApp);
-        tables.AddStdetDataTable(HandHeldDomParser.JSONParse(MAINTENANCE, dataset1));
+        tables.AddStdetDataTable(HandHeldFileParser.JSONParse(MAINTENANCE, dataset1));
         dataset1 = WS_GetDatasetAndWriteToTheFileSystem(EQUIP_IDENT,directoryApp);
-        tables.AddStdetDataTable(HandHeldDomParser.JSONParse(EQUIP_IDENT, dataset1));
+        tables.AddStdetDataTable(HandHeldFileParser.JSONParse(EQUIP_IDENT, dataset1));
+        Log.i("Rest API", "tables count"+String.valueOf(tables.getDataTablesCount()));
+
         return tables;
     }
 
-    public Boolean WS_UploadFile(byte[] file, String filename, String user, String pwd, String Media) {
+
+    public Boolean WS_UploadFile2(byte[] file, String filename, String user, String pwd, String Media, String[] errormessage) {
         boolean bResponse = false;
         String sUploadResponse = "";
+        errormessage[0]="";
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(new OkHttpClient())
+                .build();
+        Log.i("Rest API", " in WS_UploadFile ");
+
+        try {
+            RestApiService service = retrofit.create(RestApiService.class);
+            RequestBody fileBody = RequestBody.create(MediaType.parse("application/octet"),file);
+
+            Call<String> call = service.UploadFile(filename,user,pwd,fileBody);
+            Response<String> response = call.execute();
+
+            Log.i("Rest API","WS_UploadFile Response Code: " + response.code());
+            Log.i("Rest API","WS_UploadFile Response: " + response.body());
+
+            String body = response.body();
+            assert body != null;
+            if ( body.equalsIgnoreCase("true")&& response.code()==200)
+                return true;//
+
+            Log.i("Rest API","Response message: " + response.message());
+            Log.i("Rest API","Response errorBody: " + response.errorBody());
+//            }
+        } catch (Exception e) {
+            Log.i("Rest API", " Exception for WS_UploadFile   " + e);
+            errormessage[0] =e.toString();
+            return false;
+
+        }
+
+        return  false;
+    }
+
+    public Boolean WS_UploadFile(byte[] file, String filename, String user, String pwd, String Media, String[] errormessage) {
+        boolean bResponse = false;
+        String sUploadResponse = "";
+        errormessage[0]="";
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                  .client(new OkHttpClient())
                 .build();
-        Log.i("Rest API", " in WS_GetDataSetResponse ");
+        Log.i("Rest API", " in WS_UploadFile ");
 
          try {
              RestApiService service = retrofit.create(RestApiService.class);
@@ -340,8 +428,8 @@ public class CallWebServices2 {
              Call<String> call = service.UploadFile(filename,user,pwd,fileBody);
              Response<String> response = call.execute();
 
-             Log.i("Rest API","Response Code: " + response.code());
-             Log.i("Rest API","Response: " + response.body());
+             Log.i("Rest API","WS_UploadFile Response Code: " + response.code());
+             Log.i("Rest API","WS_UploadFile Response: " + response.body());
 
              String body = response.body();
              assert body != null;
@@ -353,10 +441,63 @@ public class CallWebServices2 {
 //            }
         } catch (Exception e) {
             Log.i("Rest API", " Exception for WS_UploadFile   " + e);
-            return false;
+             errormessage[0] =e.toString();
+             return false;
+
         }
 
         return  false;
+    }
+
+    public Boolean WS_UploadFileCall(byte[] file, String filename, String user, String pwd, String Media, String[] errormessage) {
+        final boolean[] bResponse = {false};
+        String sUploadResponse = "";
+        errormessage[0] = "";
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(new OkHttpClient())
+                .build();
+        Log.i("Rest API", " in WS_UploadFile ");
+
+        try {
+            RestApiService service = retrofit.create(RestApiService.class);
+            RequestBody fileBody = RequestBody.create(MediaType.parse("application/octet-stream"), file);
+
+            Call<String> call = service.UploadFile(filename, user, pwd, fileBody);
+
+
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    Log.i("Rest API", "WS_UploadFileCall " + response.message() + response.body() + response.errorBody());
+                    if (response.isSuccessful()) {
+                        bResponse[0] = true;
+                        Log.i("Rest API", "WS_UploadFileCall " + response + " ");
+
+                    } else {
+                        errormessage[0] = response.body() + response.errorBody();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    errormessage[0] = t.toString();
+                    Log.i("Rest API", "onFailure WS_UploadFileCall  "+errormessage[0]);
+                }
+            });
+
+            return bResponse[0];
+
+
+        } catch (Exception e) {
+            Log.i("Rest API", " Exception for WS_UploadFile   " + e);
+            errormessage[0] = e.toString();
+            return false;
+
+        }
+
     }
 
 

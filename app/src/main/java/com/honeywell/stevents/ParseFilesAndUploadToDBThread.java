@@ -1,5 +1,4 @@
 package com.honeywell.stevents;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,10 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.io.File;
 
-import okhttp3.Response;
 
-
-public class ParseXMLAndUploadToDBThread{
+public class ParseFilesAndUploadToDBThread {
     Context context;
     public Handler mHandler;
     TextView txtInfo;
@@ -36,7 +33,7 @@ public class ParseXMLAndUploadToDBThread{
     private final Button btnReviewForms;
     private final Button btnUploadDataToServer;
 
-    public ParseXMLAndUploadToDBThread(AppCompatActivity _activity, boolean _bDownloadFromWS) {
+    public ParseFilesAndUploadToDBThread(AppCompatActivity _activity, boolean _bDownloadFromWS) {
 
         activity = _activity;
         context = activity;
@@ -84,9 +81,9 @@ public class ParseXMLAndUploadToDBThread{
 
                 //Background work here
                 try {
-                    System.out.println("KS :: Start run()");
+                    Log.i("populateDB", "KS :: Start run()");
                     doInBackground();
-                    System.out.println("KS :: After  doInBackground();");
+                    Log.i("populateDB","KS :: After  doInBackground();");
                     // onPostExecute(11);
 
                     handler.postDelayed(new Runnable() {
@@ -97,21 +94,21 @@ public class ParseXMLAndUploadToDBThread{
                         }
 
                         private void onPostExecute(Integer result) {
-                            System.out.println("KS :: INSIDE THIS ONPOSTEXECUTE");
+                            Log.i("populateDB","KS :: INSIDE THIS ONPOSTEXECUTE");
                             btnInputForms.setEnabled(true);
                             btnUploadDataToServer.setEnabled(true);
                             btnReviewForms.setEnabled(true);
                         }
                     }, 6000);
                 } catch (Exception e) {
-                    System.out.println("KS :: Error FROM THE APP 1 : " + e.fillInStackTrace());
+                    Log.i("populateDB ERROR","KS :: Error FROM THE APP 1 : " + e.fillInStackTrace());
 
                 }
             }
         });
 
         // Display message only for better readability
-        System.out.println("KS :: Done");
+        Log.i("populateDB","KS :: Done");
         progressBar.setVisibility(View.INVISIBLE);
     }
 
@@ -168,23 +165,23 @@ public class ParseXMLAndUploadToDBThread{
             directoryApp.mkdir();
         boolean bConnection = true;
 
-        System.out.println("KS:: Starting doInBackground : DOWNLOADING DATE FROM WEBSERVICES");
+         Log.i("REST API populateDB","KS:: Starting doInBackground : DOWNLOADING DATE FROM WEBSERVICES");
         StdetFiles f = new StdetFiles(directoryApp);
-        System.out.println("KS:: Starting new StdetFiles(directoryApp);");
-        AppDataTables tables;// = f.ReadXMLToSTDETables();
+        Log.i("populateDB","KS:: Starting new StdetFiles(directoryApp);");
+        AppDataTables tables= new AppDataTables();
 
 
         //final AlertDialog ad = new AlertDialog.Builder(context).create();
         try {
-            System.out.println("KS:: doInBackground");
+            Log.i("REST API populateDB","KS:: doInBackground");
             String resp = "LookUp Tables Loading";
 
             if (bDownloadFromWS) {
                 //CHECK CONNECTION
-                CallSoapWS ws1 = new CallSoapWS(null);
-                String response = ws1.CheckConnection();
+//                CallSoapWS ws1 = new CallSoapWS(null);
+//                String response = ws1.CheckConnection();
                 CallWebServices2 cs2 =  new CallWebServices2( null);
-                response=cs2.WS_GetServerDateResponse(true);
+                String  response=cs2.WS_GetServerDateResponse(true);
 
                 bConnection= true;
 
@@ -221,25 +218,42 @@ public class ParseXMLAndUploadToDBThread{
             }
             dbHelper = new HandHeld_SQLiteOpenHelper(context, new AppDataTables());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            tables = new AppDataTables();//f.ReadXMLToSTDETables();
-            boolean bTableRead = true;
-            try {
 
-                tables.AddStdetDataTable(new DataTable_SiteEvent());
-                AppDataTable dtUsers =f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml");
-                if(dtUsers!=null) {
+                try {
+                Log.i("REST API populateDB","1");
+                AppDataTable dtSE = null;
+                dtSE = tables.getAppDataTable(HandHeld_SQLiteOpenHelper.SITE_EVENT);
+                if (dtSE == null) {
+                    tables.AddStdetDataTable(new DataTable_SiteEvent());
+                }
+                Log.i("REST API populateDB","2");
+
+                AppDataTable dtUsers = null;
+                dtUsers = tables.getAppDataTable(HandHeld_SQLiteOpenHelper.USERS);
+                Log.i("REST API populateDB","3");
+                if (dtUsers == null) {
+                    dtUsers = f.ReadJSON_To_STDETable(HandHeld_SQLiteOpenHelper.USERS + HandHeldFileParser.EXT_JSON);
                     tables.AddStdetDataTable(dtUsers);
-                    publishProgressTextView(" Table  " + HandHeld_SQLiteOpenHelper.USERS + " is reading to memory ");
+                    Log.i("REST API populateDB", dtUsers.getName() + " " + String.valueOf(dtUsers.GetRowsCount()));
                 }
-                else
-                {
-                    publishProgressTextView("!!! Table  " + HandHeld_SQLiteOpenHelper.USERS + " is NOT populating ");
-                }
+                    if(dtUsers!=null) {
+                        publishProgressTextView(" Table  " + HandHeld_SQLiteOpenHelper.USERS + " is reading to memory ");
+                    }
+                    else
+                    {
+                        publishProgressTextView("!!! Table  " + HandHeld_SQLiteOpenHelper.USERS + " is NOT populating ");
+                    }
                 publishProgressBar(1);
 
-                AppDataTable dtEqIdent =f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml");
-                if(dtEqIdent!=null) {
+
+                AppDataTable dtEqIdent = null;
+                dtEqIdent = tables.getAppDataTable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT);
+                if (dtEqIdent == null) {
+                    dtEqIdent=f.ReadJSON_To_STDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + HandHeldFileParser.EXT_JSON);
                     tables.AddStdetDataTable(dtEqIdent);
+                }
+                if(dtEqIdent!=null) {
+
                     publishProgressTextView("   Table  " + HandHeld_SQLiteOpenHelper.EQUIP_IDENT + " is reading to memory ");
                 }
                 else
@@ -247,9 +261,13 @@ public class ParseXMLAndUploadToDBThread{
 
                 publishProgressBar(2);
 
-                AppDataTable dtMaint =f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.MAINTENANCE + ".xml");
-                if(dtMaint!=null) {
+                AppDataTable dtMaint = null;
+                dtMaint = tables.getAppDataTable(HandHeld_SQLiteOpenHelper.MAINTENANCE);
+                if (dtMaint == null) {
+                    dtMaint = f.ReadJSON_To_STDETable(HandHeld_SQLiteOpenHelper.MAINTENANCE + HandHeldFileParser.EXT_JSON);
                     tables.AddStdetDataTable(dtMaint);
+                }
+                if(dtMaint!=null) {
                     publishProgressTextView("   Table  " + HandHeld_SQLiteOpenHelper.MAINTENANCE + " is reading to memory ");
                 }
                 else
@@ -257,10 +275,15 @@ public class ParseXMLAndUploadToDBThread{
 
                 publishProgressBar(3);
 
-                AppDataTable dtSiteEventDef =f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + ".xml");
-                if(dtSiteEventDef!=null){
-                    tables.AddStdetDataTable(dtSiteEventDef);
-                publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + " is reading to memory ");
+                AppDataTable dtSiteEventDef = null;
+                    dtSiteEventDef = tables.getAppDataTable(HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF);
+
+                    if (dtSiteEventDef == null) {
+                        dtSiteEventDef=f.ReadJSON_To_STDETable(HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + HandHeldFileParser.EXT_JSON);
+                        tables.AddStdetDataTable(dtSiteEventDef);
+                    }
+                if(dtSiteEventDef!=null) {
+                    publishProgressTextView("  Table  " + HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + " is reading to memory ");
                 }
                 else
                     publishProgressTextView("!!! Table  " + HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + " is NOT populating ");
@@ -269,7 +292,7 @@ public class ParseXMLAndUploadToDBThread{
 
             } catch (Exception exception) {
                 exception.printStackTrace();
-                System.out.println("KS :: "+ exception);
+                Log.i("REST API populateDB", "ERROR :: "+ exception);
                 return -1;
             }
             publishProgressTextView(" Start Uploading to DB");
@@ -278,7 +301,7 @@ public class ParseXMLAndUploadToDBThread{
             //dbHelper.getInsertFromTables(db);
 
             int n = tables.getDataTables().size();
-            System.out.println("KS :: !!!!!!!In getInsertFromTables : " + n);
+            Log.i("REST API populateDB", "KS :: !!!!!!!In getInsertFromTables : " + n);
 
             for (int i = 0; i < n; i++) {
 
@@ -301,7 +324,7 @@ public class ParseXMLAndUploadToDBThread{
             //ad.setMessage(resp);
         } catch (Exception ex) {
             ex.printStackTrace();
-            System.out.println("KS ::"+ ex);
+            Log.i("REST API populateDB" , "ERROR  ::"+ ex.toString());
             return -1;
         }
         //ad.show();

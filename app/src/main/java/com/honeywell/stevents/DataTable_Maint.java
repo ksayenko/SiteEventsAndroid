@@ -14,7 +14,7 @@ public class DataTable_Maint extends AppDataTable {
 
     public DataTable_Maint(){
         super(HandHeld_SQLiteOpenHelper.MAINTENANCE);
-        this.AddColumnToStructure(strM_Per_ID,"String",false);
+        this.AddColumnToStructure(strM_Per_ID,"String",true);
         this.AddColumnToStructure(strM_Per_LName,"String",false);
         this.AddColumnToStructure(strM_Per_FName,"String",false);
         this.AddColumnToStructure(IsDefault,"Integer",false);

@@ -122,7 +122,7 @@ public class Activity_Login extends Activity {
                 //Background work here
                 try {
                     sResult[0] = doInBackground();
-                    if (sResult[0].toLowerCase() == "true")
+                    if (sResult[0].equalsIgnoreCase("true"))
                         bReturnValue[0] = true;
                     Log.i("Rest API", "KS :: After  doInBackground();" + sResult[0]);
 
@@ -175,7 +175,7 @@ public class Activity_Login extends Activity {
                                     });
                             //-------------------------------------------------------------------//
                             if (bShowMessage[0]) {
-                                if (sResult[0].toLowerCase() == "true") {
+                                if (sResult[0].equalsIgnoreCase("true")) {
                                     AlertDialog dialog = adOK.create();
                                     dialog.show();
                                     dialog.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);

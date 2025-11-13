@@ -13,7 +13,7 @@ public class DataTable_Users extends AppDataTable {
         super(HandHeld_SQLiteOpenHelper.USERS);
 
         this.AddColumnToStructure(nID,"Integer",true);
-        this.AddColumnToStructure(strUserName,"String",false);
+        this.AddColumnToStructure(strUserName,"String",true);
         this.AddColumnToStructure(strName,"String",false);
         this.AddColumnToStructure(strDomain,"String",false);
 

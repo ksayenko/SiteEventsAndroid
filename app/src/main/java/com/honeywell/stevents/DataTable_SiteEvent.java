@@ -100,6 +100,7 @@ public class DataTable_SiteEvent extends AppDataTable {
 
     @Override
     public String getInsertIntoDB(int element){
+        //current_se = dbHelper.GetSEID_DB(db,current_se);
         String r = super.getInsertIntoDB(element);
 
         System.out.println(r);
@@ -139,6 +140,10 @@ public class DataTable_SiteEvent extends AppDataTable {
         reading.set(GetElementIndex(Unit), theReading.getUnit());
 
         reading.set(GetElementIndex(strS_Loc_ID), theReading.getStrS_Loc_ID());
+        //check site event
+        String se = theReading.getStrSE_ID();
+        String selectse = "select strSE_ID from "+HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + " where strSE_ID ='"+se+"' or strSE_desc = '"+se+"'";
+
         reading.set(GetElementIndex(strSE_ID), theReading.getStrSE_ID());
         reading.set(GetElementIndex(strTOFO_id), theReading.getStrTOFO_ID());
         reading.set(GetElementIndex(strEq_ID), theReading.getStrEq_ID());

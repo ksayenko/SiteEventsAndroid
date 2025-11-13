@@ -33,7 +33,7 @@ final  AlertDialog ad=new AlertDialog.Builder(this).create();
         */
 
         //View v = findViewById(R.id.btnDownloadData);
-        CallSoapWS cs=new CallSoapWS(directoryApp);
+        CallWebServices2 cs=new CallWebServices2(directoryApp);
 
 
         try

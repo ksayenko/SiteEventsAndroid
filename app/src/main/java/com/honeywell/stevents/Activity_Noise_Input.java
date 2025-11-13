@@ -680,6 +680,7 @@ public class Activity_Noise_Input extends AppCompatActivity implements BarcodeRe
 
         current_equipment = GetSpinnerValue(spin_Equip_Code);
         current_se = GetSpinnerValue(spin_SE_Code);
+
         String desc = dbHelper.GetEqDescDB(db,current_equipment);
         if(!desc.equals(""))
             current_site_event_reading.setStrEqDesc(desc);

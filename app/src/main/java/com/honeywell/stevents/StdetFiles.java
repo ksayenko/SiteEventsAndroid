@@ -7,9 +7,21 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
+import android.util.JsonReader;
+import android.util.Log;
 import android.util.Xml;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class StdetFiles  {
 
@@ -95,7 +107,7 @@ public class StdetFiles  {
             fos.flush();
             fos.close();
             FileInputStream input = new FileInputStream(fullfilename);
-            table = HandHeldDomParser.XMLParse(fullfilename, filename);
+            table = HandHeldFileParser.XMLParse(fullfilename, filename);
             input.close();
 
           /*
@@ -179,6 +191,60 @@ public class StdetFiles  {
 
     }
 
+    public static<T> List<T> LoadFromJsonFile(String filename, Class<T> classType){
+              List<T> myObjects = new ArrayList<>();
+        try {
+            Gson gson = new Gson();
+            InputStream inputStream;
+            inputStream = new FileInputStream(filename);
+            InputStreamReader ir =  new InputStreamReader(inputStream);
+            JsonReader reader =   new JsonReader(ir);
+            String content = new String(Files.readAllBytes(Paths.get(filename)));
+            Type listType = new TypeToken<ArrayList<T>>() {
+            }.getType();
+            myObjects = gson.fromJson(ir, listType);
+            Log.i("populateDB LoadFromJsonFile", classType.getName());
+            Log.i("populateDB LoadFromJsonFile",filename );
+
+            Log.i("populateDB LoadFromJsonFile", " FILE ARRAY SIZE " + String.valueOf(myObjects.size()));
+        }
+        catch (Exception ex) {
+            Log.i("populateDB LoadFromJsonFile","ERROR:" + ex.toString());
+        }
+        return myObjects;
+
+    }
+    public AppDataTable ReadJSON_To_STDETable(String filename) {
+        File theFile = null;
+        AppDataTable table = null;
+
+        try {
+
+            if (!directoryApp.exists())
+                directoryApp.mkdir();
+
+            theFile = new File(directoryApp + "/" + filename);
+            String fullfilename = theFile.getAbsolutePath();
+
+            Log.i("populateDB ReadJSON_To_STDETable","fullfilename "+fullfilename);
+
+            FileInputStream input = new FileInputStream(fullfilename);
+            table = HandHeldFileParser.JSONParse(fullfilename, filename);
+            input.close();
+
+
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            System.out.println(exception);
+
+            return null;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            System.out.println(exception);
+            return null;
+        }
+        return table;
+    }
     public AppDataTable ReadXMLToSTDETable(String filename) {
         File newXml = null;
         AppDataTable table = null;
@@ -194,7 +260,7 @@ public class StdetFiles  {
             String fullfilename = newXml.getAbsolutePath();
 
             FileInputStream input = new FileInputStream(fullfilename);
-            table = HandHeldDomParser.XMLParse(fullfilename, filename);
+            table = HandHeldFileParser.XMLParse(fullfilename, filename);
             input.close();
 
 
@@ -209,6 +275,32 @@ public class StdetFiles  {
             return null;
         }
         return table;
+    }
+    public AppDataTables ReadJSON_To_STDETables() {
+        File newXml = null;
+        AppDataTables tables = new AppDataTables();
+
+        try {
+
+            if (!directoryApp.exists())
+                directoryApp.mkdir();
+
+            String ext  = ".json";
+
+
+            tables.AddStdetDataTable(new DataTable_SiteEvent());
+
+            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ext));
+            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ext));
+            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF +ext));
+            tables.AddStdetDataTable(ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.MAINTENANCE + ext));
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            System.out.println(exception);
+            return null;
+        }
+        return tables;
     }
 
     public AppDataTables ReadXMLToSTDETables() {

@@ -1,7 +1,16 @@
 package com.honeywell.stevents;
 
+import android.util.Log;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 
 //[{"lngID":172,"ynCurrent":true,"strSE_ID":"Operate","strSE_Desc":"Operate"
 // ,"strUserModifyName":"joe.orozco","dtLastModificationDate":"2025-03-19T14:50:28.487"},
@@ -93,5 +102,16 @@ public class Site_Event_Def {
         row.set(table.GetElementIndex(DataTable_Site_Event_Def.strSE_Desc), strSE_Desc);
         row.set(table.GetElementIndex(DataTable_Site_Event_Def.ynCurrent), String.valueOf(ynCurrent));
         return   row;
+    }
+
+    public static ArrayList<Site_Event_Def> LoadFromJsonFile(String filename) throws FileNotFoundException {
+        Gson gson = new Gson();
+        InputStream inputStream =  new FileInputStream(filename);
+        InputStreamReader reader = new InputStreamReader(inputStream);
+        Type listType = new TypeToken<ArrayList<Site_Event_Def>>() {}.getType();
+        ArrayList<Site_Event_Def> myObjects = gson.fromJson(reader, listType);
+        Log.i("populateDB LoadFromJsonFile",filename+"SIZE "+String.valueOf(myObjects.size()));
+        return myObjects;
+
     }
 }

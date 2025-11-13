@@ -343,11 +343,19 @@ public class SiteEvents implements Serializable, Cloneable {
 //        Log.i("codedebug", "isRecordValid strEq_ID =" + strEq_ID);
 //        Log.i("codedebug", "isRecordValid record =" + this.toString());
 
+        if (isNA(strEq_ID)&&isNA(strSE_ID)) {
+            isValid.addToValidationMessageError("");
+            isValid.setFocus(Validation.FOCUS.EQUIPMENT);
+            isValid.setValidation(Validation.VALIDATION.NORECORD);
+            return isValid;
+        }
+
 
         if (isNA(strEq_ID)) {
             isValid.addToValidationMessageError("Please select a Equipment Id. ");
             isValid.setFocus(Validation.FOCUS.EQUIPMENT);
             isValid.setValidation(Validation.VALIDATION.ERROR);
+
 
         } else if (isNA(strM_Per_FirstLastName)) {
             isValid.addToValidationMessageError("Please input a User Name ");

@@ -1,5 +1,6 @@
 package com.honeywell.stevents;
 
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -15,7 +16,8 @@ public class AppDataTable implements Serializable {
 
     public enum TABLE_TYPE {LOOKUP,READING,SYSTEM}
 
-    private String name;
+    private String name="NA";
+
 
     @Override
     public String toString() {
@@ -249,8 +251,38 @@ public class AppDataTable implements Serializable {
 
     }
 
-    public String getInsertIntoDB(int element) {
+    public String getInsertUpdateIntoDB(int element) {
         String sInsert1 = "INSERT INTO  " + name + "(";
+        String sInsert2 = "VALUES   (";
+        String type;
+        String sValue;
+        int nColumns = ColumnNames.toArray().length;
+        try {
+            for (int i = 0; i < nColumns; i++) {
+                sInsert1 += getColumnNames().get(i);
+                sValue = dataTable.get(element).get(i);
+                type = getColumnTypes().get(i);
+                sValue = getConvertedValue(type, sValue);
+                sInsert2 += sValue;
+
+                if (i < nColumns - 1) {
+                    sInsert1 += ", ";
+                    sInsert2 += ", ";
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.out.println("insert parts " + sInsert1 +" " + sInsert2 + ex);
+            return "";
+        }
+
+        sInsert1 += " )";
+        sInsert2 += " )";
+
+        return sInsert1 + sInsert2;
+    }
+    public String getInsertIntoDB(int element) {
+        String sInsert1 = "INSERT OR REPLACE  INTO  " + name + "(";
         String sInsert2 = "VALUES   (";
         String type;
         String sValue;

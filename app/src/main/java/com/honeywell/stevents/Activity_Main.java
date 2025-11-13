@@ -10,16 +10,16 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -46,6 +47,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.honeywell.aidc.AidcManager;
 import com.honeywell.aidc.AidcManager.CreatedCallback;
@@ -210,8 +213,11 @@ Cursor Cursor_Eq = null;
 
         // a potentially time consuming task
         if (id == R.id.menu_DownloadData) {
+            if (progressBar == null)
+                progressBar = findViewById(R.id.progressBar);
+
             progressBar.setVisibility(View.VISIBLE);
-            new ParseXMLAndUploadToDBThread(this, true);
+            new ParseFilesAndUploadToDBThread(this, true);
             return true;
         }
 
@@ -234,68 +240,107 @@ Cursor Cursor_Eq = null;
                         AlertDialogShow(response, "Error", "OK", "error");
                         txtInfo.setText(response);
                         bConnection = false;
+                        return;
                     }
 
                     //adding seconds April 2023. KS
-                    //default sqlllite format YYYY-MM-DD HH:MM:SS
-                    String timeStamp = new SimpleDateFormat(DataTable_SiteEvent.Datetime_pattern_with_sec).format(currentDateTime);
-                    timeStamp = timeStamp.replace(" ", "");
-                    timeStamp = timeStamp.replace("/", "");
-                    timeStamp = timeStamp.replace(":", "");
-                    timeStamp = "_" + timeStamp;
+                    //default sqlite format YYYY-MM-DD HH:MM:SS
+
                     HandHeld_SQLiteOpenHelper dbHelper =
                             new HandHeld_SQLiteOpenHelper(context, new AppDataTables());
                     SQLiteDatabase db = dbHelper.getReadableDatabase();
+                    String[] credentials = dbHelper.getLoginInfo(db);
+                    FileMethods.closeDB(dbHelper);
+
                     if (bConnection) {
                         try {
 
                             ws1 = new CallWebServices2(directoryApp);
                             Path pathtodb1 = Paths.get(sqlFiles.get(0).getPath());
+                            byte[] dataUpload = null;
+                            try {
+                                dataUpload = Files.readAllBytes(pathtodb1);
+                            } catch (java.io.IOException ex) {
+                                    Log.i("codedebug", "ERROR"+ ex);
+                                System.out.println(ex.toString());
+                            }
+                            try {
+                                dataUpload = FileMethods.readDbFileBytes(sqlFiles.get(0).getPath());
+                            } catch (java.io.IOException ex) {
+                                System.out.println(ex.toString());
+                            }
+                            ///  ///////////
 
-                            byte[] dataUpload = Files.readAllBytes(pathtodb1);
-                            String[] credentials = dbHelper.getLoginInfo(db);
+                            Boolean[] bCanUpload = new Boolean[]{false};
+                            ExecutorService executor = Executors.newFixedThreadPool(1005);
+                            final Handler handler = new Handler(Looper.getMainLooper());
+
+                            CallWebServices2 ws = new CallWebServices2(directoryApp);
 
                             String name = credentials[0];
                             String encryptedPassword = credentials[1];
                             // For decryption not ise null or empty string
-                            if (encryptedPassword == null || encryptedPassword.equals(""))
+                            if (encryptedPassword == null || encryptedPassword == "")
                                 encryptedPassword = "NA";
-                            String pwd = Application_Encrypt.decrypt(encryptedPassword);
-                            String[] errormessage = new String[]{""};
-
-                            Boolean bCanUpload = ws1.WS_GetLogin(name, pwd, errormessage);
-                            Boolean bUploaded;
-                            if (bCanUpload) {
-                                String filename = sqlFiles.get(0).getName();
-                                String extension = "sqlite3";
-                                String filenamenoext = filename;
-                                // Extract the extension from the file name
-                                int index = filename.lastIndexOf('.');
-
-                                if (index > 0) {
-                                    extension = filename.substring(index + 1);
-                                    filenamenoext = filename.substring(0, index);
-                                }
-                                filename = filenamenoext + timeStamp + '.' + extension;
-
-                                bUploaded = ws1.WS_UploadFile(dataUpload, "CSV", filename, name, pwd);
-
-
-                                if (bUploaded) {
-                                    AlertDialogShow(" Db Has Been Uploaded to the Server",
-                                            "Info", "OK", "default");
-                                } else {
-                                    AlertDialogShow("db hasn't been uploaded. Try one more time.", "ERROR!", "OK", "warning");
-                                }
-
-                            } else {
-                                AlertDialogShow("Your Credentials aren't working. Go to Main Page | Menu | Check Login Credentials. : " + errormessage[0], "ERROR!", "OK", "warning");
+                            String pwd = null;
+                            try {
+                                pwd = Application_Encrypt.decrypt(encryptedPassword);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
                             }
-                        } catch (Exception exception) {
-                            exception.printStackTrace();
+
+                            final Boolean[] bUploaded = new Boolean[1];
+                            String[] errormessage = new String[]{""};
+                            String finalPwd = pwd;
+                            byte[] finalDataUpload = dataUpload;
+                            executor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    String timeStamp = new SimpleDateFormat(DataTable_SiteEvent.Datetime_pattern_with_sec).format(currentDateTime);
+                                    timeStamp = timeStamp.replace(" ", "");
+                                    timeStamp = timeStamp.replace("/", "");
+                                    timeStamp = timeStamp.replace(":", "");
+                                    timeStamp = "_" + timeStamp;
+                                    // Your background task here
+                                    Looper.prepare();
+                                    Log.i("rest api", " before WS_CallLogin ");
+                                    bCanUpload[0] = ws.WS_GetLogin(name, finalPwd, errormessage);
+                                    Log.i("rest api", " after WS_CallLogin ");
+                                    Log.i("rest api", " bCanUpload[0] : " + String.valueOf(bCanUpload[0]));
+                                    if (bCanUpload[0]) {
+                                        String filename = sqlFiles.get(0).getName();
+                                        String extension = "sqlite3";
+                                        String filenamenoext = filename;
+                                        // Extract the extension from the file name
+                                        int index = filename.lastIndexOf('.');
+
+                                        if (index > 0) {
+                                            extension = filename.substring(index + 1);
+                                            filenamenoext = filename.substring(0, index);
+                                        }
+                                        filename = filenamenoext + timeStamp + '.' + extension;
+
+                                        bUploaded[0] = ws.WS_UploadFile(finalDataUpload, filename, name, finalPwd, "sqlite3", errormessage);
+
+                                        if (bUploaded[0]) {
+                                            AlertDialogShow(" Database Has Been Uploaded to the Server.\r\n"+filename,
+                                                    "Info", "OK", "default");
+                                        } else {
+                                            AlertDialogShow("Database hasn't been uploaded. Try one more time.\n\r" + errormessage[0]+"\r\n"+filename, "ERROR!", "OK", "warning");
+                                        }
+
+                                    } else {
+                                        AlertDialogShow("Your Credentials aren't working. Go to Main Page | Menu | Check Login Credentials. : " + errormessage[0], "ERROR!", "OK", "warning");
+                                    }
+                                }
+                            });
+                            /// //////////////
+
+                        } catch (Exception ex) {
+                            System.out.println(ex.toString());
                         }
-                    }
-                }
+                    }}
+
             });
         }
         if (id == R.id.menu_workWithSDCard) {
@@ -580,9 +625,12 @@ Cursor Cursor_Eq = null;
      * Create buttons to launch demo activities.
      */
     public void ActivitySetting() {
-
-        this.txtInfo= findViewById(R.id.txtInfo);
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
+        this.txtInfo = findViewById(R.id.txtInfo);
         txtInfo.setText("Additional options available under the menu (three dots) above");
+        txtAppInfo = findViewById(R.id.txtAppInfo);
+        txtAppInfo.setText("Version :" + versionName);
 
         this.btnInputForms = findViewById(R.id.btnInputSEs);
         btnInputForms.setOnClickListener(new View.OnClickListener() {
@@ -593,7 +641,7 @@ Cursor Cursor_Eq = null;
 
                 Intent barcodeIntent = new Intent("android.intent.action.SE_MAIN_INPUT_BARCODEACTIVITY");
                 SetAndStartIntent(barcodeIntent);
-                startActivityForResult(barcodeIntent,REQUEST_CODE_GETMESSAGE);
+                startActivityForResult(barcodeIntent, REQUEST_CODE_GETMESSAGE);
 
                 bAcceptWarningDuplicate = false;
 
@@ -615,103 +663,131 @@ Cursor Cursor_Eq = null;
 
 
         this.btnUploadDataToServer = findViewById(R.id.btnUploadSEs);
-        btnUploadDataToServer.setOnClickListener(new View.OnClickListener() {
+
+        btnUploadDataToServer.setOnClickListener(
+                new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 //CHECK CONNECTION
-                Validation isDuplicate = new Validation();
-                HandHeld_SQLiteOpenHelper dbHelper =
-                        new HandHeld_SQLiteOpenHelper(context, new AppDataTables());
-                SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-                String messageDup = dbHelper.PotentialDuplicatesMesssage(db);
-                System.out.println("Possible Duplicates Message " + messageDup + "bAcceptWarningDuplicate " + bAcceptWarningDuplicate);
+                    Validation isDuplicate = new Validation();
+                    HandHeld_SQLiteOpenHelper dbHelper =
+                            new HandHeld_SQLiteOpenHelper(context, new AppDataTables());
+                    SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-                if (messageDup != "" && !bAcceptWarningDuplicate) {
-                    isDuplicate.setValidation(Validation.VALIDATION.WARNING_DUPLICATE);
-                    messageDup = "Please check:\n" + messageDup + "\nPress 'Upload Data' one more time to confirm the data as VALID or go the Edit Readings Screen.";
-                    isDuplicate.setValidationMessageWarning(messageDup);
-                    AlertDialogShow(messageDup, "Warning", "OK", "warning");
-                    bAcceptWarningDuplicate = true;
-                    db.close();
-                } else {
-                    CallWebServices2 ws1 = new CallWebServices2(null);
-                    String response = ws1.WS_GetServerDate(false);
-                    boolean bConnection = true;
-                    if (response.startsWith("ERROR")) {
-                        Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                        AlertDialogShow(response, "Error", "OK", "error");
-                        txtInfo.setText(response);
-                        bConnection = false;
-                    }
+                    String messageDup = dbHelper.PotentialDuplicatesMesssage(db);
+                    System.out.println("Possible Duplicates Message " + messageDup + "bAcceptWarningDuplicate " + bAcceptWarningDuplicate);
 
-                    if (bConnection) {
+                    if (messageDup != "" && !bAcceptWarningDuplicate) {
+                        isDuplicate.setValidation(Validation.VALIDATION.WARNING_DUPLICATE);
+                        messageDup = "Please check:\n" + messageDup + "\nPress 'Upload Data' one more time to confirm the data as VALID or go the Edit Readings Screen.";
+                        isDuplicate.setValidationMessageWarning(messageDup);
+                        AlertDialogShow(messageDup, "Warning", "OK", "warning");
+                        bAcceptWarningDuplicate = true;
+                        db.close();
+                    } else {
 
-                        Integer[] nrecords = new Integer[]{0};
-
-                        String message = "The data (" + nrecords[0] + " records) is ready to be uploaded to the server.";
-
-                        String s = null;
-
-                        try {
-                            s = dbHelper.CreateFileToUpload(db, directoryApp, nrecords, context);
-
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                            nrecords[0] = 0;
+                        CallWebServices2 ws1 = new CallWebServices2(null);
+                        Log.i("rest api", " getting ready to upload");
+                        String response = null;
+                        response = ws1.WS_GetServerDate(false);
+                        Log.i("rest api","Response from WS_GetServerDate "+ response);
+                        boolean bConnection1 = true;
+                        if (response.startsWith("ERROR")) {
+                            //Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+                            AlertDialogShow(response, "Error", "OK", "error");
+                            txtInfo.setText(response);
+                            bConnection1 = false;
                         }
-                        if (nrecords[0] > 0) {
+                        final boolean bConnection = bConnection1;
+
+                        if (bConnection) {
+
+                            Integer[] nrecords = new Integer[]{0};
+
+                            String message = "The data (" + nrecords[0] + " records) is ready to be uploaded to the server.";
+
+                            String s = null;
 
                             try {
-                                Path path = Paths.get(s);
-                                CallWebServices2 ws = new CallWebServices2(directoryApp);
-                                byte[] dataUpload = Files.readAllBytes(path);
-                                String[] credentials = dbHelper.getLoginInfo(db);
+                                s = dbHelper.CreateFileToUpload(db, directoryApp, nrecords, context);
 
-                                String name = credentials[0];
-                                String encryptedPassword = credentials[1];
-                                // For decryption not ise null or empty string
-                                if (encryptedPassword == null || encryptedPassword == "")
-                                    encryptedPassword = "NA";
-                                String pwd = Application_Encrypt.decrypt(encryptedPassword);
-                                String[] errormessage = new String[]{""};
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                                nrecords[0] = 0;
+                            }
+                            Log.i("rest api","dbHelper.CreateFileToUpload "+ s);
+                            if (nrecords[0] == 0)
+                                return;
+                            Boolean[] bCanUpload = new Boolean[]{false};
+                            ExecutorService executor = Executors.newFixedThreadPool(5);
+                            final Handler handler = new Handler(Looper.getMainLooper());
 
-                                Boolean bCanUpload = ws.WS_GetLogin(name, pwd, errormessage);
-                                Boolean bUploaded;
-                                if (bCanUpload) {
+                            String finalS = s;
+                            CallWebServices2 ws = new CallWebServices2(directoryApp);
+                            String[] credentials = dbHelper.getLoginInfo(db);
+
+                            String name = credentials[0];
+                            String encryptedPassword = credentials[1];
+                            // For decryption not ise null or empty string
+                            if (encryptedPassword == null || encryptedPassword == "")
+                                encryptedPassword = "NA";
+                            String pwd = null;
+                            try {
+                                pwd = Application_Encrypt.decrypt(encryptedPassword);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                            Path path = Paths.get(finalS);
+
+                            byte[] dataUpload = null;
+                            try {
+                                dataUpload = Files.readAllBytes(path);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            final Boolean[] bUploaded = new Boolean[1];
+                            String[] errormessage = new String[]{""};
+                            String finalPwd = pwd;
+                            byte[] finalDataUpload = dataUpload;
+                            executor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Your background task here
+                                    Looper.prepare();
+                                    Log.i("rest api"," before WS_CallLogin ");
+                                    bCanUpload[0] = ws.WS_GetLogin(name, finalPwd, errormessage);
+                                    Log.i("rest api"," after WS_CallLogin ");
+                                    Log.i("rest api"," bCanUpload[0] : " +String.valueOf(bCanUpload[0]));
+                                    if (bCanUpload[0]) {
 //                                    bUploaded = ws.WS_UploadFile2(dataUpload, s, name, pwd);
 //                                    if (!bUploaded)
-                                    bUploaded=  ws.WS_UploadFile(dataUpload,path.getFileName().toString(), name, pwd, "CSV");
-                                    if (bUploaded) {
-                                        db.execSQL(DataTable_SiteEvent.UpdateUploadedData());
-                                        AlertDialogShow(nrecords[0] + " Records Has Been Uploaded to the Server",
-                                                "Info", "OK", "default");
-                                    } else {
-                                        AlertDialogShow("Data hasn't been uploaded. Try one more time.", "ERROR!", "OK", "warning");
-                                    }
+                                        bUploaded[0] = ws.WS_UploadFile(finalDataUpload, path.getFileName().toString(), name, finalPwd, "CSV", errormessage);
+                                        if (bUploaded[0]) {
+                                            db.execSQL(DataTable_SiteEvent.UpdateUploadedData());
+                                            AlertDialogShow(nrecords[0] + " Records Has Been Uploaded to the Server",
+                                                    "Info", "OK", "default");
+                                        } else {
+                                            AlertDialogShow("Data hasn't been uploaded. Try one more time." + errormessage[0], "ERROR!", "OK", "warning");
+                                        }
 
-                                } else {
-                                    AlertDialogShow("Your Credentials aren't working. Go to Main Page | Menu | Check Login Credentials. : " + errormessage[0], "ERROR!", "OK", "warning");
+                                    } else {
+                                        AlertDialogShow("Your Credentials aren't working. Go to Main Page | Menu | Check Login Credentials. : " + errormessage[0], "ERROR!", "OK", "warning");
+                                    }
                                 }
-                            } catch (Exception exception) {
-                                exception.printStackTrace();
-                            }
+                            });
+
+                            txtAppInfo = findViewById(R.id.txtAppInfo);
+                            txtAppInfo.setText("Version :" + versionName);
+
+
                         }
-                        db.close();
                     }
-                }
             }
         });
-
-        txtAppInfo = findViewById(R.id.txtAppInfo);
-        txtAppInfo.setText("Version :" + versionName);
-        progressBar = findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.INVISIBLE);
-
     }
-
     private void AlertDialogShow(String message, String title, String button, String theme) {
+        Log.i("REST API", " IN AlertDialogShow");
         int themeResId = R.style.AlertDialogTheme;
         try {
             if (theme.equalsIgnoreCase("warning")) {
@@ -721,30 +797,36 @@ Cursor Cursor_Eq = null;
                 themeResId = R.style.AlertDialogError;
             }
 
+            int finalThemeResId = themeResId;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(ct, finalThemeResId);
+                    builder.setTitle(title);
+                    builder.setMessage(message);
+                    builder.setPositiveButton(button, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                        }
+                    });
+                    AlertDialog ad = builder.create();
+                    if (ad != null) {
+                        ad.dismiss();
+                    }
+                    ad.show();
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this, themeResId);
-            builder .setTitle(title);
-            builder   .setMessage(message);
-            builder   .setPositiveButton(button, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
+                    ad.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
+                    try {
+                        wait(10);
+                    } catch (Exception ignored) {
+                    }
                 }
             });
-            AlertDialog ad = builder.create();
-            if (ad != null) { ad.dismiss(); }
-            ad.show();
-
-            ad.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
-            try {
-                wait(10);
-            } catch (Exception ignored) {
-            }
-        } catch (Exception ex) {
+        }catch (Exception ex) {
             ex.printStackTrace();
             finish();
         }
 
     }
-
 
     @Override
     protected void onDestroy() {

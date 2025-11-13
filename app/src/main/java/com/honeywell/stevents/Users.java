@@ -1,6 +1,18 @@
 package com.honeywell.stevents;
-import com.google.gson.annotations.SerializedName;
+import android.util.JsonReader;
+import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 
@@ -61,6 +73,32 @@ public class Users {
         row.set(table.GetElementIndex(DataTable_Users.strDomain), Domain);
         row.set(table.GetElementIndex(DataTable_Users.nID), "-1");
         return   row;
+    }
+
+    public static ArrayList<Users> LoadFromJsonFile(String filename){
+        Log.i("populateDB LoadFromJsonFile",filename+" -- SIZE 1");
+        ArrayList<Users> myObjects =  new ArrayList<>();
+        try {
+            Gson gson = new Gson();
+            InputStream inputStream;
+            inputStream = new FileInputStream(filename);
+            InputStreamReader  ir =  new InputStreamReader(inputStream);
+            JsonReader reader =   new JsonReader(ir);
+            String content = new String(Files.readAllBytes(Paths.get(filename)));
+
+            Log.i("populateDB LoadFromJsonFile", content);
+            Log.i("populateDB LoadFromJsonFile", inputStream.toString());
+            Log.i("populateDB LoadFromJsonFile", reader.toString());
+            Type listType = new TypeToken<ArrayList<Users>>() {
+            }.getType();
+            myObjects = gson.fromJson(ir, listType);
+            Log.i("populateDB LoadFromJsonFile", filename + " -- SIZE " + String.valueOf(myObjects.size()));
+        }
+        catch (Exception ex) {
+            Log.i("populateDB LoadFromJsonFile","ERROR:" + ex.toString());
+        }
+        return myObjects;
+
     }
 
 }

@@ -1,5 +1,15 @@
 package com.honeywell.stevents;
 
+import android.util.Log;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -163,10 +173,19 @@ public class Equip_Ident {
         DataTable_Equip_Ident table =  new DataTable_Equip_Ident();
         ArrayList<String> row = table.getEmptyDataRow();
         row.set(table.GetElementIndex(DataTable_Equip_Ident.strEqID), strEqID);
-        row.set(table.GetElementIndex(DataTable_Equip_Ident.strEqMfg), strEqMfg);
         row.set(table.GetElementIndex(DataTable_Equip_Ident.strEqDesc), strEqDesc);
         row.set(table.GetElementIndex(DataTable_Equip_Ident.strEqTypeID), strEqTypeID);
-        row.set(table.GetElementIndex(DataTable_Equip_Ident.lngID), String.valueOf(lngID));
         return   row;
+    }
+
+    public static ArrayList<Equip_Ident> LoadFromJsonFile(String filename) throws FileNotFoundException {
+        Gson gson = new Gson();
+        InputStream inputStream =  new FileInputStream(filename);
+        InputStreamReader reader = new InputStreamReader(inputStream);
+        Type listType = new TypeToken<ArrayList<Equip_Ident>>() {}.getType();
+        ArrayList<Equip_Ident> myObjects = gson.fromJson(reader, listType);
+        Log.i("populateDB LoadFromJsonFile",filename+"SIZE "+String.valueOf(myObjects.size()));
+        return myObjects;
+
     }
 }

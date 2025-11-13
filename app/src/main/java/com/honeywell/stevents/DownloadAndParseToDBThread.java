@@ -52,7 +52,7 @@ import java.util.concurrent.Executors;
             StdetFiles f = new StdetFiles(directoryApp);
             //Looper.loop();
 
-            AppDataTables tables = f.ReadXMLToSTDETables();
+            AppDataTables tables = f.ReadJSON_To_STDETables();
             dbHelper = new HandHeld_SQLiteOpenHelper(context, tables);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             ExecutorService es
@@ -162,13 +162,13 @@ import java.util.concurrent.Executors;
 
 
                     tables.AddStdetDataTable(new DataTable_SiteEvent());
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.USERS + ".xml"));
+                    tables.AddStdetDataTable(f.ReadJSON_To_STDETable(HandHeld_SQLiteOpenHelper.USERS + ".json"));
                     publishProgress(new Integer[]{1});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + ".xml"));                    publishProgress(new Integer[]{2});
+                    tables.AddStdetDataTable(f.ReadJSON_To_STDETable(HandHeld_SQLiteOpenHelper.SITE_EVENT_DEF + ".json"));
                     publishProgress(new Integer[]{2});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".xml"));
+                    tables.AddStdetDataTable(f.ReadJSON_To_STDETable(HandHeld_SQLiteOpenHelper.EQUIP_IDENT + ".json"));
                     publishProgress(new Integer[]{3});
-                    tables.AddStdetDataTable(f.ReadXMLToSTDETable(HandHeld_SQLiteOpenHelper.MAINTENANCE + ".xml"));
+                    tables.AddStdetDataTable(f.ReadJSON_To_STDETable(HandHeld_SQLiteOpenHelper.MAINTENANCE + ".json"));
                     publishProgress(new Integer[]{4});
 
 

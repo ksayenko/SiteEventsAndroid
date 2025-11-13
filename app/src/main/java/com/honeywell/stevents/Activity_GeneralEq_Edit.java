@@ -119,6 +119,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
 
         }
         current_se = current_site_event_reading.getStrSE_ID();
+
         current_equipment = current_site_event_reading.getStrEq_ID();
         default_SE = dbHelper.GetDefaultSiteEventByEquipment(db,current_equipment);
         current_maintenance = current_site_event_reading.getStrM_Per_FirstLastName();
@@ -126,6 +127,7 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         String current_SEDateTime = current_site_event_reading.getDatSE_Date();
       //  current_ResDateTime = current_site_event_reading.getDatResDate();
         current_se = current_site_event_reading.getStrSE_ID();
+
         //current_value = current_site_event_reading.getValue();
         current_unit = current_site_event_reading.getUnit();
         current_yn_resolve =current_site_event_reading.getBoolResolved();
@@ -660,8 +662,6 @@ public class Activity_GeneralEq_Edit extends AppCompatActivity {
         //note that dates and times saved in the events
         current_comment = txt_comment.getText().toString();
         current_maintenance = GetSpinnerValue(spin_User_name);
-
-
 
         current_se = GetSpinnerValue(spin_SE_Code);
 

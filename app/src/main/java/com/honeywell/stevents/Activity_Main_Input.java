@@ -349,11 +349,16 @@ public class Activity_Main_Input extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-           //    Log.i("CodeDebug","isLastRecordSavedToTable "+ Boolean.toString(isLastRecordSavedToTable) );
+               Log.i("CodeDebug","activity main input btnDone.setOnClickListener "
+                       + Boolean.toString(isLastRecordSavedToTable) );
                 if (!isLastRecordSavedToTable) {
-
-                    SaveFormAndValidate();
+                    Validation check = SaveFormAndValidate();
+                    Log.i("CodeDebug","activity main input check "
+                            + check.toString() );
+                    if (check.isNoRecord())
+                        isLastRecordSavedToTable = true;
                 }
+
                 if (isLastRecordSavedToTable) {
                     isRecordsSavedToDB = dbHelper.getInsertTable(db, se_table);
                     int records = se_table.GetNumberOfRecords();
@@ -443,9 +448,10 @@ public class Activity_Main_Input extends AppCompatActivity
 
     }
 
-    private void SaveFormAndValidate() {
+    private Validation SaveFormAndValidate() {
 
         Validation iChecked = saveForms(bAcceptWarningValid, bAcceptWarningDuplicate);
+
         if (iChecked.isValid() ||
                 (iChecked.isWarning() && bAcceptWarningValid) || (iChecked.isWarningDuplicate() && bAcceptWarningDuplicate))
             isLastRecordSavedToTable = true;
@@ -454,6 +460,8 @@ public class Activity_Main_Input extends AppCompatActivity
             bAcceptWarningValid = true;
         if (iChecked.isWarningDuplicate())
             bAcceptWarningDuplicate = true;
+
+        return iChecked;
 
     }
 
@@ -581,7 +589,7 @@ public class Activity_Main_Input extends AppCompatActivity
     }
     private void SaveReadingsToSiteEventRecord() {
         //note that dates and times saved in the events
-       // Log.i("codedebug","SaveReadingsToSiteEventRecord 1 current_site_event_reading ->" + current_site_event_reading.toString());
+        Log.i("codedebug","mainInput SaveReadingsToSiteEventRecord ->" + current_site_event_reading.toString());
         current_comment = txt_comment.getText().toString();
         current_maintenance = GetSpinnerValue(spin_User_name);
 
@@ -971,17 +979,20 @@ Wedge as keys to empty
 
         isValid = site_event_reading.isRecordValid();
 
-        if (isValid.getValidation() != Validation.VALIDATION.VALID) {
-            if (isValid.getFocus() == Validation.FOCUS.EQUIPMENT && tvEquip != null)
-                tvEquip.requestFocus();
-            else if (isValid.getFocus() == Validation.FOCUS.USER && tvUser != null)
-                tvUser.requestFocus();
-            else if (isValid.getFocus() == Validation.FOCUS.SITEEVENT && tvSE != null)
-                tvSE.requestFocus();
-            else if (isValid.getFocus() == Validation.FOCUS.READING && tvValue != null)
-                tvValue.requestFocus();
-        }
+        if (isValid.getValidation() == Validation.VALIDATION.VALID)
+            return isValid;
 
+        if (isValid.getValidation() == Validation.VALIDATION.NORECORD)
+            return isValid;
+
+        if (isValid.getFocus() == Validation.FOCUS.EQUIPMENT && tvEquip != null)
+            tvEquip.requestFocus();
+        else if (isValid.getFocus() == Validation.FOCUS.USER && tvUser != null)
+            tvUser.requestFocus();
+        else if (isValid.getFocus() == Validation.FOCUS.SITEEVENT && tvSE != null)
+            tvSE.requestFocus();
+        else if (isValid.getFocus() == Validation.FOCUS.READING && tvValue != null)
+            tvValue.requestFocus();
 
         return isValid;
     }
@@ -998,6 +1009,10 @@ Wedge as keys to empty
 
         boolean bAcceptDup = isTheRecordDup.isValid() || (isTheRecordDup.isWarningDuplicate() && bAcceptWarningDuplicate);
         boolean bAcceptRecord = isTheRecordValid.isValid() || (isTheRecordValid.isWarning() && bAcceptWarning);
+
+        if (isTheRecordValid.isNoRecord()) {
+            return isTheRecordValid;
+        }
 
         if (isTheRecordValid.isError()) {
             AlertDialogShowError(isTheRecordValid.getValidationMessage(), "ERROR");

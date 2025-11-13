@@ -1,6 +1,9 @@
 package com.honeywell.stevents;
 
+import android.util.Log;
+
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class AppDataTables {
     private ArrayList<AppDataTable> dataTables;
@@ -13,8 +16,28 @@ public class AppDataTables {
         dataTables.add(dt);
     }
 
+    public AppDataTable getAppDataTable(String name) {
+        AppDataTable dt = null;
+
+        if (dataTables == null || dataTables.size() == 0)
+            return dt;
+
+        for (AppDataTable dt1 : dataTables) {
+            if (Objects.equals(dt1.getName().toLowerCase(), name.toLowerCase()))
+                return dt1;
+        }
+
+        return dt;
+
+
+    }
+
     public ArrayList<AppDataTable> getDataTables() {
         return dataTables;
+    }
+
+    public int getDataTablesCount() {
+        return dataTables.size();
     }
 
     public void setDataTables(ArrayList<AppDataTable> dataTables) {

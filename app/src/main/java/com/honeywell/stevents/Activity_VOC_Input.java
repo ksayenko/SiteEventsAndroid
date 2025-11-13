@@ -803,6 +803,7 @@ Wedge as keys to empty
             current_site_event_reading.setStrM_Per_ID(initials);
 
         current_se = GetSpinnerValue(spin_SE_Code);
+
         String desc = dbHelper.GetEqDescDB(db, current_equipment);
         if (desc == null || (!desc.equals("")))
             current_site_event_reading.setStrEqDesc(desc);

@@ -472,6 +472,7 @@ public class Activity_Noise_Edit extends AppCompatActivity {
         current_site_event_reading.setMeasurementType(MeasurementTypes.MEASUREMENT_TYPES.NOISE);
 
         current_se = GetSpinnerValue(spin_SE_Code);
+
         String desc = dbHelper.GetEqDescDB(db,current_equipment);
         if(desc == null || (!desc.equals("")))
             current_site_event_reading.setStrEqDesc(desc);

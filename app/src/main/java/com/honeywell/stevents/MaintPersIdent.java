@@ -3,6 +3,16 @@ package com.honeywell.stevents;
 //[{"strM_Per_ID":"JAC","strM_Per_LName":"Caldera",
 // "strM_Per_FName":"Andy","IsDefault":1},
 
+import android.util.Log;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class MaintPersIdent {
@@ -78,5 +88,16 @@ public class MaintPersIdent {
                 ", strM_Per_FName='" + strM_Per_FName + '\'' +
                 ", IsDefault=" + IsDefault +
                 '}';
+    }
+
+    public static ArrayList<MaintPersIdent> LoadFromJsonFile(String filename) throws FileNotFoundException {
+        Gson gson = new Gson();
+        InputStream inputStream =  new FileInputStream(filename);
+        InputStreamReader reader = new InputStreamReader(inputStream);
+        Type listType = new TypeToken<ArrayList<MaintPersIdent>>() {}.getType();
+        ArrayList<MaintPersIdent> myObjects = gson.fromJson(reader, listType);
+        Log.i("populateDB LoadFromJsonFile",filename+"SIZE "+String.valueOf(myObjects.size()));
+        return myObjects;
+
     }
 }
